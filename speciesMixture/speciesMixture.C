@@ -70,8 +70,6 @@ Foam::speciesMixture::speciesMixture
 	MW_K_("MW_K",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
 
 
-    
-
     C_H2_1_
     (
         IOobject
@@ -148,7 +146,115 @@ Foam::speciesMixture::speciesMixture
             IOobject::AUTO_WRITE
         ),
         mesh
-    )
+    ),
+    
+    
+    const volScalarField& T = mesh_.lookupObject<volScalarField>("T"),
+    const volScalarField& epsilon = mesh_.lookupObject<volScalarField>("epsilon"),
+    const volScalarField& tau = mesh_.lookupObject<volScalarField>("tau"),
+    const dimensionedScalar& R_ = Foam::constant::physicoChemical::R,
+    //const dimensionedScalar& F_ = Foam::constant::physicoChemical::F;
+    
+	volVectorField D_H2O
+	(
+	    IOobject
+ 	   (
+	        "D_H2O",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    D_H2O_ref_*exp(-Ea_H2O_/R_*(1/T-1/T_ref_H2O_))
+	),
+	volVectorField D_OH
+	(
+	    IOobject
+ 	   (
+	        "D_OH",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    D_OH_ref_*exp(-Ea_OH_/R_*(1/T-1/T_ref_OH_))
+	),
+	volVectorField D_H2
+	(
+	    IOobject
+ 	   (
+	        "D_H2",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    D_H2_ref_*exp(-Ea_H2_/R_*(1/T-1/T_ref_H2_))
+	),
+	volVectorField D_O2
+	(
+	    IOobject
+ 	   (
+	        "D_O2",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    D_O2_ref_*exp(-Ea_O2_/R_*(1/T-1/T_ref_O2_))
+	),
+	//calculating effective difusivity
+		volVectorField D_H2O_eff
+	(
+	    IOobject
+ 	   (
+	        "D_H2O_eff",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_H2O
+	),
+	volVectorField D_OH_eff
+	(
+	    IOobject
+ 	   (
+	        "D_OH_eff",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_OH
+	),
+	volVectorField D_H2_eff
+	(
+	    IOobject
+ 	   (
+	        "D_H2_eff",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_H2
+	),
+	volVectorField D_O2_eff
+	(
+	    IOobject
+ 	   (
+	        "D_O2_eff",
+	        runTime.timeName(),
+	        mesh,
+	        IOobject::NO_READ,
+	        IOobject::NO_WRITE
+	    ),
+	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_O2
+	)
+    
+    
+    
 {}
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 

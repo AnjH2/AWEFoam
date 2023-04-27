@@ -97,8 +97,20 @@ protected:
         volScalarField C_H2_2_;
         volScalarField C_O2_2_;
 	
-
+	//declearing external fields -> i belive i dont have to.
+	volScalarField& T;
 	
+	
+	//derived fields
+	volScalarField	D_H2O;
+	volScalarField	D_OH;
+	volScalarField	D_H2;
+	volScalarField	D_O2;
+	
+	volScalarField	D_H2O_eff;
+	volScalarField	D_OH_eff;
+	volScalarField	D_H2_eff;
+	volScalarField	D_O2_eff;
 
 
 public:
