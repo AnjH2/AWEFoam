@@ -60,7 +60,8 @@ incompressibleTwoPhaseInteractingMixture
         )
     ),
     twoPhaseMixture(U.mesh(), *this),
-
+    speciesMixture(U.mesh(), *this, phase1Name_, phase2Name_),
+    
     muModel_
     (
         mixtureViscosityModel::New
@@ -126,19 +127,7 @@ bool Foam::incompressibleTwoPhaseInteractingMixture::read()
         )
         {
             muModel_->viscosityProperties().readEntry("rho", rhod_);
-            //nucModel_->viscosityProperties().readEntry("rho", rhoc_);
-            volScalarField rhoc_
-		(
-    		IOobject
-    		(
-       		 	"rhoc",
-        		runTime.timeName(),
-        		mesh,
-        		IOobject::MUST_READ,
-        		IOobject::AUTO_WRITE
-    		),
-    		mesh
-);
+            nucModel_->viscosityProperties().readEntry("rho", rhoc_);
 
             dd_ = dimensionedScalar
             (

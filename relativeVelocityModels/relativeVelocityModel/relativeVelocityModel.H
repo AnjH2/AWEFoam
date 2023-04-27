@@ -81,7 +81,7 @@ protected:
         const volScalarField& alphad_;
 
         //- Continuous density
-        const volScalarField& rhoc_;
+        const dimensionedScalar& rhoc_;
 
         //- Dispersed density
         const dimensionedScalar& rhod_;
@@ -139,7 +139,6 @@ public:
 
         //- Return the mixture mean density
         tmp<volScalarField> rho() const;
-        
 
         //- Return the diffusion velocity of the dispersed phase
         const volVectorField& Udm() const

@@ -891,6 +891,7 @@ $(WM_PROJECT_DIR)/src/transportModels/compressible/lnInclude/compressibleTranspo
 $(WM_PROJECT_DIR)/src/transportModels/incompressible/viscosityModels/viscosityModel/viscosityModel.H \
 mixtureViscosityModels/lnInclude/mixtureViscosityModel.H \
 $(WM_PROJECT_DIR)/src/transportModels/twoPhaseMixture/lnInclude/twoPhaseMixture.H \
+incompressibleTwoPhaseInteractingMixture/../speciesMixture/speciesMixture.H \
 ./relativeVelocityModels/lnInclude/relativeVelocityModel.H \
 $(WM_PROJECT_DIR)/src/TurbulenceModels/turbulenceModels/lnInclude/turbulenceModel.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/nearWallDist.H \

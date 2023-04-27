@@ -41,8 +41,7 @@ Description
 #include "fvCFD.H"
 #include "CMULES.H"
 #include "subCycle.H"
-#include "IOobjectList.H"
-#include "createSpecies.H"
+
 #include "incompressibleTwoPhaseInteractingMixture.H"
 #include "relativeVelocityModel.H"
 #include "turbulenceModel.H"
@@ -51,7 +50,7 @@ Description
 #include "fvOptions.H"
 #include "gaussLaplacianScheme.H"
 #include "uncorrectedSnGrad.H"
-
+#include "IOobjectList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -75,6 +74,7 @@ int main(int argc, char *argv[])
     #include "createTimeControls.H"
     #include "createFields.H"
     #include "constantFields.H"
+    #include "createSpecies.H"
     
     
     #include "initContinuityErrs.H"

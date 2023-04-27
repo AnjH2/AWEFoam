@@ -44,6 +44,7 @@ SourceFiles
 #include "incompressible/viscosityModels/viscosityModel/viscosityModel.H"
 #include "mixtureViscosityModel.H"
 #include "twoPhaseMixture.H"
+#include "../speciesMixture/speciesMixture.H"
 #include "IOdictionary.H"
 
 
@@ -60,7 +61,8 @@ class incompressibleTwoPhaseInteractingMixture
 :
     public IOdictionary,
     public compressibleTransportModel,
-    public twoPhaseMixture
+    public twoPhaseMixture,
+    public speciesMixture
 {
 protected:
 
@@ -70,7 +72,7 @@ protected:
         autoPtr<viscosityModel> nucModel_;
 
         dimensionedScalar rhod_;
-        volScalarField rhoc_;
+        dimensionedScalar rhoc_;
 
         //- Optional diameter of the dispersed phase particles
         dimensionedScalar dd_;
@@ -82,9 +84,6 @@ protected:
         const surfaceScalarField& phi_;
 
         volScalarField mu_;
-        
-        //ANJ trying to add external variables to the class.
-        const volScalarField& C[0];
 
 
 public:
@@ -127,10 +126,9 @@ public:
         }
 
         //- Return const-access to continuous-phase density
-        const volScalarField& rhoc() const
+        const dimensionedScalar& rhoc() const
         {
             return rhoc_;
-            //return C[0]*MW[0]+C[1]*MW[1]+C[2]*MW[2]+C[3]*MW[3]+C[3]*MW_K;
         };
 
         //- Return the diameter of the dispersed-phase particles
@@ -175,7 +173,7 @@ public:
         {
             return
                 alpha1_.boundaryField()[patchi]*rhod_.value()
-              + alpha2_.boundaryField()[patchi]*rhoc_;//.fcValue();
+              + alpha2_.boundaryField()[patchi]*rhoc_.value();
         }
 
         //- Return the mixture viscosity
@@ -193,7 +191,6 @@ public:
         //- Correct the laminar viscosity
         virtual void correct()
         {
-            rhoc_= C[0]*MW[0]+C[1]*MW[1]+C[2]*MW[2]+C[3]*MW[3]+C[3]*MW_K;
             mu_ = muModel_->mu(rhoc_*nucModel_->nu());
         }
 

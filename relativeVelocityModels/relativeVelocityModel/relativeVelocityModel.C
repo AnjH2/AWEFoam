@@ -144,9 +144,6 @@ Foam::relativeVelocityModel::~relativeVelocityModel()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-
-
-
 Foam::tmp<Foam::volScalarField> Foam::relativeVelocityModel::rho() const
 {
     return alphac_*rhoc_ + alphad_*rhod_;
