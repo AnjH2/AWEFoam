@@ -52,17 +52,53 @@ protected:
 
     // Protected data
 
-        //word phase1NamE_;
-        //word phase2NamE_;
+	dictionary	speciesCoeffs_;
 
+	//start defining mixture coefficients
+	//charge -constant
+	dimensionedScalar	z_OH_;
+	dimensionedScalar	z_H2O_;
+	dimensionedScalar	z_H2_;
+	dimensionedScalar	z_O2_;
+	//Mobility -constant
+	dimensionedScalar	u_OH_;
+	dimensionedScalar	u_K_;
+	
+	//diffusion related constants -constant
+	dimensionedScalar	Ea_H2O_;
+	dimensionedScalar	Ea_OH_;
+	dimensionedScalar	Ea_H2_;
+	dimensionedScalar	Ea_O2_;
+	
+	dimensionedScalar	D_H2O_ref_;
+	dimensionedScalar	D_OH_ref_;
+	dimensionedScalar	D_H2_ref_;
+	dimensionedScalar	D_O2_ref_;
+		//constant
+	dimensionedScalar	T_ref_H2_;
+	dimensionedScalar	T_ref_O2_;
+	dimensionedScalar	T_ref_H2O_;
+	dimensionedScalar	T_ref_OH_;
+	
+	//mole weight -constant
+	dimensionedScalar	MW_H2_;
+	dimensionedScalar	MW_O2_;
+	dimensionedScalar	MW_OH_;
+	dimensionedScalar	MW_H2O_;
+	dimensionedScalar	MW_K_;
+	
+	//declearing fields. Phase1
         volScalarField C_H2_1_;
         volScalarField C_O2_1_;
         volScalarField C_OH_1_;
         volScalarField C_H2O_1_;
         
-        
+        //phase2
         volScalarField C_H2_2_;
         volScalarField C_O2_2_;
+	
+
+	
 
 
 public:
@@ -95,6 +131,56 @@ public:
         {
             return phase2NamE_;
         }*/
+
+        //making access to constant coefficients._______________________________
+        //charge
+        const dimensionedScalar& z_OH() const
+        {
+            return z_OH_;
+        }
+        const dimensionedScalar& z_H2O() const
+        {
+            return z_H2O_;
+        }
+        const dimensionedScalar& z_H2() const
+        {
+            return z_H2_;
+        }
+        const dimensionedScalar& z_O2() const
+        {
+            return z_O2_;
+        }
+        //mobility
+                const dimensionedScalar& u_OH() const
+        {
+            return u_OH_;
+        }
+        const dimensionedScalar& z_K() const
+        {
+            return u_K_;
+        }
+        //molarweight
+        const dimensionedScalar& MW_OH() const
+        {
+            return MW_OH_;
+        }
+        const dimensionedScalar& MW_H2O() const
+        {
+            return MW_H2O_;
+        }
+        const dimensionedScalar& MW_H2() const
+        {
+            return MW_H2_;
+        }
+        const dimensionedScalar& MW_O2() const
+        {
+            return MW_O2_;
+        }
+        const dimensionedScalar& MW_K() const
+        {
+            return MW_K_;
+        }
+        //make access for fields__________________________________
 
         //- Return the phase-fraction of phase 1
         const volScalarField& C_H2_1() const
@@ -167,6 +253,10 @@ public:
         {
             return C_O2_2_;
         }
+        
+
+        
+        
 };
 
 

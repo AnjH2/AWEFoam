@@ -19,7 +19,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with OpenFOAM.  If not, see <http://(www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 
@@ -36,8 +36,41 @@ Foam::speciesMixture::speciesMixture
     const word& phase2NamE_
 )
 :
-    //phase1NamE_(wordList(dict.lookup("phases"))[0]),
-    //phase2NamE_(wordList(dict.lookup("phases"))[1]),
+    	speciesCoeffs_(dict.optionalSubDict(phase1NamE_)),
+    	
+    	z_OH_("z_OH",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
+    	z_H2O_("z_H2O",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
+    	z_H2_("z_H2",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
+    	z_O2_("z_O2",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
+	//Mobility
+	u_OH_("u_OH",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),speciesCoeffs_),
+	u_K_("u_K",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),speciesCoeffs_),
+	
+	//diffusion related constants
+	Ea_H2O_("Ea_H2O",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
+	Ea_OH_("Ea_OH",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
+	Ea_H2_("Ea_H2",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
+	Ea_O2_("Ea_O2",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
+
+	D_H2O_ref_("D_H2O_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
+	D_OH_ref_("D_OH_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
+	D_H2_ref_("D_H2_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
+	D_O2_ref_("D_O2_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
+
+	T_ref_H2_("T_ref_H2",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
+	T_ref_O2_("T_ref_O2",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
+	T_ref_H2O_("T_ref_H2O",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
+	T_ref_OH_("T_ref_OH",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
+	
+	//mole weight
+	MW_H2_("MW_H2",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
+	MW_O2_("MW_O2",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
+	MW_OH_("MW_OH",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
+	MW_H2O_("MW_H2O",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
+	MW_K_("MW_K",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
+
+
+    
 
     C_H2_1_
     (
@@ -117,6 +150,9 @@ Foam::speciesMixture::speciesMixture
         mesh
     )
 {}
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+
 
 
 // ************************************************************************* //
