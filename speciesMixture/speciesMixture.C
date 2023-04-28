@@ -148,109 +148,136 @@ Foam::speciesMixture::speciesMixture
         mesh
     ),
     
+    T_
+    (
+    	mesh.lookupObject<volScalarField>
+    	(
+    		"T"
+    		//(
+    		//)
+    	)
+    ),
     
-    const volScalarField& T = mesh_.lookupObject<volScalarField>("T"),
-    const volScalarField& epsilon = mesh_.lookupObject<volScalarField>("epsilon"),
-    const volScalarField& tau = mesh_.lookupObject<volScalarField>("tau"),
-    const dimensionedScalar& R_ = Foam::constant::physicoChemical::R,
+    epsilon_
+    (
+    	mesh.lookupObject<volScalarField>
+    	(
+    		"epsilon_"
+    		//(
+    		//)
+    	)
+    ),
+    tau_
+    (
+    	mesh.lookupObject<volScalarField>
+    	(
+    		"tau_"
+    		//(
+    		//)
+    	)
+    ),
+    //const volScalarField& T = mesh.lookupObject<volScalarField>("T"),
+    //const volScalarField& epsilon_ = mesh.lookupObject<volScalarField>("epsilon"),
+    //const volScalarField& tau_ = mesh.lookupObject<volScalarField>("tau"),
+    //const dimensionedScalar& R_=Foam::constant::physicoChemical::R,
     //const dimensionedScalar& F_ = Foam::constant::physicoChemical::F;
     
-	volVectorField D_H2O
+	D_H2O
 	(
 	    IOobject
  	   (
 	        "D_H2O",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    D_H2O_ref_*exp(-Ea_H2O_/R_*(1/T-1/T_ref_H2O_))
+	    D_H2O_ref_*exp(-Ea_H2O_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_H2O_))
 	),
-	volVectorField D_OH
+	D_OH
 	(
 	    IOobject
  	   (
 	        "D_OH",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    D_OH_ref_*exp(-Ea_OH_/R_*(1/T-1/T_ref_OH_))
+	    D_OH_ref_*exp(-Ea_OH_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_OH_))
 	),
-	volVectorField D_H2
+	D_H2
 	(
 	    IOobject
  	   (
 	        "D_H2",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    D_H2_ref_*exp(-Ea_H2_/R_*(1/T-1/T_ref_H2_))
+	    D_H2_ref_*exp(-Ea_H2_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_H2_))
 	),
-	volVectorField D_O2
+	D_O2
 	(
 	    IOobject
  	   (
 	        "D_O2",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    D_O2_ref_*exp(-Ea_O2_/R_*(1/T-1/T_ref_O2_))
+	    D_O2_ref_*exp(-Ea_O2_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_O2_))
 	),
 	//calculating effective difusivity
-		volVectorField D_H2O_eff
+	D_H2O_eff
 	(
 	    IOobject
  	   (
 	        "D_H2O_eff",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_H2O
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2O
 	),
-	volVectorField D_OH_eff
+	D_OH_eff
 	(
 	    IOobject
  	   (
 	        "D_OH_eff",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_OH
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_OH
 	),
-	volVectorField D_H2_eff
+	D_H2_eff
 	(
 	    IOobject
  	   (
 	        "D_H2_eff",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_H2
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2
 	),
-	volVectorField D_O2_eff
+	D_O2_eff
 	(
 	    IOobject
  	   (
 	        "D_O2_eff",
-	        runTime.timeName(),
+	        mesh.time().timeName(),
 	        mesh,
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon,tau)*Foam::pow(1,1-tau)*D_O2
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_O2
 	)
     
     

@@ -586,6 +586,7 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/calculatedFvPatchField.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/calculatedFvPatchFields.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/volFieldsI.H \
 incompressibleTwoPhaseInteractingMixture/../speciesMixture/speciesMixture.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/physicoChemicalConstants.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addToRunTimeSelectionTable.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/surfaceFields.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/surfaceMesh.H \

@@ -581,5 +581,6 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/calculatedFvPatchField.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/calculatedFvPatchField.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/calculatedFvPatchFields.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/volFieldsI.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/physicoChemicalConstants.H \
 
 #END

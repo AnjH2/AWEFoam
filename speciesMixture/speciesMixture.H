@@ -36,7 +36,7 @@ SourceFiles
 #define speciesMixture_H
 
 #include "volFields.H"
-
+#include "physicoChemicalConstants.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -98,7 +98,10 @@ protected:
         volScalarField C_O2_2_;
 	
 	//declearing external fields -> i belive i dont have to.
-	volScalarField& T;
+	const volScalarField& T_;
+	const volScalarField& epsilon_;
+	const volScalarField& tau_;
+	//const dimensionedScalar& R_;
 	
 	
 	//derived fields
