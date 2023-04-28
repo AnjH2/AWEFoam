@@ -36,7 +36,7 @@ Foam::speciesMixture::speciesMixture
     const word& phase2NamE_
 )
 :
-    	speciesCoeffs_(dict.optionalSubDict(phase1NamE_)),
+    	speciesCoeffs_(dict.optionalSubDict(phase2NamE_)),
     	
     	z_OH_("z_OH",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
     	z_H2O_("z_H2O",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
@@ -70,63 +70,11 @@ Foam::speciesMixture::speciesMixture
 	MW_K_("MW_K",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
 
 
-    C_H2_1_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_H2_", phase1NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
-    C_O2_1_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_O2_", phase1NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
-    C_OH_1_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_OH_", phase1NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
-    C_H2O_1_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_H2O_", phase1NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-
     C_H2_2_
     (
         IOobject
         (
-            IOobject::groupName("C_H2_", phase2NamE_),
+            IOobject::groupName("C_H2", phase2NamE_),
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -139,7 +87,59 @@ Foam::speciesMixture::speciesMixture
     (
         IOobject
         (
-            IOobject::groupName("C_O2_", phase2NamE_),
+            IOobject::groupName("C_O2", phase2NamE_),
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    ),
+    
+    C_OH_2_
+    (
+        IOobject
+        (
+            IOobject::groupName("C_OH", phase2NamE_),
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    ),
+    
+    C_H2O_2_
+    (
+        IOobject
+        (
+            IOobject::groupName("C_H2O", phase2NamE_),
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    ),
+
+    C_H2_1_
+    (
+        IOobject
+        (
+            IOobject::groupName("C_H2", phase1NamE_),
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    ),
+    
+    C_O2_1_
+    (
+        IOobject
+        (
+            IOobject::groupName("C_O2", phase1NamE_),
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -162,7 +162,7 @@ Foam::speciesMixture::speciesMixture
     (
     	mesh.lookupObject<volScalarField>
     	(
-    		"epsilon_"
+    		"epsilon"
     		//(
     		//)
     	)
@@ -171,7 +171,7 @@ Foam::speciesMixture::speciesMixture
     (
     	mesh.lookupObject<volScalarField>
     	(
-    		"tau_"
+    		"tau"
     		//(
     		//)
     	)
@@ -182,7 +182,7 @@ Foam::speciesMixture::speciesMixture
     //const dimensionedScalar& R_=Foam::constant::physicoChemical::R,
     //const dimensionedScalar& F_ = Foam::constant::physicoChemical::F;
     
-	D_H2O
+	D_H2O_
 	(
 	    IOobject
  	   (
@@ -194,7 +194,7 @@ Foam::speciesMixture::speciesMixture
 	    ),
 	    D_H2O_ref_*exp(-Ea_H2O_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_H2O_))
 	),
-	D_OH
+	D_OH_
 	(
 	    IOobject
  	   (
@@ -206,7 +206,7 @@ Foam::speciesMixture::speciesMixture
 	    ),
 	    D_OH_ref_*exp(-Ea_OH_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_OH_))
 	),
-	D_H2
+	D_H2_
 	(
 	    IOobject
  	   (
@@ -218,7 +218,7 @@ Foam::speciesMixture::speciesMixture
 	    ),
 	    D_H2_ref_*exp(-Ea_H2_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_H2_))
 	),
-	D_O2
+	D_O2_
 	(
 	    IOobject
  	   (
@@ -231,7 +231,7 @@ Foam::speciesMixture::speciesMixture
 	    D_O2_ref_*exp(-Ea_O2_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_O2_))
 	),
 	//calculating effective difusivity
-	D_H2O_eff
+	D_H2O_eff_
 	(
 	    IOobject
  	   (
@@ -241,9 +241,9 @@ Foam::speciesMixture::speciesMixture
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2O
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2O_
 	),
-	D_OH_eff
+	D_OH_eff_
 	(
 	    IOobject
  	   (
@@ -253,9 +253,9 @@ Foam::speciesMixture::speciesMixture
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_OH
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_OH_
 	),
-	D_H2_eff
+	D_H2_eff_
 	(
 	    IOobject
  	   (
@@ -265,9 +265,9 @@ Foam::speciesMixture::speciesMixture
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2_
 	),
-	D_O2_eff
+	D_O2_eff_
 	(
 	    IOobject
  	   (
@@ -277,7 +277,7 @@ Foam::speciesMixture::speciesMixture
 	        IOobject::NO_READ,
 	        IOobject::NO_WRITE
 	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_O2
+	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_O2_
 	)
     
     

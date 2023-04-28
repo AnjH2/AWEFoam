@@ -88,14 +88,14 @@ protected:
 	dimensionedScalar	MW_K_;
 	
 	//declearing fields. Phase1
-        volScalarField C_H2_1_;
-        volScalarField C_O2_1_;
-        volScalarField C_OH_1_;
-        volScalarField C_H2O_1_;
-        
-        //phase2
         volScalarField C_H2_2_;
         volScalarField C_O2_2_;
+        volScalarField C_OH_2_;
+        volScalarField C_H2O_2_;
+        
+        //phase2
+        volScalarField C_H2_1_;
+        volScalarField C_O2_1_;
 	
 	//declearing external fields -> i belive i dont have to.
 	const volScalarField& T_;
@@ -105,15 +105,15 @@ protected:
 	
 	
 	//derived fields
-	volScalarField	D_H2O;
-	volScalarField	D_OH;
-	volScalarField	D_H2;
-	volScalarField	D_O2;
+	volScalarField	D_H2O_;
+	volScalarField	D_OH_;
+	volScalarField	D_H2_;
+	volScalarField	D_O2_;
 	
-	volScalarField	D_H2O_eff;
-	volScalarField	D_OH_eff;
-	volScalarField	D_H2_eff;
-	volScalarField	D_O2_eff;
+	volScalarField	D_H2O_eff_;
+	volScalarField	D_OH_eff_;
+	volScalarField	D_H2_eff_;
+	volScalarField	D_O2_eff_;
 
 
 public:
@@ -198,75 +198,75 @@ public:
         //make access for fields__________________________________
 
         //- Return the phase-fraction of phase 1
-        const volScalarField& C_H2_1() const
-        {
-            return C_H2_1_;
-        }
-
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_H2_1()
-        {
-            return C_H2_1_;
-        }
-	
-	//- Return the phase-fraction of phase 1
-        const volScalarField& C_O2_1() const
-        {
-            return C_O2_1_;
-        }
-
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_O2_1()
-        {
-            return C_O2_1_;
-        }
-        
-        //- Return the phase-fraction of phase 1
-        const volScalarField& C_OH_1() const
-        {
-            return C_OH_1_;
-        }
-
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_OH_1()
-        {
-            return C_OH_1_;
-        }
-        
-        //- Return the phase-fraction of phase 1
-        const volScalarField& C_H2O_1() const
-        {
-            return C_H2O_1_;
-        }
-
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_H2O_1()
-        {
-            return C_H2O_1_;
-        }
-        
-        //- Return the phase-fraction of phase 2
         const volScalarField& C_H2_2() const
         {
             return C_H2_2_;
         }
 
-        //- Return the phase-fraction of phase 2
+        //- Return the phase-fraction of phase 1
         volScalarField& C_H2_2()
         {
             return C_H2_2_;
         }
-        
-        //- Return the phase-fraction of phase 2
+	
+	//- Return the phase-fraction of phase 1
         const volScalarField& C_O2_2() const
         {
             return C_O2_2_;
         }
 
-        //- Return the phase-fraction of phase 2
+        //- Return the phase-fraction of phase 1
         volScalarField& C_O2_2()
         {
             return C_O2_2_;
+        }
+        
+        //- Return the phase-fraction of phase 1
+        const volScalarField& C_OH_2() const
+        {
+            return C_OH_2_;
+        }
+
+        //- Return the phase-fraction of phase 1
+        volScalarField& C_OH_2()
+        {
+            return C_OH_2_;
+        }
+        
+        //- Return the phase-fraction of phase 1
+        const volScalarField& C_H2O_2() const
+        {
+            return C_H2O_2_;
+        }
+
+        //- Return the phase-fraction of phase 1
+        volScalarField& C_H2O_2()
+        {
+            return C_H2O_2_;
+        }
+        
+        //- Return the phase-fraction of phase 2
+        const volScalarField& C_H2_1() const
+        {
+            return C_H2_1_;
+        }
+
+        //- Return the phase-fraction of phase 2
+        volScalarField& C_H2_1()
+        {
+            return C_H2_1_;
+        }
+        
+        //- Return the phase-fraction of phase 2
+        const volScalarField& C_O2_1() const
+        {
+            return C_O2_1_;
+        }
+
+        //- Return the phase-fraction of phase 2
+        volScalarField& C_O2_1()
+        {
+            return C_O2_1_;
         }
         
 
