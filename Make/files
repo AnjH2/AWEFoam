@@ -1,5 +1,6 @@
 incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.C
 speciesMixture/speciesMixture.C
+porousProperties/porousProperties.C
 compressibleTurbulenceModels.C
 myDriftFluxFoam.C
 

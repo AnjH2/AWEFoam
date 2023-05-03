@@ -81,7 +81,7 @@ protected:
         const volScalarField& alphad_;
 
         //- Continuous density
-        const dimensionedScalar& rhoc_;
+        const volScalarField& rhoc_;
 
         //- Dispersed density
         const dimensionedScalar& rhod_;

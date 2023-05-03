@@ -2,6 +2,7 @@ LIB_USER_SRC=$(VM_PROJECT_USER_DIR)/src
 EXE_INC = \
     -IincompressibleTwoPhaseInteractingMixture \
     -IspeciesMixture \
+    -IporousProperties \
     -ImixtureViscosityModels/lnInclude \
     -I./relativeVelocityModels/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \

@@ -36,133 +36,45 @@ Foam::speciesMixture::speciesMixture
     const word& phase2NamE_
 )
 :
-    	speciesCoeffs_(dict.optionalSubDict(phase2NamE_)),
-    	
-    	z_OH_("z_OH",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
-    	z_H2O_("z_H2O",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
-    	z_H2_("z_H2",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
-    	z_O2_("z_O2",dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),speciesCoeffs_),
+	//elChem_(mesh),
+	/*ØporoM_
+    	(
+    		porousProperties(mesh)
+    	),*/
+    	species2Coeffs_(dict.optionalSubDict(phase2NamE_)),
+    	species1Coeffs_(dict.optionalSubDict(phase1NamE_)),
+    	species2({"H2","O2","H2O","OH"}),
+    	species1({"H2","O2"}),
+	z_(species2.size()),
+	Ea2_(species2.size()),
+	D2_ref_(species2.size()),
+	T2_ref_(species2.size()),
+	MW_(species2.size()+1),
+	C2_(species2.size()),
+	D2_(species2.size()),
+	D2_eff_(species2.size()),
 	//Mobility
-	u_OH_("u_OH",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),speciesCoeffs_),
-	u_K_("u_K",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),speciesCoeffs_),
-	
-	//diffusion related constants
-	Ea_H2O_("Ea_H2O",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
-	Ea_OH_("Ea_OH",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
-	Ea_H2_("Ea_H2",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
-	Ea_O2_("Ea_O2",dimensionSet ( 1, 2, -2, 0, -1, 0, 0),speciesCoeffs_),
+	u_OH_("u_OH",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
+	u_K_("u_K",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
 
-	D_H2O_ref_("D_H2O_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
-	D_OH_ref_("D_OH_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
-	D_H2_ref_("D_H2_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
-	D_O2_ref_("D_O2_ref",dimensionSet ( 0, 2, -1, 0, 0, 0, 0),speciesCoeffs_),
-
-	T_ref_H2_("T_ref_H2",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
-	T_ref_O2_("T_ref_O2",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
-	T_ref_H2O_("T_ref_H2O",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
-	T_ref_OH_("T_ref_OH",dimensionSet ( 0, 0, 0, 1, 0, 0, 0),speciesCoeffs_),
-	
-	//mole weight
-	MW_H2_("MW_H2",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
-	MW_O2_("MW_O2",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
-	MW_OH_("MW_OH",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
-	MW_H2O_("MW_H2O",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
-	MW_K_("MW_K",dimensionSet ( 1, 0, 0, 0, -1, 0, 0),speciesCoeffs_),
-
-
-    C_H2_2_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_H2", phase2NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
-    C_O2_2_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_O2", phase2NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
-    C_OH_2_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_OH", phase2NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
-    C_H2O_2_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_H2O", phase2NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-
-    C_H2_1_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_H2", phase1NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
-    C_O2_1_
-    (
-        IOobject
-        (
-            IOobject::groupName("C_O2", phase1NamE_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ),
-    
     T_
     (
-    	mesh.lookupObject<volScalarField>
-    	(
-    		"T"
-    		//(
-    		//)
-    	)
+        IOobject
+        (
+            "T",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh 
     ),
     
     epsilon_
     (
     	mesh.lookupObject<volScalarField>
     	(
-    		"epsilon"
+    		"eps"
     		//(
     		//)
     	)
@@ -175,114 +87,117 @@ Foam::speciesMixture::speciesMixture
     		//(
     		//)
     	)
-    ),
-    //const volScalarField& T = mesh.lookupObject<volScalarField>("T"),
-    //const volScalarField& epsilon_ = mesh.lookupObject<volScalarField>("epsilon"),
-    //const volScalarField& tau_ = mesh.lookupObject<volScalarField>("tau"),
-    //const dimensionedScalar& R_=Foam::constant::physicoChemical::R,
-    //const dimensionedScalar& F_ = Foam::constant::physicoChemical::F;
-    
-	D_H2O_
+    )
+
+{
+forAll(species2,i)
+	{
+		Info<< "*** Reading speciesProperties for phase2"
+        	<< species2[i] << "***" << nl << endl;
+       		Info<< "    Adding to to constants\n" << endl;
+       		//z2_i="z_"+"H2";
+    		z_.set
+    		(
+        	i,
+        	new dimensionedScalar("z_"+species2[i], dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),species2Coeffs_)
+        	);
+        	Ea2_.set
+    		(
+        	i,
+        	new dimensionedScalar("Ea_"+species2[i], dimensionSet ( 1, 2, -2, 0, -1, 0, 0),species2Coeffs_)
+        	);
+        	D2_ref_.set
+    		(
+        	i,
+        	new dimensionedScalar("D_"+species2[i]+"_ref", dimensionSet ( 0, 2, -1, 0, 0, 0, 0),species2Coeffs_)
+        	);
+        	T2_ref_.set
+    		(
+        	i,
+        	new dimensionedScalar("T_ref_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),species2Coeffs_)
+        	);
+        	MW_.set
+    		(
+        	i,
+        	new dimensionedScalar("MW_"+species2[i], dimensionSet ( 1, 0, 0, 0, -1, 0, 0),dict)
+        	);
+        	Info<< "*** Reading fields for phase2"<< endl;
+        	Info<< "    Adding to UFluid\n" << endl;
+    		C2_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+                			"C_"+species2[i]+"."+phase2NamE_,
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::MUST_READ,
+                			IOobject::AUTO_WRITE
+            			),
+            			mesh
+        		)
+    		);
+    		D2_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+                			"D_"+species2[i]+"."+phase2NamE_,
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			D2_ref_[i]*exp(-Ea2_[i]/(Foam::constant::physicoChemical::R)*(1/T_-1/T2_ref_[i]))
+        		)
+    		);
+    		D2_eff_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+                			"D_"+species2[i]+"_eff."+phase2NamE_,
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D2_[i]
+        		)
+    		);
+    	
+	}
+MW_.set
 	(
-	    IOobject
- 	   (
-	        "D_H2O",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    D_H2O_ref_*exp(-Ea_H2O_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_H2O_))
-	),
-	D_OH_
-	(
-	    IOobject
- 	   (
-	        "D_OH",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    D_OH_ref_*exp(-Ea_OH_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_OH_))
-	),
-	D_H2_
-	(
-	    IOobject
- 	   (
-	        "D_H2",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    D_H2_ref_*exp(-Ea_H2_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_H2_))
-	),
-	D_O2_
-	(
-	    IOobject
- 	   (
-	        "D_O2",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    D_O2_ref_*exp(-Ea_O2_/(Foam::constant::physicoChemical::R)*(1/T_-1/T_ref_O2_))
-	),
-	//calculating effective difusivity
-	D_H2O_eff_
-	(
-	    IOobject
- 	   (
-	        "D_H2O_eff",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2O_
-	),
-	D_OH_eff_
-	(
-	    IOobject
- 	   (
-	        "D_OH_eff",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_OH_
-	),
-	D_H2_eff_
-	(
-	    IOobject
- 	   (
-	        "D_H2_eff",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_H2_
-	),
-	D_O2_eff_
-	(
-	    IOobject
- 	   (
-	        "D_O2_eff",
-	        mesh.time().timeName(),
-	        mesh,
-	        IOobject::NO_READ,
-	        IOobject::NO_WRITE
-	    ),
-	    Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D_O2_
-	)
-    
-    
-    
-{}
+        species2.size()+1,
+        new dimensionedScalar("MW_K", dimensionSet ( 1, 0, 0, 0, -1, 0, 0),dict)
+        );
+forAll(species1,i)
+	{
+	    	C2_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+                			"C_"+species1[i]+"."+phase1NamE_,
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::MUST_READ,
+                			IOobject::AUTO_WRITE
+            			),
+            			mesh
+        		)
+    		);
+	}
+}
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 

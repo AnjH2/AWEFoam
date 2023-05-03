@@ -42,6 +42,7 @@ Description
 #include "CMULES.H"
 #include "subCycle.H"
 
+#include "porousProperties.H"
 #include "incompressibleTwoPhaseInteractingMixture.H"
 #include "relativeVelocityModel.H"
 #include "turbulenceModel.H"
@@ -51,6 +52,7 @@ Description
 #include "gaussLaplacianScheme.H"
 #include "uncorrectedSnGrad.H"
 #include "IOobjectList.H"
+#include "loopControl.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -73,16 +75,18 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createTimeControls.H"
     #include "createFields.H"
-    #include "constantFields.H"
-    #include "createSpecies.H"
+    //#include "constantFields.H"
+    //#include "createSpecies.H"
     
     
     #include "initContinuityErrs.H"
 
     volScalarField& alpha2(mixture.alpha2());
     const dimensionedScalar& rho1 = mixture.rhod();
-    const dimensionedScalar& rho2 = mixture.rhoc();
+    const volScalarField& rho2 = mixture.rhoc();
     relativeVelocityModel& UdmModel(UdmModelPtr());
+    
+    //listing species for species transport equations.
 
     turbulence->validate();
 
@@ -124,7 +128,7 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
             
-            #include "CiEqn.H"
+            //#include "CiEqn.H"
         }
 
         runTime.write();

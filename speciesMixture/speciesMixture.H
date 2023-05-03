@@ -37,6 +37,8 @@ SourceFiles
 
 #include "volFields.H"
 #include "physicoChemicalConstants.H"
+//#include "../porousProperties/porousProperties.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -51,71 +53,48 @@ class speciesMixture
 protected:
 
     // Protected data
-
-	dictionary	speciesCoeffs_;
-
+    	/*autoPtr<porousProperties> poroMPtr_ 
+    	(
+    		porousProperties
+		(
+		mesh
+		)
+    	);*/
+	
+	dictionary	species2Coeffs_;
+	dictionary	species1Coeffs_;
+	List<word> species2;
+	List<word> species1;
+	
+	PtrList <dimensionedScalar> z_;
+	PtrList <dimensionedScalar> Ea2_;
+	PtrList <dimensionedScalar> D2_ref_;
+	PtrList <dimensionedScalar> T2_ref_;
+	PtrList <dimensionedScalar> MW_;
+	PtrList <volScalarField> C2_;
+	PtrList <volScalarField> D2_;
+	PtrList <volScalarField> D2_eff_;
+	
+	PtrList <volScalarField> C1_;
+	//
 	//start defining mixture coefficients
 	//charge -constant
-	dimensionedScalar	z_OH_;
-	dimensionedScalar	z_H2O_;
-	dimensionedScalar	z_H2_;
-	dimensionedScalar	z_O2_;
 	//Mobility -constant
 	dimensionedScalar	u_OH_;
 	dimensionedScalar	u_K_;
 	
-	//diffusion related constants -constant
-	dimensionedScalar	Ea_H2O_;
-	dimensionedScalar	Ea_OH_;
-	dimensionedScalar	Ea_H2_;
-	dimensionedScalar	Ea_O2_;
-	
-	dimensionedScalar	D_H2O_ref_;
-	dimensionedScalar	D_OH_ref_;
-	dimensionedScalar	D_H2_ref_;
-	dimensionedScalar	D_O2_ref_;
-		//constant
-	dimensionedScalar	T_ref_H2_;
-	dimensionedScalar	T_ref_O2_;
-	dimensionedScalar	T_ref_H2O_;
-	dimensionedScalar	T_ref_OH_;
-	
-	//mole weight -constant
-	dimensionedScalar	MW_H2_;
-	dimensionedScalar	MW_O2_;
-	dimensionedScalar	MW_OH_;
-	dimensionedScalar	MW_H2O_;
-	dimensionedScalar	MW_K_;
-	
-	//declearing fields. Phase1
-        volScalarField C_H2_2_;
-        volScalarField C_O2_2_;
-        volScalarField C_OH_2_;
-        volScalarField C_H2O_2_;
+
         
-        //phase2
-        volScalarField C_H2_1_;
-        volScalarField C_O2_1_;
+        volScalarField	T_;
 	
 	//declearing external fields -> i belive i dont have to.
-	const volScalarField& T_;
+	//const porousProperties& poroM_(poroMPtr_());
 	const volScalarField& epsilon_;
 	const volScalarField& tau_;
 	//const dimensionedScalar& R_;
 	
+	//making an object from class
 	
-	//derived fields
-	volScalarField	D_H2O_;
-	volScalarField	D_OH_;
-	volScalarField	D_H2_;
-	volScalarField	D_O2_;
-	
-	volScalarField	D_H2O_eff_;
-	volScalarField	D_OH_eff_;
-	volScalarField	D_H2_eff_;
-	volScalarField	D_O2_eff_;
-
-
 public:
 
     // Constructors
@@ -137,36 +116,22 @@ public:
 
     // Member Functions
 
-        /*const word& phase1NamE() const
+        //- Return const-access to the eltroChemical class
+       /* const porousProperties& poroM() const
         {
-            return phase1NamE_;
-        }
-
-        const word& phase2NamE() const
-        {
-            return phase2NamE_;
+            return poroM_;
         }*/
 
         //making access to constant coefficients._______________________________
         //charge
-        const dimensionedScalar& z_OH() const
+        const PtrList <dimensionedScalar>& z() const
         {
-            return z_OH_;
+            return z_;
         }
-        const dimensionedScalar& z_H2O() const
-        {
-            return z_H2O_;
-        }
-        const dimensionedScalar& z_H2() const
-        {
-            return z_H2_;
-        }
-        const dimensionedScalar& z_O2() const
-        {
-            return z_O2_;
-        }
+        
+
         //mobility
-                const dimensionedScalar& u_OH() const
+        const dimensionedScalar& u_OH() const
         {
             return u_OH_;
         }
@@ -175,102 +140,46 @@ public:
             return u_K_;
         }
         //molarweight
-        const dimensionedScalar& MW_OH() const
+        const PtrList <dimensionedScalar>& MW() const
         {
-            return MW_OH_;
+            return MW_;
         }
-        const dimensionedScalar& MW_H2O() const
-        {
-            return MW_H2O_;
-        }
-        const dimensionedScalar& MW_H2() const
-        {
-            return MW_H2_;
-        }
-        const dimensionedScalar& MW_O2() const
-        {
-            return MW_O2_;
-        }
-        const dimensionedScalar& MW_K() const
-        {
-            return MW_K_;
-        }
+
+
         //make access for fields__________________________________
-
-        //- Return the phase-fraction of phase 1
-        const volScalarField& C_H2_2() const
+        const volScalarField& T() const
         {
-            return C_H2_2_;
+            return T_;
+        }
+        volScalarField& T()
+        {
+            return T_;
         }
 
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_H2_2()
+        //- Return the species distribution of phase 2
+        const PtrList <volScalarField>& C2() const
         {
-            return C_H2_2_;
+            return C2_;
         }
-	
-	//- Return the phase-fraction of phase 1
-        const volScalarField& C_O2_2() const
+        PtrList <volScalarField>& C2()
         {
-            return C_O2_2_;
-        }
-
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_O2_2()
-        {
-            return C_O2_2_;
+            return C2_;
         }
         
-        //- Return the phase-fraction of phase 1
-        const volScalarField& C_OH_2() const
+        //- Return the species distribution of phase 1
+        const PtrList <volScalarField>& C1() const
         {
-            return C_OH_2_;
+            return C1_;
         }
-
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_OH_2()
+        PtrList <volScalarField>& C1()
         {
-            return C_OH_2_;
+            return C1_;
         }
         
-        //- Return the phase-fraction of phase 1
-        const volScalarField& C_H2O_2() const
+        const PtrList <volScalarField>& D2_eff() const
         {
-            return C_H2O_2_;
+            return D2_eff_;
         }
-
-        //- Return the phase-fraction of phase 1
-        volScalarField& C_H2O_2()
-        {
-            return C_H2O_2_;
-        }
-        
-        //- Return the phase-fraction of phase 2
-        const volScalarField& C_H2_1() const
-        {
-            return C_H2_1_;
-        }
-
-        //- Return the phase-fraction of phase 2
-        volScalarField& C_H2_1()
-        {
-            return C_H2_1_;
-        }
-        
-        //- Return the phase-fraction of phase 2
-        const volScalarField& C_O2_1() const
-        {
-            return C_O2_1_;
-        }
-
-        //- Return the phase-fraction of phase 2
-        volScalarField& C_O2_1()
-        {
-            return C_O2_1_;
-        }
-        
-
-        
         
 };
 

@@ -1,7 +1,7 @@
 // solve the transport eqaution for species
 dimensionedScalar t_OH=u_OH/(u_K+u_OH);
 //iterates over each specoes C_[i]
-for(label i=0; i<C.size(); i++)
+/*for(label i=0; i<C.size(); i++)
 {
 	
 	volScalarField & Ci=C[i];
@@ -32,7 +32,7 @@ for(label i=0; i<C.size(); i++)
         //relax equation and solves.
         CiEqn.relax();
         solve(CiEqn);
-}
+}*/
 
 
 

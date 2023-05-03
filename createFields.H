@@ -26,6 +26,9 @@ volVectorField U
     mesh
 );
 
+Info<< "Reading porousProperties\n" << endl;
+porousProperties poroM(mesh);
+
 #include "createPhi.H"
 
 
@@ -132,7 +135,7 @@ mesh.setFluxRequired(alpha1.name());
 tmp<surfaceScalarField> talphaPhiCorr0;
 
 //********** Potential related Fields **********//
-
+/*
 Info << "Reading Current exchange field J \n" << endl;
 volScalarField J
 (
@@ -146,9 +149,9 @@ volScalarField J
 	),
 	mesh
 );
-
+*/
 //********** mixture related fields **********//
-
+/*
 Info << "Reading Temperature field T \n" << endl;
 volScalarField T
 (
@@ -162,8 +165,9 @@ volScalarField T
 	),
 	mesh
 );
-
+*/
 //********** foam related fields **********//
+/*
 Info << "Reading porosity field eps" << endl;
 volScalarField epsilon1
 (
@@ -190,7 +194,7 @@ volScalarField tau
 		IOobject::NO_WRITE
 	),
 	mesh
-);
+);*/
 
 #include "createMRF.H"
 #include "createFvOptions.H"

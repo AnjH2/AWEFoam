@@ -45,6 +45,7 @@ SourceFiles
 #include "mixtureViscosityModel.H"
 #include "twoPhaseMixture.H"
 #include "../speciesMixture/speciesMixture.H"
+//#include "../electroChemical/electroChemical.H"
 #include "IOdictionary.H"
 
 
@@ -66,13 +67,12 @@ class incompressibleTwoPhaseInteractingMixture
 {
 protected:
 
-    // Protected data
-
+	
         autoPtr<mixtureViscosityModel> muModel_;
         autoPtr<viscosityModel> nucModel_;
 
         dimensionedScalar rhod_;
-        dimensionedScalar rhoc_;
+        volScalarField rhoc_;
 
         //- Optional diameter of the dispersed phase particles
         dimensionedScalar dd_;
@@ -107,6 +107,7 @@ public:
 
     // Member Functions
 
+
         //- Return const-access to the mixture viscosityModel
         const mixtureViscosityModel& muModel() const
         {
@@ -126,7 +127,7 @@ public:
         }
 
         //- Return const-access to continuous-phase density
-        const dimensionedScalar& rhoc() const
+        const volScalarField& rhoc() const
         {
             return rhoc_;
         };
@@ -173,7 +174,7 @@ public:
         {
             return
                 alpha1_.boundaryField()[patchi]*rhod_.value()
-              + alpha2_.boundaryField()[patchi]*rhoc_.value();
+              + alpha2_.boundaryField()[patchi]*rhoc_;//.fcValue();
         }
 
         //- Return the mixture viscosity

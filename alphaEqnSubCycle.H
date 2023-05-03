@@ -66,6 +66,6 @@
             << endl;
     }
 
-    rhoPhi = alphaPhi*(rho1 - rho2) + phi*rho2;
+    rhoPhi = alphaPhi*(rho1 - fvc::interpolate(rho2)) + phi*fvc::interpolate(rho2);
     rho = mixture.rho();
 }
