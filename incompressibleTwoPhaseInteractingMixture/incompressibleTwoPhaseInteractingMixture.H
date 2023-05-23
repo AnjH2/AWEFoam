@@ -194,7 +194,11 @@ public:
         {
             mu_ = muModel_->mu(rhoc_*nucModel_->nu());
         }
-
+        virtual void correct_D1()
+        {
+        	D1_eff_=D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
+        }
+//	virtual void correct();
         //- Read base transportProperties dictionary
         virtual bool read();
 };

@@ -112,7 +112,7 @@ Foam::autoPtr<Foam::relativeVelocityModel> Foam::relativeVelocityModel::New
     Info<< "Selecting relative velocity model " << modelType << endl;
 
     auto* ctorPtr = dictionaryConstructorTable(modelType);
-
+	Info<< "*** Test1."<< nl <<endl;
     if (!ctorPtr)
     {
         FatalIOErrorInLookup

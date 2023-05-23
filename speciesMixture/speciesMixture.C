@@ -53,76 +53,133 @@ Foam::speciesMixture::speciesMixture
 	C2_(species2.size()),
 	D2_(species2.size()),
 	D2_eff_(species2.size()),
+	C1_(species1.size()),
 	//Mobility
 	u_OH_("u_OH",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
 	u_K_("u_K",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
-
-    T_
-    (
-        IOobject
-        (
-            "T",
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh 
-    ),
-    
-    epsilon_
-    (
-    	mesh.lookupObject<volScalarField>
+	D1_C_star_
+	(
+		"C_star",
+		dimless,
+		species1Coeffs_
+	),
+	D1_a_
+	(
+		"Da",
+		dimless,
+		species1Coeffs_
+	),
+	D1_b_
+	(
+		"Db",
+		dimless,
+		species1Coeffs_
+	),
+	D1_zeta_
+	(
+		"zeta",
+		dimless,
+		species1Coeffs_
+	),
+	D1_ref_
+	(
+		"D1_ref",
+		dimensionSet ( 0, 2, -1, 0, 0, 0, 0),
+		species1Coeffs_
+	),
+    	T_
     	(
-    		"eps"
-    		//(
-    		//)
-    	)
-    ),
-    tau_
-    (
-    	mesh.lookupObject<volScalarField>
+    	    IOobject
+    	    (
+     	       "T",
+    	       mesh.time().timeName(),
+     	       mesh,
+     	       IOobject::MUST_READ,
+    	       IOobject::AUTO_WRITE
+    	    ),
+    	    mesh 
+    	),
+   	 
+   	epsilon_
+   	(
+    		mesh.lookupObject<volScalarField>
+   	 	(
+    			"eps"
+    			//(
+    			//)
+    		)
+  	),
+    	tau_
     	(
-    		"tau"
-    		//(
-    		//)
+    		mesh.lookupObject<volScalarField>
+    		(
+    			"tau"
+    			//(
+    			//)
+    		)
+    	),
+    	dummy_
+    	(
+    	    IOobject
+    	    (
+     	       "___",
+    	       mesh.time().timeName(),
+     	       mesh,
+     	       IOobject::NO_READ,
+    	       IOobject::NO_WRITE
+    	    ),
+    	    T_/T_*0.5 
+    	),
+    	D1_eff_
+    	(
+    	    IOobject
+    	    (
+     	       "D1_eff",
+    	       mesh.time().timeName(),
+     	       mesh,
+     	       IOobject::NO_READ,
+    	       IOobject::NO_WRITE
+    	    ),
+    	    dummy_*D1_ref_
     	)
-    )
-
 {
 forAll(species2,i)
 	{
-		Info<< "*** Reading speciesProperties for phase2"
+		Info<< "*** Reading speciesProperties for phase2."
         	<< species2[i] << "***" << nl << endl;
-       		Info<< "    Adding to to constants\n" << endl;
+       		Info<< "    Adding charges to speceis\n" << endl;
        		//z2_i="z_"+"H2";
     		z_.set
     		(
         	i,
         	new dimensionedScalar("z_"+species2[i], dimensionSet ( 0, 0, 0 , 0, 0, 0, 0),species2Coeffs_)
         	);
+        	Info<< "    Adding diffusion activation constants to the speceis\n" << endl;
         	Ea2_.set
     		(
         	i,
         	new dimensionedScalar("Ea_"+species2[i], dimensionSet ( 1, 2, -2, 0, -1, 0, 0),species2Coeffs_)
         	);
+        	Info<< "    Adding diffusion referennce to the speceis\n" << endl;
         	D2_ref_.set
     		(
         	i,
         	new dimensionedScalar("D_"+species2[i]+"_ref", dimensionSet ( 0, 2, -1, 0, 0, 0, 0),species2Coeffs_)
         	);
+        	Info<< "    Adding temperature referennce to the speceis\n" << endl;
         	T2_ref_.set
     		(
         	i,
         	new dimensionedScalar("T_ref_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),species2Coeffs_)
         	);
+        	Info<< "    Adding molar weight to the speceis\n" << endl;
         	MW_.set
     		(
         	i,
         	new dimensionedScalar("MW_"+species2[i], dimensionSet ( 1, 0, 0, 0, -1, 0, 0),dict)
         	);
         	Info<< "*** Reading fields for phase2"<< endl;
-        	Info<< "    Adding to UFluid\n" << endl;
+        	Info<< "    reading concentrations\n" << endl;
     		C2_.set
     		(
         		i,
@@ -139,6 +196,7 @@ forAll(species2,i)
             			mesh
         		)
     		);
+    		Info<< "    Calculating effective diffusion\n" << endl;
     		D2_.set
     		(
         		i,
@@ -173,14 +231,19 @@ forAll(species2,i)
     		);
     	
 	}
+	Info<< "*** Reading molar weight for K***"<<" size:"<<MW_.size()<< nl << endl;
 MW_.set
 	(
-        species2.size()+1,
+        MW_.size()-1,
         new dimensionedScalar("MW_K", dimensionSet ( 1, 0, 0, 0, -1, 0, 0),dict)
         );
+Info<< "*** Starting preparation of species 1***"<< nl << endl;
+
 forAll(species1,i)
 	{
-	    	C2_.set
+	Info<< "*** Reading speciesProperties for phase1."
+        	<< species1[i] << "***" << nl << "i="<<i<< endl;
+    		C1_.set
     		(
         		i,
         		new volScalarField
@@ -197,7 +260,12 @@ forAll(species1,i)
         		)
     		);
 	}
+Info<< "*** Calculating gasous diffusion coefficients***"<< nl << endl;
+   D1_eff_=D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
+   
+    
 }
+
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 

@@ -166,6 +166,10 @@ bool Foam::incompressibleTwoPhaseInteractingMixture::read()
 
     return false;
 }
-
+/*void Foam::incompressibleTwoPhaseInteractingMixture::correct()
+{
+	mu_ = muModel_->mu(rhoc_*nucModel_->nu());
+	D1_eff_=D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
+}*/
 
 // ************************************************************************* //

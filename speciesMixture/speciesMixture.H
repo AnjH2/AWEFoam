@@ -74,6 +74,7 @@ protected:
 	PtrList <volScalarField> C2_;
 	PtrList <volScalarField> D2_;
 	PtrList <volScalarField> D2_eff_;
+	//PtrList <volScalarField> D1_eff_;
 	
 	PtrList <volScalarField> C1_;
 	//
@@ -82,8 +83,15 @@ protected:
 	//Mobility -constant
 	dimensionedScalar	u_OH_;
 	dimensionedScalar	u_K_;
+	//phase 1
+	dimensionedScalar		D1_C_star_;
+	dimensionedScalar		D1_a_;
+	dimensionedScalar		D1_b_;
+	dimensionedScalar		D1_zeta_;
+	dimensionedScalar		D1_ref_;
+	//volScalarField			Delta_x1_;
 	
-
+	
         
         volScalarField	T_;
 	
@@ -92,7 +100,8 @@ protected:
 	const volScalarField& epsilon_;
 	const volScalarField& tau_;
 	//const dimensionedScalar& R_;
-	
+	volScalarField			dummy_; //need a dummy who is equal 0.5
+	volScalarField			D1_eff_;
 	//making an object from class
 	
 public:
@@ -110,9 +119,9 @@ public:
 
 
     //- Destructor
-    ~speciesMixture()
-    {}
-
+    //~speciesMixture()
+    //{}
+	virtual ~speciesMixture() = default;
 
     // Member Functions
 
@@ -181,6 +190,10 @@ public:
             return D2_eff_;
         }
         
+       virtual tmp<volScalarField> DeltaX1( volScalarField X1) const
+        {
+            return D1_zeta_*pow(6*D1_C_star_-5,2)*(D1_a_*X1)/(1+D1_b_*X1);
+        }
 };
 
 
