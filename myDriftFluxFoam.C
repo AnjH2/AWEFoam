@@ -85,7 +85,9 @@ int main(int argc, char *argv[])
     const dimensionedScalar& rho1 = mixture.rhod();
     const volScalarField& rho2 = mixture.rhoc();
     relativeVelocityModel& UdmModel(UdmModelPtr());
-    
+    PtrList <volScalarField>& C2 = mixture.C2();
+    const PtrList <dimensionedScalar>& MW = mixture.MW();
+    const volScalarField& epsilon1 = poroM.eps();
     //listing species for species transport equations.
 
     turbulence->validate();
@@ -114,7 +116,7 @@ int main(int argc, char *argv[])
             #include "alphaEqnSubCycle.H"
 
             mixture.correct();
-
+            mixture.correct_D1();
             #include "UEqn.H"
 
             // --- Pressure corrector loop
@@ -128,7 +130,7 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
             
-            //#include "CiEqn.H"
+            #include "CiEqn.H"
         }
 
         runTime.write();

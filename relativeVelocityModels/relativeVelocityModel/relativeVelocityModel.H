@@ -145,6 +145,9 @@ public:
         {
             return Udm_;
         }
+        //- Return the relative velocity of the continues phase
+	//tmp<volVectorField> Ucm() const;
+
 
         //- Return the stress tensor due to the phase transport
         tmp<volSymmTensorField> tauDm() const;

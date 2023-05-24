@@ -112,7 +112,7 @@ Foam::autoPtr<Foam::relativeVelocityModel> Foam::relativeVelocityModel::New
     Info<< "Selecting relative velocity model " << modelType << endl;
 
     auto* ctorPtr = dictionaryConstructorTable(modelType);
-	Info<< "*** Test1."<< nl <<endl;
+
     if (!ctorPtr)
     {
         FatalIOErrorInLookup
@@ -150,20 +150,36 @@ Foam::tmp<Foam::volScalarField> Foam::relativeVelocityModel::rho() const
 }
 
 
+// Calculate the relative velocity of the continuous phase w.r.t the mean
+/*Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Ucm() const
+{
+    volScalarField betac(alphac_*rhoc_);
+    volScalarField betad(alphad_*rhod_);
+    return tmp<volVectorField>
+    (
+        new volVectorField
+        (
+            "Ucm",
+            betad*Udm_/betac
+        )
+    );
+    
+}*/
+
 Foam::tmp<Foam::volSymmTensorField> Foam::relativeVelocityModel::tauDm() const
 {
     volScalarField betac(alphac_*rhoc_);
     volScalarField betad(alphad_*rhod_);
 
     // Calculate the relative velocity of the continuous phase w.r.t the mean
-    volVectorField Ucm(betad*Udm_/betac);
+    volVectorField Ucm_(betad*Udm_/betac);
 
     return tmp<volSymmTensorField>
     (
         new volSymmTensorField
         (
             "tauDm",
-            betad*sqr(Udm_) + betac*sqr(Ucm)
+            betad*sqr(Udm_) + betac*sqr(Ucm_)
         )
     );
 }
