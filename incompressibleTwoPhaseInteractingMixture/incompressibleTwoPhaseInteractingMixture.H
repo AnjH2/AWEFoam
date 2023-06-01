@@ -84,6 +84,7 @@ protected:
         const surfaceScalarField& phi_;
 
         volScalarField mu_;
+        volScalarField nu_;
 
 
 public:
@@ -197,6 +198,11 @@ public:
         virtual void correct_D1()
         {
         	D1_eff_=pow(epsilon_,tau_)*pow(alpha1_,(tau_-1))*D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
+        }
+        
+        virtual void correct_nu()
+        {
+        	nu_=mu_/rho();
         }
 //	virtual void correct();
         //- Read base transportProperties dictionary

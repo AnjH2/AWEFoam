@@ -44,6 +44,8 @@ Description
 
 #include "porousProperties.H"
 #include "incompressibleTwoPhaseInteractingMixture.H"
+#include "reactionProperties.H"
+#include "porousProperties.H"
 #include "relativeVelocityModel.H"
 #include "turbulenceModel.H"
 #include "CompressibleTurbulenceModel.H"
@@ -75,6 +77,7 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createTimeControls.H"
     #include "createFields.H"
+    #include "physicoChemicalConstants.H"
     //#include "constantFields.H"
     //#include "createSpecies.H"
     
@@ -84,10 +87,28 @@ int main(int argc, char *argv[])
     volScalarField& alpha2(mixture.alpha2());
     const dimensionedScalar& rho1 = mixture.rhod();
     const volScalarField& rho2 = mixture.rhoc();
-    relativeVelocityModel& UdmModel(UdmModelPtr());
     PtrList <volScalarField>& C2 = mixture.C2();
+    PtrList <volScalarField>& C1 = mixture.C1();
     const PtrList <dimensionedScalar>& MW = mixture.MW();
+    const PtrList <dimensionedScalar>& z = mixture.z();
+    const volScalarField& T = mixture.T();
+
+    
+    relativeVelocityModel& UdmModel(UdmModelPtr());
+    
     const volScalarField& epsilon1 = poroM.eps();
+    const PtrList <dimensionedScalar>& as = poroM.as();
+    const volScalarField& Ne = poroM.Ne();
+    const volScalarField& Pe = poroM.Pe();
+    const volScalarField& Mem = poroM.Mem();
+    
+    
+    const PtrList <dimensionedScalar>& C2_ref = react.C2_ref();
+    const dimensionedScalar& n =react.n();
+    
+    const dimensionedScalar& F=Foam::constant::physicoChemical::F;
+    const dimensionedScalar& R=Foam::constant::physicoChemical::R;
+    
     //listing species for species transport equations.
 
     turbulence->validate();
@@ -117,6 +138,7 @@ int main(int argc, char *argv[])
 
             mixture.correct();
             mixture.correct_D1();
+            mixture.correct_nu();
             #include "UEqn.H"
 
             // --- Pressure corrector loop
@@ -129,8 +151,15 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
-            
+            for (int i=0; i<=2; i++)
+            {
+            #include "potentialEqn.H"
             #include "CiEqn.H"
+            }
+            /*for (int i=0; i<=2; i++)
+            {
+            #include "CiEqn.H"
+            }*/
         }
 
         runTime.write();

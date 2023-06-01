@@ -190,6 +190,10 @@ public:
             return D2_eff_;
         }
         
+        const volScalarField& D1_eff() const
+        {
+            return D1_eff_;
+        }
        virtual tmp<volScalarField> DeltaX1( volScalarField X1) const
         {
             return D1_zeta_*pow(6*D1_C_star_-5,2)*(D1_a_*X1)/(1+D1_b_*X1);

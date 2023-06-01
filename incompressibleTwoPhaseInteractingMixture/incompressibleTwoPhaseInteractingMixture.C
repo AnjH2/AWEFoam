@@ -121,6 +121,18 @@ incompressibleTwoPhaseInteractingMixture
         U_.mesh(),
         dimensionedScalar(dimensionSet(1, -1, -1, 0, 0), Zero),
         calculatedFvPatchScalarField::typeName
+    ),
+    nu_
+    (
+        IOobject
+        (
+            "nu",
+            U.time().timeName(),
+            U.mesh(),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        mu_/rho()
     )
 {
     correct();

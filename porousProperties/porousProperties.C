@@ -35,6 +35,19 @@ Foam::porousProperties::porousProperties
     const fvMesh& mesh
 )
 :
+    IOdictionary
+    (
+        IOobject
+        (
+            "transportProperties",
+            mesh.time().constant(),
+            mesh,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    ),
+    electrodes({"Ne","Pe"}),
+    as_(electrodes.size()),
     epsilon_
     (
         IOobject
@@ -43,7 +56,7 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh
     ),
@@ -56,11 +69,78 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh
+    ),
+    Pe_
+    (
+    	IOobject
+        (
+            "Pe",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    ),
+    
+    Ne_
+    (
+    	IOobject
+        (
+            "Ne",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    ),
+    
+    Mem_
+    (
+    	IOobject
+        (
+            "Mem",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    ),
+    
+        sigma_s_ref_
+	(
+		"sigma_s_ref",
+		dimensionSet ( -1, -3, 3, 0, 0, 2,0),
+		*this
+	),
+    sigma_s_eff_
+    (
+    	IOobject
+        (
+            "sigma_s_eff",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        (Pe_+Ne_+Mem_*0.1)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
     )
-{}
+{
+forAll(electrodes,i)
+	{
+		as_.set
+    	(
+        	i,
+        	new dimensionedScalar("as_"+electrodes[i], dimensionSet (  0, -1, 0, 0, 0, 0, 0),*this)
+        );
+	}
+
+}
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 

@@ -68,4 +68,6 @@
 
     rhoPhi = alphaPhi*(rho1 - fvc::interpolate(rho2)) + phi*fvc::interpolate(rho2);
     rho = mixture.rho();
+    alpha1Phi=alphaPhi;
+    
 }

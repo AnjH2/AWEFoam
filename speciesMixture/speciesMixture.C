@@ -37,7 +37,7 @@ Foam::speciesMixture::speciesMixture
 )
 :
 	//elChem_(mesh),
-	/*ØporoM_
+	/*poroM_
     	(
     		porousProperties(mesh)
     	),*/
@@ -95,7 +95,7 @@ Foam::speciesMixture::speciesMixture
     	       mesh.time().timeName(),
      	       mesh,
      	       IOobject::MUST_READ,
-    	       IOobject::AUTO_WRITE
+    	       IOobject::NO_WRITE
     	    ),
     	    mesh 
     	),
@@ -138,7 +138,7 @@ Foam::speciesMixture::speciesMixture
     	       mesh.time().timeName(),
      	       mesh,
      	       IOobject::NO_READ,
-    	       IOobject::NO_WRITE
+    	       IOobject::AUTO_WRITE
     	    ),
     	    dummy_*D1_ref_
     	)

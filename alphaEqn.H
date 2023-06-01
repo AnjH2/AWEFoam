@@ -119,4 +119,22 @@
         << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
         << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
         << endl;
+        
+    //try calculating alphaphi2 (continous phase)
+
+    alpha2Phi=
+        (
+            fvc::flux
+            (
+                phi,
+                alpha2,
+                alphaScheme
+            )
+          + fvc::flux
+            (
+                -fvc::flux(phir, alpha1, alpharScheme),
+                alpha2,
+                alpharScheme
+            )
+        );
 }

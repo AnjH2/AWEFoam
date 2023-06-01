@@ -22,24 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::porousProperties
+    Foam::reactionProperties
 
 Description
     A two-phase species mixture model
 
 SourceFiles
-    porousProperties.C
+    reactionProperties.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef porousProperties_H
-#define porousProperties_H
+#ifndef reactionProperties_H
+#define reactionProperties_H
 
 
 #include "volFields.H"
 #include "physicoChemicalConstants.H"
 #include "IOdictionary.H"
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -47,87 +46,105 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                       Class porousProperties Declaration
+                       Class reactionProperties Declaration
 \*---------------------------------------------------------------------------*/
 
-class porousProperties
+class reactionProperties
 :
     public IOdictionary
 {
 protected:
 
     // Protected data
-    	List<word> electrodes;	
-    	PtrList <dimensionedScalar> as_;//electrode surface area.
-	const volScalarField epsilon_;
-	const volScalarField tau_;
+	dictionary	reactionCoeffs_;
+	List<word> electrodes;
+	List<word> species2;
+	PtrList <dimensionedScalar> C_ref_;
+	PtrList <dimensionedScalar> C_sat_;
+	PtrList <dimensionedScalar> psi_;
+	PtrList <volScalarField> Psi_;
+	PtrList <dimensionedScalar> E0_ref_;
+	PtrList <dimensionedScalar> T0_E0_;
+	PtrList <dimensionedScalar> Ds_;
+	PtrList <volScalarField> E0_;
+	PtrList <dimensionedScalar> i0_ref_;
+	PtrList <dimensionedScalar> Ea_;
+	PtrList <dimensionedScalar> T0_i0_;
+	PtrList <volScalarField> i0_;
+	PtrList <dimensionedScalar> alphaT_;
+	const dimensionedScalar n_;	
+	const dimensionedScalar u_K_;
+	const dimensionedScalar u_OH_;
+	dimensionedScalar t_OH_;
+	dimensionedScalar tau_c_;
+	const volScalarField&	T_;
 
-	
 
-	//regions of porouse media.
-	const volScalarField Pe_;
-	const volScalarField Ne_;
-	const volScalarField Mem_;
-	
-	const dimensionedScalar sigma_s_ref_;
-	const volScalarField sigma_s_eff_;
+
 
 
 public:
-	//TypeName("porousProperties");
+	//TypeName("reactionProperties");
     // Constructors
 
         //- Construct from components
-        porousProperties
+        reactionProperties
         (
             const fvMesh& mesh
         );
 
 
     //- Destructor
- 	virtual ~porousProperties() = default;
+ 	virtual ~reactionProperties() = default;
 
 
     // Member Functions
 
-        const volScalarField& eps() const
+        const PtrList <dimensionedScalar>& C2_ref() const
         {
-            return epsilon_;
+            return C_ref_;
+        }
+         const PtrList <dimensionedScalar>& C_sat() const
+        {
+            return C_sat_;
         }
 
-        const volScalarField& tau() const
+        const PtrList <dimensionedScalar>& psi() const
         {
-            return tau_;
+            return psi_;
         }
-        const volScalarField& sigma_s_eff() const
+	PtrList <volScalarField>& Psi()
         {
-        	return sigma_s_eff_;
+            return Psi_;
         }
-        const volScalarField& Pe() const
+        const PtrList <volScalarField>& i0() const
         {
-            return Pe_;
-        }
-        
-        const volScalarField& Ne() const
-        {
-            return Ne_;
+            return i0_;
         }
         
-        const PtrList <dimensionedScalar>& as() const
+        const PtrList <dimensionedScalar>& alphaT() const
         {
-            return as_;
+            return alphaT_;
         }
         
-        const volScalarField& Mem() const
+        const PtrList <volScalarField>& E0() const
         {
-            return Mem_;
+            return E0_;
         }
-
-
+        const dimensionedScalar& t_OH() const
+        {
+            return t_OH_;
+        }
+        const dimensionedScalar& n() const
+        {
+            return n_;
+        }
         
-
-        
-        
+        const dimensionedScalar& tau_c() const
+        {
+            return tau_c_;
+        }
+      
 };
 
 

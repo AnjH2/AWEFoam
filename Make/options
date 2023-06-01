@@ -3,6 +3,7 @@ EXE_INC = \
     -IincompressibleTwoPhaseInteractingMixture \
     -IspeciesMixture \
     -IporousProperties \
+    -IreactionProperties \
     -ImixtureViscosityModels/lnInclude \
     -I./relativeVelocityModels/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
