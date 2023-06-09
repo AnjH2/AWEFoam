@@ -84,7 +84,7 @@ protected:
         const volScalarField& rhoc_;
 
         //- Dispersed density
-        const dimensionedScalar& rhod_;
+        const volScalarField& rhod_;
 
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;

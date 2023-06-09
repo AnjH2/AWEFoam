@@ -159,9 +159,60 @@ if (p_rgh.needReference())
 mesh.setFluxRequired(p_rgh.name());
 mesh.setFluxRequired(alpha1.name());
 
+
 // MULES Correction
 tmp<surfaceScalarField> talphaPhiCorr0;
 
+
+//fields to correct  speices transfer
+PtrList <volScalarField> Psi_si(2);
+        	Psi_si.set
+    		(
+        		0,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+               				"Psi_si_H2",
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::NO_READ,
+                			IOobject::AUTO_WRITE
+            			),
+            			mesh,
+            			dimensionSet(1,-3,-1,0,0,0,0)
+        		)
+    		);
+        	Psi_si.set
+    		(
+        		1,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+               				"Psi_si_O2",
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::NO_READ,
+                			IOobject::AUTO_WRITE
+            			),
+            			mesh,
+            			dimensionSet(1,-3,-1,0,0,0,0)
+        		)
+    		);
+volScalarField Psi_alpha
+(
+	IOobject
+	(
+	    	"Psi_si_O2",
+            	mesh.time().timeName(),
+       	    	mesh,
+            	IOobject::NO_READ,
+            	IOobject::NO_WRITE
+	),
+	mesh,
+	dimensionSet(0,0,-1,0,0,0,0)
+);
 //********** Potential related Fields **********//
 
 Info << "Reading potential field UPe \n" << endl;
@@ -233,6 +284,34 @@ volScalarField eta
 	mesh,
 	dimensionSet(1,2,-3,0,0,-1,0)
 );
+Info << "Defining currentDistribution INe \n" << endl;
+volVectorField INe
+(
+	IOobject
+	(
+		"INe",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::AUTO_WRITE
+	),
+	fvc::grad(UNe)*poroM.sigma_s_eff()
+);
+
+Info << "Defining currentDistribution IPe \n" << endl;
+volVectorField IPe
+(
+	IOobject
+	(
+		"IPe",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::AUTO_WRITE
+	),
+	fvc::grad(UPe)*poroM.sigma_s_eff()
+);
+
 
 #include "createMRF.H"
 #include "createFvOptions.H"

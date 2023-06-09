@@ -118,7 +118,16 @@ Foam::speciesMixture::speciesMixture
     			//)
     		)
     	),
-    	dummy_
+    	alphad1_
+    	(
+    		mesh.lookupObject<volScalarField>
+    		(
+    			"alpha.gas"
+    			//(
+    			//)
+    		)
+    	)
+    	/*dummy_
     	(
     	    IOobject
     	    (
@@ -129,7 +138,7 @@ Foam::speciesMixture::speciesMixture
     	       IOobject::NO_WRITE
     	    ),
     	    T_/T_*0.5 
-    	),
+    	)
     	D1_eff_
     	(
     	    IOobject
@@ -141,7 +150,7 @@ Foam::speciesMixture::speciesMixture
     	       IOobject::AUTO_WRITE
     	    ),
     	    dummy_*D1_ref_
-    	)
+    	)*/
 {
 forAll(species2,i)
 	{
@@ -226,7 +235,7 @@ forAll(species2,i)
                 			IOobject::NO_READ,
                 			IOobject::NO_WRITE
             			),
-            			Foam::pow(epsilon_,tau_)*Foam::pow(1,1-tau_)*D2_[i]
+            			Foam::pow(epsilon_,tau_)*Foam::pow(1-alphad1_,1-tau_)*D2_[i]
         		)
     		);
     	
@@ -260,9 +269,9 @@ forAll(species1,i)
         		)
     		);
 	}
-Info<< "*** Calculating gasous diffusion coefficients***"<< nl << endl;
+/*Info<< "*** Calculating gasous diffusion coefficients***"<< nl << endl;
    D1_eff_=D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
-   
+   */
     
 }
 

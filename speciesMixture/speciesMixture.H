@@ -100,9 +100,11 @@ protected:
 	const volScalarField& epsilon_;
 	const volScalarField& tau_;
 	//const dimensionedScalar& R_;
-	volScalarField			dummy_; //need a dummy who is equal 0.5
-	volScalarField			D1_eff_;
+	//volScalarField			dummy_; //need a dummy who is equal 0.5
+	//volScalarField			D1_eff_;
 	//making an object from class
+	
+	const volScalarField& alphad1_;
 	
 public:
 
@@ -190,10 +192,10 @@ public:
             return D2_eff_;
         }
         
-        const volScalarField& D1_eff() const
+        /*const volScalarField& D1_eff() const
         {
             return D1_eff_;
-        }
+        }*/
        virtual tmp<volScalarField> DeltaX1( volScalarField X1) const
         {
             return D1_zeta_*pow(6*D1_C_star_-5,2)*(D1_a_*X1)/(1+D1_b_*X1);

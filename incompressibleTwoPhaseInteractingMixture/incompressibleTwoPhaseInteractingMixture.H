@@ -70,8 +70,9 @@ protected:
 	
         autoPtr<mixtureViscosityModel> muModel_;
         autoPtr<viscosityModel> nucModel_;
-
-        dimensionedScalar rhod_;
+	
+	dimensionedScalar p_num_;
+        volScalarField rhod_;
         volScalarField rhoc_;
 
         //- Optional diameter of the dispersed phase particles
@@ -122,7 +123,7 @@ public:
         }
 
         //- Return const-access to the dispersed-phase density
-        const dimensionedScalar& rhod() const
+        const volScalarField& rhod() const
         {
             return rhod_;
         }
@@ -151,6 +152,10 @@ public:
         {
             return U_;
         }
+        const dimensionedScalar& p_num() const
+        {
+            return p_num_;
+        }
 
         //- Return the dynamic mixture viscosity
         tmp<volScalarField> mu() const
@@ -174,7 +179,7 @@ public:
         virtual tmp<scalarField> rho(const label patchi) const
         {
             return
-                alpha1_.boundaryField()[patchi]*rhod_.value()
+                alpha1_.boundaryField()[patchi]*rhod_
               + alpha2_.boundaryField()[patchi]*rhoc_;//.fcValue();
         }
 
@@ -195,14 +200,30 @@ public:
         {
             mu_ = muModel_->mu(rhoc_*nucModel_->nu());
         }
-        virtual void correct_D1()
+        /*virtual void correct_D1()
         {
         	D1_eff_=pow(epsilon_,tau_)*pow(alpha1_,(tau_-1))*D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
-        }
+        }*/
         
         virtual void correct_nu()
         {
         	nu_=mu_/rho();
+        }
+        virtual void correct_rhoc()
+        {
+        	rhoc_=C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4];
+        }
+        virtual void correct_rhod()
+        {
+        	rhod_=p_num_/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1])*(1/(C1_[0]+C1_[1]));
+        }
+        virtual void correct_D2_eff()
+        {
+        	forAll(species2,i)
+        		{
+        			D2_eff_[i]=Foam::pow(epsilon_,tau_)*Foam::pow(1-alphad1_,1-tau_)*D2_[i];
+        		}
+
         }
 //	virtual void correct();
         //- Read base transportProperties dictionary

@@ -1,11 +1,36 @@
 // solve the transport eqaution for species in phase 2
 //dimensionedScalar t_OH=u_OH/(u_K+u_OH);***********
 //iterates over each species C_[i]
+const volScalarField Zero
+(
+	IOobject
+	(
+		"Zero",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::NO_WRITE
+	),
+	C2[0]-C2[0]
+);
+volScalarField Temp1
+(
+	IOobject
+	(
+		"Temp",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::NO_WRITE
+	),
+	mesh,
+	dimensionSet(0,-3,0,0,1,0,0)
+);
 
 
 for(label i=0; i<C2.size(); i++)
 {
-
+	
 	//dimensionedScalar & 
 	//checks if it is a charged species, and calculate electrochemical source term.
 	if(z[i].value() == 0) //not charged species C_[i]
@@ -27,34 +52,55 @@ for(label i=0; i<C2.size(); i++)
         	fvm::laplacian(poroM.eps()*mixture.rho()*alpha2*mixture.D2_eff()[i]*MW[i]/rho2,C2[i])
         	+react.Psi()[i]*MW[i]*poroM.eps()	// electrochemcial source term ***********
         );
-	/*if(i<=1)
+
+	if(i<=1)
 	{
-		fvScalarMatrix Psi_s
+	Temp1=(C2[i]-react.C_sat()[i]);
+
+	Psi_si[i]=	((Temp1<Zero)*
+			max(
+				(1/react.tau_c()*MW[i]*C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i]),
+				((-1*MW[i]*alpha1*epsilon1)/(mesh.time().deltaT())*C1[i]))+
+			(Temp1>Zero)*((1/react.tau_c()*MW[i]*C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i]))
+			);
+		/*fvScalarMatrix Psi_s
 		(
-		fvm::SuSp(1/react.tau_c()*MW[i],C2[i])-1/react.tau_c()*MW[i]*react.C_sat()[i]
-		);
-		C2Eqn += Psi_s;
-	}*/
+		//((C1[i]>Zero))*(fvm::SuSp(1/react.tau_c()*MW[i],C2[i])-1/react.tau_c()*MW[i]*react.C_sat()[i])
+			(Temp1< Zero)*
+			(
+			fvm::Sp(1/react.tau_c()*MW[i],C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i])-
+			fvc::Sp((MW[i]*alpha1*epsilon1)/(mesh.time().deltaTValue()),C1[i])
+			) // source term ***********
+		);*/
+
+		C2Eqn += Psi_si[i];
+	}
 	//defining species_i transport equation
 
         //relax equation and solves.
+
         C2Eqn.relax();
+
         solve(C2Eqn);
+
 }
 
 for(label i=0; i<C1.size(); i++)
 {
+	Temp1=(C2[i]-react.C_sat()[i]);
 
 	//defining species_i transport equation
 	fvScalarMatrix C1Eqn
 	(
         fvm::ddt(MW[i]*alpha1*epsilon1,C1[i])
-        +fvm::div(alpha1Phi*MW[i],C1[i])
-        //==
+        +fvm::div(alpha1Phi*MW[i],C1[i])        
         //fvm::laplacian(poroM.eps()*mixture.rho()*alpha1*mixture.D1_eff()*MW[i]/rho1,C1[i])
-        //-(fvc::Sp(1/react.tau_c()*MW[i],C2[i])-1/react.tau_c()*MW[i]*react.C_sat()[i]) // source term ***********
+        //-((C1[i]>Zero)||(Temp1> Zero))*(fvc::Sp(1/react.tau_c()*MW[i],C2[i])-1/react.tau_c()*MW[i]*react.C_sat()[i]) // source term ***********
+        //-((C1[i]>Zero))*(fvc::Sp(1/react.tau_c()*MW[i],C2[i])-1/react.tau_c()*MW[i]*react.C_sat()[i]) // source term ***********
+        //-((Temp1< Zero))*min((fvc::Sp(1/react.tau_c()*MW[i],C2[i])-1/react.tau_c()*MW[i]*react.C_sat()[i]),(C1[i]*MW[i]*alpha1*epsilon1)/mesh.time().deltaTValue()) // source term ***********        
         );
         //relax equation and solves.
+        C1Eqn -= Psi_si[i];
         C1Eqn.relax();
         solve(C1Eqn);
 }

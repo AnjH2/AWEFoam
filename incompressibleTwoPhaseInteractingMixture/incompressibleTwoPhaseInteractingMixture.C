@@ -84,8 +84,24 @@ incompressibleTwoPhaseInteractingMixture
         )
     ),
 
-    rhod_("rho", dimDensity, muModel_->viscosityProperties()),
+    //rhod_("rho", dimDensity, muModel_->viscosityProperties()),
     //rhoc_("rho", dimDensity, nucModel_->viscosityProperties()),
+    
+    p_num_("p_num", dimPressure, *this),
+    
+    rhod_
+    (
+        IOobject
+        (
+            "rhod",
+            U.time().timeName(),
+            U.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        p_num_/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1])*(1/(C1_[0]+C1_[1]))
+    ),
+    
     
     rhoc_
     (

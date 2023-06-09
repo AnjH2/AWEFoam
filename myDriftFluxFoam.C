@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
 
     volScalarField& alpha2(mixture.alpha2());
-    const dimensionedScalar& rho1 = mixture.rhod();
+    const volScalarField& rho1 = mixture.rhod();
     const volScalarField& rho2 = mixture.rhoc();
     PtrList <volScalarField>& C2 = mixture.C2();
     PtrList <volScalarField>& C1 = mixture.C1();
@@ -135,10 +135,13 @@ int main(int argc, char *argv[])
             UdmModel.correct();
 
             #include "alphaEqnSubCycle.H"
-
+	    
+	    mixture.correct_rhoc();
+	    mixture.correct_rhod();
             mixture.correct();
-            mixture.correct_D1();
+            //mixture.correct_D1();
             mixture.correct_nu();
+            mixture.correct_D2_eff();
             #include "UEqn.H"
 
             // --- Pressure corrector loop
@@ -151,17 +154,22 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
-            for (int i=0; i<=2; i++)
+            for (int j=0; j<=2; j++)
             {
             #include "potentialEqn.H"
             #include "CiEqn.H"
+            
             }
             /*for (int i=0; i<=2; i++)
             {
             #include "CiEqn.H"
             }*/
         }
-
+	if (runTime.writeTime())
+	{
+        	INe = poroM.sigma_s_eff()*fvc::grad(UNe);
+        	IPe = poroM.sigma_s_eff()*fvc::grad(UPe);
+        }
         runTime.write();
 
         runTime.printExecutionTime(Info);

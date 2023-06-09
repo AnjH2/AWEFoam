@@ -10,6 +10,11 @@
         mesh,
         dimensionedScalar(phi.dimensions(), Zero)
     );
+    //Psi_alpha=-1*(Psi_si[0] + Psi_si[1])/mixture.rhod();
+   Psi_alpha=-1*(
+        Psi_si[0]/(MW[0]*mixture.p_num()/(R*T)) 
+      + Psi_si[1]/(MW[1]*mixture.p_num()/(R*T))
+      	);
 
     surfaceScalarField phir(fvc::flux(UdmModel.Udm()));
 
@@ -50,10 +55,12 @@
     {
         fvScalarMatrix alpha1Eqn
         (
-            fvm::ddt(alpha1) - fvc::ddt(alpha1)
+            (fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1))
           - fvm::laplacian(turbulence->nut(), alpha1)
+          
         );
-
+	alpha1Eqn += Psi_alpha;
+	
         alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));
 
         alphaPhi += alpha1Eqn.flux();
@@ -66,7 +73,7 @@
             << endl;
     }
 
-    rhoPhi = alphaPhi*(rho1 - fvc::interpolate(rho2)) + phi*fvc::interpolate(rho2);
+    rhoPhi = alphaPhi*(fvc::interpolate(rho1) - fvc::interpolate(rho2)) + phi*fvc::interpolate(rho2);
     rho = mixture.rho();
     alpha1Phi=alphaPhi;
     

@@ -6,15 +6,17 @@
     {
         fvScalarMatrix alpha1Eqn
         (
-            fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
           + fv::gaussConvectionScheme<scalar>
             (
                 mesh,
                 phi,
                 upwind<scalar>(mesh, phi)
-            ).fvmDiv(phi, alpha1)
+            ).fvmDiv(phi, alpha1) 
+          
         );
-
+	alpha1Eqn += Psi_alpha;
+	
         solve(alpha1Eqn);
 
         Info<< "Phase-1 volume fraction = "
@@ -36,6 +38,8 @@
                 alpha1,
                 alphaPhi,
                 talphaPhiCorr0.ref(),
+                Psi_alpha,
+                zeroField(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
             );
@@ -76,6 +80,8 @@
                 alpha1,
                 talphaPhiUn(),
                 talphaPhiCorr.ref(),
+                Psi_alpha,
+                zeroField(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
             );
@@ -101,6 +107,8 @@
                 alpha1,
                 phi,
                 alphaPhi,
+                Psi_alpha,
+                zeroField(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
             );
