@@ -44,6 +44,8 @@ SourceFiles
 #include "incompressible/viscosityModels/viscosityModel/viscosityModel.H"
 #include "mixtureViscosityModel.H"
 #include "twoPhaseMixture.H"
+#include "../speciesMixture/speciesMixture.H"
+//#include "../electroChemical/electroChemical.H"
 #include "IOdictionary.H"
 
 
@@ -60,16 +62,17 @@ class incompressibleTwoPhaseInteractingMixture
 :
     public IOdictionary,
     public compressibleTransportModel,
-    public twoPhaseMixture
+    public twoPhaseMixture,
+    public speciesMixture
 {
 protected:
 
-    // Protected data
-
+	
         autoPtr<mixtureViscosityModel> muModel_;
         autoPtr<viscosityModel> nucModel_;
-
-        dimensionedScalar rhod_;
+	
+	dimensionedScalar p_num_;
+        volScalarField rhod_;
         volScalarField rhoc_;
 
         //- Optional diameter of the dispersed phase particles
@@ -82,9 +85,7 @@ protected:
         const surfaceScalarField& phi_;
 
         volScalarField mu_;
-        
-        //ANJ trying to add external variables to the class.
-        const volScalarField& C[0];
+        volScalarField nu_;
 
 
 public:
@@ -108,6 +109,7 @@ public:
 
     // Member Functions
 
+
         //- Return const-access to the mixture viscosityModel
         const mixtureViscosityModel& muModel() const
         {
@@ -121,7 +123,7 @@ public:
         }
 
         //- Return const-access to the dispersed-phase density
-        const dimensionedScalar& rhod() const
+        const volScalarField& rhod() const
         {
             return rhod_;
         }
@@ -130,7 +132,6 @@ public:
         const volScalarField& rhoc() const
         {
             return rhoc_;
-            //return C[0]*MW[0]+C[1]*MW[1]+C[2]*MW[2]+C[3]*MW[3]+C[3]*MW_K;
         };
 
         //- Return the diameter of the dispersed-phase particles
@@ -150,6 +151,10 @@ public:
         const volVectorField& U() const
         {
             return U_;
+        }
+        const dimensionedScalar& p_num() const
+        {
+            return p_num_;
         }
 
         //- Return the dynamic mixture viscosity
@@ -174,7 +179,7 @@ public:
         virtual tmp<scalarField> rho(const label patchi) const
         {
             return
-                alpha1_.boundaryField()[patchi]*rhod_.value()
+                alpha1_.boundaryField()[patchi]*rhod_
               + alpha2_.boundaryField()[patchi]*rhoc_;//.fcValue();
         }
 
@@ -193,10 +198,34 @@ public:
         //- Correct the laminar viscosity
         virtual void correct()
         {
-            rhoc_= C[0]*MW[0]+C[1]*MW[1]+C[2]*MW[2]+C[3]*MW[3]+C[3]*MW_K;
             mu_ = muModel_->mu(rhoc_*nucModel_->nu());
         }
+        /*virtual void correct_D1()
+        {
+        	D1_eff_=pow(epsilon_,tau_)*pow(alpha1_,(tau_-1))*D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
+        }*/
+        
+        virtual void correct_nu()
+        {
+        	nu_=mu_/rho();
+        }
+        virtual void correct_rhoc()
+        {
+        	rhoc_=C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4];
+        }
+        virtual void correct_rhod()
+        {
+        	rhod_=p_num_/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1])*(1/(C1_[0]+C1_[1]));
+        }
+        virtual void correct_D2_eff()
+        {
+        	forAll(species2,i)
+        		{
+        			D2_eff_[i]=Foam::pow(epsilon_,tau_)*Foam::pow(1-alphad1_,1-tau_)*D2_[i];
+        		}
 
+        }
+//	virtual void correct();
         //- Read base transportProperties dictionary
         virtual bool read();
 };

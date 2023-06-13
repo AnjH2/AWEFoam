@@ -41,9 +41,11 @@ Description
 #include "fvCFD.H"
 #include "CMULES.H"
 #include "subCycle.H"
-#include "IOobjectList.H"
-#include "createSpecies.H"
+
+#include "porousProperties.H"
 #include "incompressibleTwoPhaseInteractingMixture.H"
+#include "reactionProperties.H"
+#include "porousProperties.H"
 #include "relativeVelocityModel.H"
 #include "turbulenceModel.H"
 #include "CompressibleTurbulenceModel.H"
@@ -51,7 +53,8 @@ Description
 #include "fvOptions.H"
 #include "gaussLaplacianScheme.H"
 #include "uncorrectedSnGrad.H"
-
+#include "IOobjectList.H"
+#include "loopControl.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -74,15 +77,39 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createTimeControls.H"
     #include "createFields.H"
-    #include "constantFields.H"
+    #include "physicoChemicalConstants.H"
+    //#include "constantFields.H"
+    //#include "createSpecies.H"
     
     
     #include "initContinuityErrs.H"
 
     volScalarField& alpha2(mixture.alpha2());
-    const dimensionedScalar& rho1 = mixture.rhod();
-    const dimensionedScalar& rho2 = mixture.rhoc();
+    const volScalarField& rho1 = mixture.rhod();
+    const volScalarField& rho2 = mixture.rhoc();
+    PtrList <volScalarField>& C2 = mixture.C2();
+    PtrList <volScalarField>& C1 = mixture.C1();
+    const PtrList <dimensionedScalar>& MW = mixture.MW();
+    const PtrList <dimensionedScalar>& z = mixture.z();
+    const volScalarField& T = mixture.T();
+
+    
     relativeVelocityModel& UdmModel(UdmModelPtr());
+    
+    const volScalarField& epsilon1 = poroM.eps();
+    const PtrList <dimensionedScalar>& as = poroM.as();
+    const volScalarField& Ne = poroM.Ne();
+    const volScalarField& Pe = poroM.Pe();
+    const volScalarField& Mem = poroM.Mem();
+    
+    
+    const PtrList <dimensionedScalar>& C2_ref = react.C2_ref();
+    const dimensionedScalar& n =react.n();
+    
+    const dimensionedScalar& F=Foam::constant::physicoChemical::F;
+    const dimensionedScalar& R=Foam::constant::physicoChemical::R;
+    
+    //listing species for species transport equations.
 
     turbulence->validate();
 
@@ -108,9 +135,13 @@ int main(int argc, char *argv[])
             UdmModel.correct();
 
             #include "alphaEqnSubCycle.H"
-
+	    
+	    mixture.correct_rhoc();
+	    mixture.correct_rhod();
             mixture.correct();
-
+            //mixture.correct_D1();
+            mixture.correct_nu();
+            mixture.correct_D2_eff();
             #include "UEqn.H"
 
             // --- Pressure corrector loop
@@ -123,10 +154,24 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
+            #include "potentialEqn.H"
+            for (int j=0; j<=2; j++)
+            {
             
             #include "CiEqn.H"
+            mixture.correct_rhoc();
+	    mixture.correct_rhod();
+            }
+            /*for (int i=0; i<=2; i++)
+            {
+            #include "CiEqn.H"
+            }*/
         }
-
+	if (runTime.writeTime())
+	{
+        	INe = poroM.sigma_s_eff()*fvc::grad(UNe);
+        	IPe = poroM.sigma_s_eff()*fvc::grad(UPe);
+        }
         runTime.write();
 
         runTime.printExecutionTime(Info);

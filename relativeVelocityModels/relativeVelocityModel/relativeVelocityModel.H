@@ -84,7 +84,7 @@ protected:
         const volScalarField& rhoc_;
 
         //- Dispersed density
-        const dimensionedScalar& rhod_;
+        const volScalarField& rhod_;
 
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
@@ -139,13 +139,15 @@ public:
 
         //- Return the mixture mean density
         tmp<volScalarField> rho() const;
-        
 
         //- Return the diffusion velocity of the dispersed phase
         const volVectorField& Udm() const
         {
             return Udm_;
         }
+        //- Return the relative velocity of the continues phase
+	//tmp<volVectorField> Ucm() const;
+
 
         //- Return the stress tensor due to the phase transport
         tmp<volSymmTensorField> tauDm() const;

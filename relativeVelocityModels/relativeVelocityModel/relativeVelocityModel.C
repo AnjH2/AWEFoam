@@ -144,14 +144,27 @@ Foam::relativeVelocityModel::~relativeVelocityModel()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-
-
-
 Foam::tmp<Foam::volScalarField> Foam::relativeVelocityModel::rho() const
 {
     return alphac_*rhoc_ + alphad_*rhod_;
 }
 
+
+// Calculate the relative velocity of the continuous phase w.r.t the mean
+/*Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Ucm() const
+{
+    volScalarField betac(alphac_*rhoc_);
+    volScalarField betad(alphad_*rhod_);
+    return tmp<volVectorField>
+    (
+        new volVectorField
+        (
+            "Ucm",
+            betad*Udm_/betac
+        )
+    );
+    
+}*/
 
 Foam::tmp<Foam::volSymmTensorField> Foam::relativeVelocityModel::tauDm() const
 {
@@ -159,14 +172,14 @@ Foam::tmp<Foam::volSymmTensorField> Foam::relativeVelocityModel::tauDm() const
     volScalarField betad(alphad_*rhod_);
 
     // Calculate the relative velocity of the continuous phase w.r.t the mean
-    volVectorField Ucm(betad*Udm_/betac);
+    volVectorField Ucm_(betad*Udm_/betac);
 
     return tmp<volSymmTensorField>
     (
         new volSymmTensorField
         (
             "tauDm",
-            betad*sqr(Udm_) + betac*sqr(Ucm)
+            betad*sqr(Udm_) + betac*sqr(Ucm_)
         )
     );
 }

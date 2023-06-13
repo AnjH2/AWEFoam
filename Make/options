@@ -1,5 +1,9 @@
+LIB_USER_SRC=$(VM_PROJECT_USER_DIR)/src
 EXE_INC = \
     -IincompressibleTwoPhaseInteractingMixture \
+    -IspeciesMixture \
+    -IporousProperties \
+    -IreactionProperties \
     -ImixtureViscosityModels/lnInclude \
     -I./relativeVelocityModels/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
@@ -9,7 +13,8 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
-    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude
+    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
+
 
 EXE_LIBS = \
     -lfiniteVolume \
@@ -23,4 +28,5 @@ EXE_LIBS = \
     -ldriftFluxRelativeVelocityModels \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
-    -lthermoTools
+    -lthermoTools \
+
