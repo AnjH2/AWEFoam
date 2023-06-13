@@ -29,7 +29,10 @@
         (
             fvm::laplacian(rAUf, p_rgh) == fvc::div(phiHbyA)
         );
-
+	
+	p_rghEqn += Psi_gas;
+	p_rghEqn -= Psi_liquid;
+	
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
 
         p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));

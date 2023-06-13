@@ -11,11 +11,14 @@
         dimensionedScalar(phi.dimensions(), Zero)
     );
     //Psi_alpha=-1*(Psi_si[0] + Psi_si[1])/mixture.rhod();
-   Psi_alpha=-1*(
+   Psi_gas=-1*(
         Psi_si[0]/(MW[0]*mixture.p_num()/(R*T)) 
       + Psi_si[1]/(MW[1]*mixture.p_num()/(R*T))
       	);
-
+    Psi_liquid=-1*(
+        Psi_si[0]/(rho2) 
+      + Psi_si[1]/(rho2)
+      	);
     surfaceScalarField phir(fvc::flux(UdmModel.Udm()));
 
     if (nAlphaSubCycles > 1)
@@ -59,7 +62,7 @@
           - fvm::laplacian(turbulence->nut(), alpha1)
           
         );
-	alpha1Eqn += Psi_alpha;
+	alpha1Eqn += Psi_gas;
 	
         alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));
 

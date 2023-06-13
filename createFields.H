@@ -200,11 +200,24 @@ PtrList <volScalarField> Psi_si(2);
             			dimensionSet(1,-3,-1,0,0,0,0)
         		)
     		);
-volScalarField Psi_alpha
+volScalarField Psi_gas
 (
 	IOobject
 	(
-	    	"Psi_si_O2",
+	    	"Psi_gas",
+            	mesh.time().timeName(),
+       	    	mesh,
+            	IOobject::NO_READ,
+            	IOobject::NO_WRITE
+	),
+	mesh,
+	dimensionSet(0,0,-1,0,0,0,0)
+);
+volScalarField Psi_liquid
+(
+	IOobject
+	(
+	    	"Psi_liquid",
             	mesh.time().timeName(),
        	    	mesh,
             	IOobject::NO_READ,

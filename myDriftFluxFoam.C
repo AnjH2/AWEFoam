@@ -154,11 +154,13 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
+            #include "potentialEqn.H"
             for (int j=0; j<=2; j++)
             {
-            #include "potentialEqn.H"
-            #include "CiEqn.H"
             
+            #include "CiEqn.H"
+            mixture.correct_rhoc();
+	    mixture.correct_rhod();
             }
             /*for (int i=0; i<=2; i++)
             {

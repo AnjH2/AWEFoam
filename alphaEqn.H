@@ -15,7 +15,7 @@
             ).fvmDiv(phi, alpha1) 
           
         );
-	alpha1Eqn += Psi_alpha;
+	alpha1Eqn += Psi_gas;
 	
         solve(alpha1Eqn);
 
@@ -38,7 +38,7 @@
                 alpha1,
                 alphaPhi,
                 talphaPhiCorr0.ref(),
-                Psi_alpha,
+                Psi_gas,
                 zeroField(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
@@ -80,7 +80,7 @@
                 alpha1,
                 talphaPhiUn(),
                 talphaPhiCorr.ref(),
-                Psi_alpha,
+                Psi_gas,
                 zeroField(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
@@ -107,7 +107,7 @@
                 alpha1,
                 phi,
                 alphaPhi,
-                Psi_alpha,
+                Psi_gas,
                 zeroField(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
