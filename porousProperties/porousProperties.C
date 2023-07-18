@@ -111,19 +111,7 @@ Foam::porousProperties::porousProperties
         ),
         mesh
     ),
-    InRegion_
-    (
-    	IOobject
-        (
-            "InRegion",
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        ),
-        mesh
-    ),
-    
+   
         sigma_s_ref_
 	(
 		"sigma_s_ref",
@@ -140,7 +128,7 @@ Foam::porousProperties::porousProperties
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        (1-InRegion_*0.9999999)*(Pe_+Ne_+Mem_*1e-6)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
+        (Pe_+Ne_+Mem_*1e-6)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
     )
 {
 forAll(electrodes,i)

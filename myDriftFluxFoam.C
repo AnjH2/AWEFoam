@@ -101,11 +101,11 @@ int main(int argc, char *argv[])
     const volScalarField& Ne = poroM.Ne();
     const volScalarField& Pe = poroM.Pe();
     const volScalarField& Mem = poroM.Mem();
-    const volScalarField& IR = poroM.InRegion();
-    
     
     const PtrList <dimensionedScalar>& C2_ref = react.C2_ref();
     const dimensionedScalar& n =react.n();
+    const dimensionedScalar& J_lim =react.J_lim();
+    const PtrList <volScalarField>& k_H = react.k_H(); //dependent on temperature.
     
     const dimensionedScalar& F=Foam::constant::physicoChemical::F;
     const dimensionedScalar& R=Foam::constant::physicoChemical::R;
@@ -127,8 +127,9 @@ int main(int argc, char *argv[])
         ++runTime;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
+	theta_b = pow(mag(J)/(as[0]+as[1])/J_lim,0.3); //calculates coverage for the given time step.
         // --- Pressure-velocity PIMPLE corrector loop
+        
         while (pimple.loop())
         {
             #include "alphaControls.H"
@@ -162,6 +163,9 @@ int main(int argc, char *argv[])
             {
             #include "potentialEqn.H"
             #include "CiEqn.H"
+                UNeEqn.solve();
+            	UeEqn.solve();
+            	UPeEqn.solve();
             mixture.correct_rhod();
             }
             /*for (int i=0; i<=2; i++)

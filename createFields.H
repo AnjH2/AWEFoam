@@ -327,7 +327,20 @@ volVectorField IPe
 	),
 	fvc::grad(UPe)*poroM.sigma_s_eff()
 );
-
+Info << "Defining coverage ratio \n" << endl;
+volScalarField theta_b
+(
+	IOobject
+	(
+		"theta_b",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::AUTO_WRITE
+	),
+	mesh,
+	dimless
+);
 
 #include "createMRF.H"
 #include "createFvOptions.H"

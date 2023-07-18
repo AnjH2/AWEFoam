@@ -216,7 +216,12 @@ public:
         }*/
         virtual void correct_rhod()
         {
-        	rhod_=(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1])*(1/(C1_[0]+C1_[1]));
+        	rhod_=min(
+        	max(
+        	(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1])*(1/(C1_[0]+C1_[1])),
+        	p_num_/(Foam::constant::physicoChemical::R*T_)*MW_[0]),
+        	p_num_/(Foam::constant::physicoChemical::R*T_)*MW_[1]
+        	);
         }
         virtual void correct_nu()
         {

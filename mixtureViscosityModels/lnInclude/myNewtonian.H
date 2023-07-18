@@ -1,1 +1,0 @@
-../myNewtonian/myNewtonian.H

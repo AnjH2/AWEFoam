@@ -60,7 +60,12 @@ protected:
 	List<word> electrodes;
 	List<word> species2;
 	PtrList <dimensionedScalar> C_ref_;
-	PtrList <dimensionedScalar> C_sat_;
+	//henrys law
+	PtrList <dimensionedScalar> DeltaH_;
+	PtrList <dimensionedScalar> H_ref_;
+	PtrList <dimensionedScalar> T_H_ref_;
+	PtrList <volScalarField> k_H_;
+	
 	PtrList <dimensionedScalar> psi_;
 	PtrList <volScalarField> Psi_;
 	PtrList <dimensionedScalar> E0_ref_;
@@ -72,11 +77,7 @@ protected:
 	PtrList <dimensionedScalar> T0_i0_;
 	PtrList <volScalarField> i0_;
 	PtrList <dimensionedScalar> alphaT_;
-	//henrys law
-	PtrList <dimensionedScalar> DeltaH_;
-	PtrList <dimensionedScalar> H_ref_;
-	PtrList <dimensionedScalar> T_H_ref_;
-	PtrList <volScalarField> k_H_;
+
 	////
 	const dimensionedScalar n_;	
 	const dimensionedScalar u_K_;
@@ -85,6 +86,7 @@ protected:
 	dimensionedScalar tau_c_;
 
 	const volScalarField&	T_;
+	const dimensionedScalar J_lim_;
 	
 
 
@@ -112,10 +114,7 @@ public:
         {
             return C_ref_;
         }
-         const PtrList <dimensionedScalar>& C_sat() const
-        {
-            return C_sat_;
-        }
+
 
         const PtrList <dimensionedScalar>& psi() const
         {
@@ -155,6 +154,11 @@ public:
         const PtrList <volScalarField>& k_H() const
         {
             return k_H_;
+        }
+        
+        const dimensionedScalar& J_lim() const
+        {
+            return J_lim_;
         }
 };
 
