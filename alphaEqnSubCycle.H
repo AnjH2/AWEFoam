@@ -12,8 +12,8 @@
     );
     //Psi_alpha=-1*(Psi_si[0] + Psi_si[1])/mixture.rhod();
    Psi_gas=-1*(
-        Psi_si[0]/(MW[0]*mixture.p_num()/(R*T)) 
-      + Psi_si[1]/(MW[1]*mixture.p_num()/(R*T))
+        Psi_si[0]/(MW[0]*(mixture.p_num())/(R*T)) 
+      + Psi_si[1]/(MW[1]*(mixture.p_num())/(R*T))
       	);
     Psi_liquid=-1*(
         Psi_si[0]/(rho2) 
@@ -58,7 +58,7 @@
     {
         fvScalarMatrix alpha1Eqn
         (
-            (fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1))
+            (fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1))//epsilon1,
           - fvm::laplacian(turbulence->nut(), alpha1)
           
         );
@@ -76,7 +76,7 @@
             << endl;
     }
 
-    rhoPhi = alphaPhi*(fvc::interpolate(rho1) - fvc::interpolate(rho2)) + phi*fvc::interpolate(rho2);
+    //rhoPhi = alphaPhi*(fvc::interpolate(rho1) - rho2) + phi*rho2;
     rho = mixture.rho();
     alpha1Phi=alphaPhi;
     

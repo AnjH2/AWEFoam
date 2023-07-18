@@ -85,7 +85,7 @@ incompressibleTwoPhaseInteractingMixture
     ),
 
     //rhod_("rho", dimDensity, muModel_->viscosityProperties()),
-    //rhoc_("rho", dimDensity, nucModel_->viscosityProperties()),
+    
     
     p_num_("p_num", dimPressure, *this),
     
@@ -101,9 +101,9 @@ incompressibleTwoPhaseInteractingMixture
         ),
         p_num_/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1])*(1/(C1_[0]+C1_[1]))
     ),
+    rhoc_("rho", dimDensity, nucModel_->viscosityProperties()),
     
-    
-    rhoc_
+    /*rhoc_
     (
         IOobject
         (
@@ -114,7 +114,7 @@ incompressibleTwoPhaseInteractingMixture
             IOobject::AUTO_WRITE
         ),
         C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4]
-    ),
+    ),*/
     dd_
     (
         "d",
@@ -149,7 +149,17 @@ incompressibleTwoPhaseInteractingMixture
             IOobject::NO_WRITE
         ),
         mu_/rho()
-    )
+    ),
+    
+    prgh_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"p_rgh"
+    			//(
+    			//)
+    		)
+  	)
 {
     correct();
 }
@@ -168,11 +178,7 @@ bool Foam::incompressibleTwoPhaseInteractingMixture::read()
         )
         {
             muModel_->viscosityProperties().readEntry("rho", rhod_);
-                rhoc_ = volScalarField
-    		(
-            		"rhoc",
-        		C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4]
-   		),
+            nucModel_->viscosityProperties().readEntry("rho", rhoc_);
 
             dd_ = dimensionedScalar
             (

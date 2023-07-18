@@ -5,19 +5,19 @@
 //******************************************* constants used in eqation
 		volScalarField C1Ne
 		(
-		Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*Foam::pow(C2[3]/C2_ref[3],2)*(C2[0]/C2_ref[0])
+		(1-IR)*Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*Foam::pow(C2[3]/C2_ref[3],2)*(C2[0]/C2_ref[0])
 		);
 		volScalarField C1Pe
 		(
-		Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*Foam::pow(C2[3]/C2_ref[3],2)
+		(1-IR)*Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*Foam::pow(C2[3]/C2_ref[3],2)
 		);
 		volScalarField C2Ne
 		(
-		Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*Foam::pow(C2[2]/C2_ref[2],2)
+		(1-IR)*Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*Foam::pow(C2[2]/C2_ref[2],2)
 		);
 		volScalarField C2Pe
 		(
-		Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*Foam::pow(C2[1]/C2_ref[1],0.5)*(C2[2]/C2_ref[2])
+		(1-IR)*Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*Foam::pow(C2[1]/C2_ref[1],0.5)*(C2[2]/C2_ref[2])
 		);
 		//opdated 1511-2022
 //******************************************* constants used in eqation
@@ -128,7 +128,7 @@
             	eta=(UNe-Ue-react.E0()[0])*Ne+(UPe-Ue-react.E0()[1])*Pe;
         	
         	J=
-        	Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*(Foam::pow(C2[3]/C2_ref[3],2)*exp((react.alphaT()[2]*F*eta)/(R*T))-Foam::pow(C2[1]/C2_ref[1],0.5)*(C2[2]/C2_ref[2])*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
-        	Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*(Foam::pow(C2[3]/C2_ref[3],2)*(C2[0]/C2_ref[0])*exp((react.alphaT()[0]*F*eta)/(R*T))-Foam::pow(C2[2]/C2_ref[2],2)*exp((-react.alphaT()[1]*F*eta)/(R*T)))
+        	(1-IR*0.999)*Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*(Foam::pow(C2[3]/C2_ref[3],2)*exp((react.alphaT()[2]*F*eta)/(R*T))-Foam::pow(C2[1]/C2_ref[1],0.5)*(C2[2]/C2_ref[2])*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
+        	(1-IR*0.999)*Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*(Foam::pow(C2[3]/C2_ref[3],2)*(C2[0]/C2_ref[0])*exp((react.alphaT()[0]*F*eta)/(R*T))-Foam::pow(C2[2]/C2_ref[2],2)*exp((-react.alphaT()[1]*F*eta)/(R*T)))
     		;
             	

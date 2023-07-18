@@ -63,6 +63,11 @@ Foam::reactionProperties::reactionProperties
 	T0_i0_(electrodes.size()),
 	i0_(electrodes.size()),
 	alphaT_(electrodes.size()*2),
+	
+	DeltaH_(2),
+	H_ref_(2),
+	T_H_ref_(2),
+	k_H_(2),
 	n_
 	(
 		"n",
@@ -87,6 +92,8 @@ Foam::reactionProperties::reactionProperties
 		dimensionSet( 0, 0, 1, 0, 0, 0, 0),
 		reactionCoeffs_
 	),
+	
+	
 	T_
    	(
     		mesh.lookupObject<volScalarField>
@@ -112,6 +119,26 @@ forAll(species2,i)
     			(
         		i,
         		new dimensionedScalar("C_"+species2[i]+"_sat", dimensionSet ( 0, -3, 0, 0, 1, 0, 0),reactionCoeffs_)
+        		);
+        		DeltaH_.set
+    			(
+        		i,
+        		new dimensionedScalar("DeltaH_"+species2[i]+, dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
+        		);
+        		H_ref_.set
+    			(
+        		i,
+        		new dimensionedScalar("H_ref_"+species2[i]+, dimensionSet ( -1, -2, 2, 0, 1, 0, 0),reactionCoeffs_)
+        		);
+        		T_H_ref_.set
+    			(
+        		i,
+        		new dimensionedScalar("T_H_ref_"+species2[i]+, dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
+        		);
+        		k_H_ref_.set
+    			(
+        		i,
+        		new dimensionedScalar("k_H_"+species2[i]+, dimensionSet ( -1, -2, 2, 0, 1, 0, 0),reactionCoeffs_)
         		);
         	}
         	Psi_.set

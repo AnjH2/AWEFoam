@@ -72,12 +72,20 @@ protected:
 	PtrList <dimensionedScalar> T0_i0_;
 	PtrList <volScalarField> i0_;
 	PtrList <dimensionedScalar> alphaT_;
+	//henrys law
+	PtrList <dimensionedScalar> DeltaH_;
+	PtrList <dimensionedScalar> H_ref_;
+	PtrList <dimensionedScalar> T_H_ref_;
+	PtrList <volScalarField> k_H_;
+	////
 	const dimensionedScalar n_;	
 	const dimensionedScalar u_K_;
 	const dimensionedScalar u_OH_;
 	dimensionedScalar t_OH_;
 	dimensionedScalar tau_c_;
+
 	const volScalarField&	T_;
+	
 
 
 
@@ -144,7 +152,10 @@ public:
         {
             return tau_c_;
         }
-      
+        const PtrList <volScalarField>& k_H() const
+        {
+            return k_H_;
+        }
 };
 
 

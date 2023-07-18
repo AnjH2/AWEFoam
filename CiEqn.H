@@ -57,21 +57,14 @@ for(label i=0; i<C2.size(); i++)
 	{
 	Temp1=(C2[i]-react.C_sat()[i]);
 
-	Psi_si[i]=	((Temp1<Zero)*
+	Psi_si[i]=	(0)*((Temp1<Zero)* //from gas to liquid
 			max(
-				(1/react.tau_c()*MW[i]*C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i]),
+				alpha1*epsilon1*((1/react.tau_c()*MW[i]*C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i])),//alpha1*epsilon1*
 				((-1*MW[i]*alpha1*epsilon1)/(mesh.time().deltaT())*C1[i]))+
-			(Temp1>Zero)*((1/react.tau_c()*MW[i]*C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i]))
+			(Temp1>Zero)* // from liquid to gas
+				((1-alpha1)*epsilon1*((1/react.tau_c()*MW[i]*C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i]))) //(1-alpha1)*epsilon1*
 			);
-		/*fvScalarMatrix Psi_s
-		(
-		//((C1[i]>Zero))*(fvm::SuSp(1/react.tau_c()*MW[i],C2[i])-1/react.tau_c()*MW[i]*react.C_sat()[i])
-			(Temp1< Zero)*
-			(
-			fvm::Sp(1/react.tau_c()*MW[i],C2[i])-(1/react.tau_c()*MW[i]*react.C_sat()[i])-
-			fvc::Sp((MW[i]*alpha1*epsilon1)/(mesh.time().deltaTValue()),C1[i])
-			) // source term ***********
-		);*/
+
 
 		C2Eqn += Psi_si[i];
 	}
@@ -85,7 +78,7 @@ for(label i=0; i<C2.size(); i++)
 
 }
 
-for(label i=0; i<C1.size(); i++)
+/*for(label i=0; i<C1.size(); i++)
 {
 	Temp1=(C2[i]-react.C_sat()[i]);
 
@@ -103,7 +96,7 @@ for(label i=0; i<C1.size(); i++)
         C1Eqn -= Psi_si[i];
         C1Eqn.relax();
         solve(C1Eqn);
-}
+}*/
 
 
 

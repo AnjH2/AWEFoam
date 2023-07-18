@@ -6,7 +6,7 @@
     {
         fvScalarMatrix alpha1Eqn
         (
-            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)//epsilon1*
           + fv::gaussConvectionScheme<scalar>
             (
                 mesh,
