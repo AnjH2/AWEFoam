@@ -68,6 +68,7 @@ protected:
 	const volScalarField Pe_;
 	const volScalarField Ne_;
 	const volScalarField Mem_;
+
 	
 	const dimensionedScalar sigma_s_ref_;
 	const volScalarField sigma_s_eff_;
@@ -122,6 +123,7 @@ public:
         {
             return Mem_;
         }
+
 
 
         

@@ -51,7 +51,10 @@ Foam::reactionProperties::reactionProperties
     	electrodes({"Ne","Pe"}),
     	species2({"H2","O2","H2O","OH"}),
     	C_ref_(species2.size()),
-    	C_sat_(2),
+	DeltaH_(2),
+	H_ref_(2),
+	T_H_ref_(2),
+	k_H_(2),
     	psi_(species2.size()*electrodes.size()),
     	Psi_(species2.size()),
 	E0_ref_(electrodes.size()),
@@ -87,6 +90,8 @@ Foam::reactionProperties::reactionProperties
 		dimensionSet( 0, 0, 1, 0, 0, 0, 0),
 		reactionCoeffs_
 	),
+	
+	
 	T_
    	(
     		mesh.lookupObject<volScalarField>
@@ -95,8 +100,13 @@ Foam::reactionProperties::reactionProperties
     			//(
     			//)
     		)
-  	)
-
+  	),
+	J_lim_
+	(
+		"J_lim",
+		dimensionSet( 0, -2, 0, 0, 0, 1, 0),
+		reactionCoeffs_
+	)
 {
 forAll(species2,i)
 	{
@@ -108,11 +118,39 @@ forAll(species2,i)
         	);
         	if (species2[i]=="H2"||species2[i]=="O2")
         	{
-        		C_sat_.set
+        		DeltaH_.set
     			(
-        		i,
-        		new dimensionedScalar("C_"+species2[i]+"_sat", dimensionSet ( 0, -3, 0, 0, 1, 0, 0),reactionCoeffs_)
+        			i,
+        			new dimensionedScalar("DeltaH_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
         		);
+        		H_ref_.set
+    			(
+        			i,
+        			new dimensionedScalar("H_ref_"+species2[i], dimensionSet ( -1, -2, 2, 0, 1, 0, 0),reactionCoeffs_)
+        		);
+        		T_H_ref_.set
+    			(
+        			i,
+        			new dimensionedScalar("T_H_ref_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
+        		);
+
+        		k_H_.set
+    			(
+        			i,
+        			new volScalarField
+        			(
+            				IOobject
+            				(
+               					"k_H_"+species2[i],
+                				mesh.time().timeName(),
+                				mesh,
+                				IOobject::NO_READ,
+                				IOobject::NO_WRITE
+            				),
+            			H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))
+        			)
+    			);
+        		
         	}
         	Psi_.set
     		(

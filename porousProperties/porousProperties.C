@@ -81,7 +81,7 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mesh
     ),
@@ -94,7 +94,7 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mesh
     ),
@@ -107,11 +107,11 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mesh
     ),
-    
+   
         sigma_s_ref_
 	(
 		"sigma_s_ref",
@@ -126,9 +126,9 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
-        (Pe_+Ne_+Mem_*0.1)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
+        (Pe_+Ne_+Mem_*1e-6)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
     )
 {
 forAll(electrodes,i)

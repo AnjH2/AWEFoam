@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 
     volScalarField& alpha2(mixture.alpha2());
     const volScalarField& rho1 = mixture.rhod();
-    const volScalarField& rho2 = mixture.rhoc();
+    const dimensionedScalar& rho2 = mixture.rhoc();
     PtrList <volScalarField>& C2 = mixture.C2();
     PtrList <volScalarField>& C1 = mixture.C1();
     const PtrList <dimensionedScalar>& MW = mixture.MW();
@@ -102,9 +102,10 @@ int main(int argc, char *argv[])
     const volScalarField& Pe = poroM.Pe();
     const volScalarField& Mem = poroM.Mem();
     
-    
     const PtrList <dimensionedScalar>& C2_ref = react.C2_ref();
     const dimensionedScalar& n =react.n();
+    const dimensionedScalar& J_lim =react.J_lim();
+    const PtrList <volScalarField>& k_H = react.k_H(); //dependent on temperature.
     
     const dimensionedScalar& F=Foam::constant::physicoChemical::F;
     const dimensionedScalar& R=Foam::constant::physicoChemical::R;
@@ -126,8 +127,9 @@ int main(int argc, char *argv[])
         ++runTime;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
+	theta_b = pow(mag(J)/(as[0]+as[1])/J_lim,0.3); //calculates coverage for the given time step.
         // --- Pressure-velocity PIMPLE corrector loop
+        
         while (pimple.loop())
         {
             #include "alphaControls.H"
@@ -136,31 +138,35 @@ int main(int argc, char *argv[])
 
             #include "alphaEqnSubCycle.H"
 	    
-	    mixture.correct_rhoc();
+	    //mixture.correct_rhoc();
 	    mixture.correct_rhod();
             mixture.correct();
             //mixture.correct_D1();
             mixture.correct_nu();
             mixture.correct_D2_eff();
+
             #include "UEqn.H"
 
             // --- Pressure corrector loop
             while (pimple.correct())
             {
+		
                 #include "pEqn.H"
             }
-		
+
             if (pimple.turbCorr())
             {
                 turbulence->correct();
             }
-            #include "potentialEqn.H"
+            
             for (int j=0; j<=2; j++)
             {
-            
+            #include "potentialEqn.H"
             #include "CiEqn.H"
-            mixture.correct_rhoc();
-	    mixture.correct_rhod();
+                UNeEqn.solve();
+            	UeEqn.solve();
+            	UPeEqn.solve();
+            mixture.correct_rhod();
             }
             /*for (int i=0; i<=2; i++)
             {

@@ -25,7 +25,18 @@ volVectorField U
     ),
     mesh
 );
-
+volScalarField p
+(
+    IOobject
+    (
+        "p",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    p_rgh
+);
 Info<< "Reading porousProperties\n" << endl;
 porousProperties poroM(mesh);
 
@@ -49,7 +60,7 @@ volScalarField rho
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     mixture.rho()
 );
@@ -121,18 +132,8 @@ autoPtr
 #include "gh.H"
 
 
-volScalarField p
-(
-    IOobject
-    (
-        "p",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    p_rgh + rho*gh
-);
+
+    p = p_rgh + rho*gh;
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
@@ -226,6 +227,8 @@ volScalarField Psi_liquid
 	mesh,
 	dimensionSet(0,0,-1,0,0,0,0)
 );
+
+
 //********** Potential related Fields **********//
 
 Info << "Reading potential field UPe \n" << endl;
@@ -324,7 +327,20 @@ volVectorField IPe
 	),
 	fvc::grad(UPe)*poroM.sigma_s_eff()
 );
-
+Info << "Defining coverage ratio \n" << endl;
+volScalarField theta_b
+(
+	IOobject
+	(
+		"theta_b",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::AUTO_WRITE
+	),
+	mesh,
+	dimless
+);
 
 #include "createMRF.H"
 #include "createFvOptions.H"
