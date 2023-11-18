@@ -59,10 +59,13 @@ protected:
 	dictionary	reactionCoeffs_;
 	List<word> electrodes;
 	List<word> species2;
-	PtrList <dimensionedScalar> C_ref_;
-	PtrList <dimensionedScalar> C_sat_;
+	//henrys law
+	PtrList <dimensionedScalar> DeltaH_;
+	PtrList <dimensionedScalar> H_ref_;
+	PtrList <dimensionedScalar> T_H_ref_;
+	PtrList <volScalarField> k_H_;
+	
 	PtrList <dimensionedScalar> psi_;
-	PtrList <volScalarField> Psi_;
 	PtrList <dimensionedScalar> E0_ref_;
 	PtrList <dimensionedScalar> T0_E0_;
 	PtrList <dimensionedScalar> Ds_;
@@ -72,12 +75,16 @@ protected:
 	PtrList <dimensionedScalar> T0_i0_;
 	PtrList <volScalarField> i0_;
 	PtrList <dimensionedScalar> alphaT_;
-	const dimensionedScalar n_;	
+
+	////
 	const dimensionedScalar u_K_;
 	const dimensionedScalar u_OH_;
 	dimensionedScalar t_OH_;
-	dimensionedScalar tau_c_;
+
 	const volScalarField&	T_;
+	const dimensionedScalar	nT_; //variable to remove influence of Temperature in butlervolmer equation
+
+	
 
 
 
@@ -100,22 +107,9 @@ public:
 
     // Member Functions
 
-        const PtrList <dimensionedScalar>& C2_ref() const
-        {
-            return C_ref_;
-        }
-         const PtrList <dimensionedScalar>& C_sat() const
-        {
-            return C_sat_;
-        }
-
         const PtrList <dimensionedScalar>& psi() const
         {
             return psi_;
-        }
-	PtrList <volScalarField>& Psi()
-        {
-            return Psi_;
         }
         const PtrList <volScalarField>& i0() const
         {
@@ -126,6 +120,7 @@ public:
         {
             return alphaT_;
         }
+ 
         
         const PtrList <volScalarField>& E0() const
         {
@@ -135,16 +130,17 @@ public:
         {
             return t_OH_;
         }
-        const dimensionedScalar& n() const
+        const dimensionedScalar& nT() const
         {
-            return n_;
+            return nT_;
         }
-        
-        const dimensionedScalar& tau_c() const
+
+        const PtrList <volScalarField>& k_H() const
         {
-            return tau_c_;
+            return k_H_;
         }
-      
+
+
 };
 
 

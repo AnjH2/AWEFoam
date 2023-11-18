@@ -6,7 +6,7 @@
     {
         fvScalarMatrix alpha1Eqn
         (
-            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)//epsilon1*
           + fv::gaussConvectionScheme<scalar>
             (
                 mesh,
@@ -18,7 +18,6 @@
 	alpha1Eqn += Psi_gas;
 	
         solve(alpha1Eqn);
-
         Info<< "Phase-1 volume fraction = "
             << alpha1.weightedAverage(mesh.Vsc()).value()
             << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
@@ -128,21 +127,5 @@
         << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
         << endl;
         
-    //try calculating alphaphi2 (continous phase)
 
-    alpha2Phi=
-        (
-            fvc::flux
-            (
-                phi,
-                alpha2,
-                alphaScheme
-            )
-          + fvc::flux
-            (
-                -fvc::flux(phir, alpha1, alpharScheme),
-                alpha2,
-                alpharScheme
-            )
-        );
 }

@@ -40,7 +40,7 @@ Foam::reactionProperties::reactionProperties
     (
         IOobject
         (
-            "transportProperties",
+            "reactionProperties",
             mesh.time().constant(),
             mesh,
             IOobject::MUST_READ_IF_MODIFIED,
@@ -50,10 +50,11 @@ Foam::reactionProperties::reactionProperties
     	reactionCoeffs_(this->optionalSubDict("reactionCoeffs")),
     	electrodes({"Ne","Pe"}),
     	species2({"H2","O2","H2O","OH"}),
-    	C_ref_(species2.size()),
-    	C_sat_(2),
+	DeltaH_(2),
+	H_ref_(2),
+	T_H_ref_(2),
+	k_H_(2),
     	psi_(species2.size()*electrodes.size()),
-    	Psi_(species2.size()),
 	E0_ref_(electrodes.size()),
 	T0_E0_(electrodes.size()),
 	Ds_(electrodes.size()),
@@ -63,12 +64,6 @@ Foam::reactionProperties::reactionProperties
 	T0_i0_(electrodes.size()),
 	i0_(electrodes.size()),
 	alphaT_(electrodes.size()*2),
-	n_
-	(
-		"n",
-		dimensionSet( 0, 0, 0, 0, 0, 0, 0),
-		reactionCoeffs_
-	),
 	u_K_
 	(
 		"u_K",
@@ -80,13 +75,7 @@ Foam::reactionProperties::reactionProperties
 		"u_OH",
 		dimensionSet( 0, -1, 0, 0, 0, 0, 0),
 		reactionCoeffs_
-	),
-	tau_c_
-	(
-		"tau_c",
-		dimensionSet( 0, 0, 1, 0, 0, 0, 0),
-		reactionCoeffs_
-	),
+	),	
 	T_
    	(
     		mesh.lookupObject<volScalarField>
@@ -95,42 +84,53 @@ Foam::reactionProperties::reactionProperties
     			//(
     			//)
     		)
-  	)
-
+  	),
+  		nT_
+	(
+		"n_Temp",
+		dimless,
+		reactionCoeffs_
+	)
 {
 forAll(species2,i)
 	{
-		Info<< "reading reference concentration for "+species2[i]+" used in butler volmer equation\n" << endl;
-        	C_ref_.set
-    		(
-        	i,
-        	new dimensionedScalar("C_"+species2[i]+"_ref", dimensionSet ( 0, -3, 0, 0, 1, 0, 0),reactionCoeffs_)
-        	);
+
         	if (species2[i]=="H2"||species2[i]=="O2")
         	{
-        		C_sat_.set
+        		DeltaH_.set
     			(
-        		i,
-        		new dimensionedScalar("C_"+species2[i]+"_sat", dimensionSet ( 0, -3, 0, 0, 1, 0, 0),reactionCoeffs_)
+        			i,
+        			new dimensionedScalar("DeltaH_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
         		);
+        		H_ref_.set
+    			(
+        			i,
+        			new dimensionedScalar("H_ref_"+species2[i], dimensionSet ( -1, -2, 2, 0, 1, 0, 0),reactionCoeffs_)
+        		);
+        		T_H_ref_.set
+    			(
+        			i,
+        			new dimensionedScalar("T_H_ref_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
+        		);
+
+        		k_H_.set
+    			(
+        			i,
+        			new volScalarField
+        			(
+            				IOobject
+            				(
+               					"k_H_"+species2[i],
+                				mesh.time().timeName(),
+                				mesh,
+                				IOobject::NO_READ,
+                				IOobject::NO_WRITE
+            				),
+            			H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))
+        			)
+    			);
+        		
         	}
-        	Psi_.set
-    		(
-        		i,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-               				"Psi_"+species2[i],
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::NO_READ,
-                			IOobject::NO_WRITE
-            			),
-            			mesh,
-            			dimensionSet(0,-3,-1,0,1,0,0)
-        		)
-    		);
 	}
 	
 forAll(electrodes,i)
@@ -222,7 +222,6 @@ forAll(electrodes,i)
     	
 	}
 t_OH_=u_OH_/(u_K_+u_OH_);
-
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 

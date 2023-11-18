@@ -1,0 +1,120 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2011-2020 OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::speciesTransport
+
+Description
+    A two-phase species mixture model
+
+SourceFiles
+    speciesTransport.C
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef speciesTransport_H
+#define speciesTransport_H
+
+
+#include "volFields.H"
+#include "physicoChemicalConstants.H"
+#include "IOdictionary.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+/*---------------------------------------------------------------------------*\
+                       Class speciesTransport Declaration
+\*---------------------------------------------------------------------------*/
+
+class speciesTransport
+:
+    public IOdictionary
+{
+protected:
+
+    // Protected data
+	dictionary	speciesTransportCoeffs_;
+	List<word> species2;
+	PtrList <volScalarField> C2_s_;
+	PtrList <volScalarField> k_as_; //can be tmp<>
+	volScalarField Re_p_; //can be tmp<>
+	volScalarField ReSMALLF_;
+	PtrList <volScalarField> Sc_; //can be tmp<>
+	PtrList <volScalarField> SH_; //can be tmp<>
+	PtrList <dimensionedScalar> sh_;
+	const PtrList <volScalarField>& D2_; //should not be affected by totursity
+	const PtrList <volScalarField>& C2_;
+	//const PtrList <volScalarField>& Psi_BV_; 
+	const volScalarField& Pe_;
+	const volScalarField& Ne_;
+	const volScalarField& Mem_;
+	const volScalarField& nu_;
+	const volVectorField& U_;
+	const PtrList <dimensionedScalar>& as_;
+	const PtrList <dimensionedScalar>& D_pore_;
+	
+	
+
+	
+
+
+
+
+
+public:
+	//TypeName("speciesTransport");
+    // Constructors
+
+        //- Construct from components
+        speciesTransport
+        (
+            const fvMesh& mesh
+        );
+
+
+    //- Destructor
+ 	virtual ~speciesTransport() = default;
+
+
+    // Member Functions
+    const PtrList <volScalarField>& C2_s() const
+        {
+            return C2_s_;
+        }
+    
+	void correct(const int i, const PtrList <volScalarField>& Psi_BV_,const volScalarField& theta_);
+}; 
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************************************************************* //

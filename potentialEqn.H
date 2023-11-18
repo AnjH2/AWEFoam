@@ -5,22 +5,29 @@
 //******************************************* constants used in eqation
 		volScalarField C1Ne
 		(
-		Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*Foam::pow(C2[3]/C2_ref[3],2)*(C2[0]/C2_ref[0])
+		Ne*as[0]*react.i0()[0]*theta*(CR_Ne[3]*CR_Ne[0]) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
+
 		volScalarField C1Pe
 		(
-		Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*Foam::pow(C2[3]/C2_ref[3],2)
+		Pe*as[1]*react.i0()[1]*theta*(CR_Pe[3]) //Foam::pow(((react.Psi()[3]/as[1])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
+
 		volScalarField C2Ne
 		(
-		Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*Foam::pow(C2[2]/C2_ref[2],2)
+		Ne*as[0]*react.i0()[0]*theta*(CR_Ne[2]) //Foam::pow(((react.Psi()[2]/as[0])/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
 		);
+
 		volScalarField C2Pe
 		(
-		Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*Foam::pow(C2[1]/C2_ref[1],0.5)*(C2[2]/C2_ref[2])
+		Pe*as[1]*react.i0()[1]*theta*(CR_Pe[2]*CR_Pe[1]) //(((react.Psi()[2]/as[1])/(mixture.D2_eff()[2])+C2[2])/C2[2])
 		);
-		//opdated 1511-2022
+		//opdated 1511-2022 fixed error
+		//opdated 0307-2023 removed H2 and O2 fraction, added concentration gradient to the surface of the electrodes.
+		//opdated 2609-2023 added class to model concentration losses and inserted H2 and O2 again.
+
 //******************************************* constants used in eqation
+		
 		volScalarField C3Ne
 		(
 		(react.alphaT()[0]*F)/(R*T)
@@ -37,7 +44,7 @@
 		(
 		(-react.alphaT()[3]*F)/(R*T)
 		);
-		
+
 //****************************************** for the electrolyte
 		volScalarField I1e_Ne
 		(
@@ -55,6 +62,7 @@
 		(
 		C2Pe*exp(C4Pe*(UPe-Ue.oldTime()-react.E0()[1]))
 		);
+
 //******************************************** for the electrodes
 		volScalarField I1_Ne
 		(
@@ -85,6 +93,7 @@
 		I1e_Pe*(1+C3Pe*Ue.oldTime())-fvm::Sp(I1e_Pe*C3Pe,Ue)
 		+I2e_Pe*(-1+C4Pe*Ue.oldTime())+fvm::Sp(I2e_Pe*C4Pe,Ue)
 		);
+
 //****************************************** for the electrodes
 		fvScalarMatrix	J_Ne
 		(
@@ -99,36 +108,40 @@
 
         	//define potential equation for electrolyte.
         	//region 2 3 4
-
         	fvScalarMatrix UeEqn
-        	(fvm::laplacian((Foam::pow(z[3]*F,2)*mixture.D2_eff()[3]*C2[3])/(R*T), Ue)+fvc::laplacian(z[3]*F*mixture.D2_eff()[3],C2[3])	
-        	==-1*(Je_Pe+Je_Ne));//fvm::Sp(-1,JPe)
-        	
+        	(
+        	fvm::laplacian(calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(alpha2,1.5)), Ue)//-z[3]*F*fvc::div(rhoPhi/fvc::interpolate(rho),C2[3])	
+        	==-1*(Je_Pe+Je_Ne)
+        	);
+
         	//define potential equation for negative electrode.
         	 //region 2
         	fvScalarMatrix UNeEqn
-        	(fvm::laplacian(max(poroM.sigma_s_eff()*Ne,poroM.sigma_s_eff()*1e-10), UNe)	==J_Ne	);
+        	(fvm::laplacian(poroM.sigma_s_eff(), UNe)	==J_Ne	);
+        	//(fvm::laplacian(max(poroM.sigma_s_eff(),poroM.sigma_s_eff()*1e-10), UNe)	==J_Ne	);
         	//define potential equation for negative electrode.
         	//region 4
         	fvScalarMatrix UPeEqn
-        	(fvm::laplacian(max(poroM.sigma_s_eff()*Pe,poroM.sigma_s_eff()*1e-10), UPe)	==J_Pe	);
-        	/*//relax equations, might be unnecessary as they are not time dependt.
-        	UNeEqn.relax();
-        	UeEqn.relax();
-        	UPeEqn.relax();
-		*/
+        	(fvm::laplacian(poroM.sigma_s_eff(), UPe)	==J_Pe	);
+        	//relax equations, might be unnecessary as they are not time dependt.
+        	//UNeEqn.relax();
+        	//UeEqn.relax();
+        	//UPeEqn.relax();
+		
         	//solve eqations.
         	{
             	UNeEqn.solve();
+
             	UeEqn.solve();
+
             	UPeEqn.solve();
+
             	}
             	//evaluates J for the solving of C_[i] and plotting.
-
             	eta=(UNe-Ue-react.E0()[0])*Ne+(UPe-Ue-react.E0()[1])*Pe;
-        	
+            	eta.correctBoundaryConditions();
         	J=
-        	Pe*as[1]*react.i0()[1]*pow(1-alpha1,n)*(Foam::pow(C2[3]/C2_ref[3],2)*exp((react.alphaT()[2]*F*eta)/(R*T))-Foam::pow(C2[1]/C2_ref[1],0.5)*(C2[2]/C2_ref[2])*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
-        	Ne*as[0]*react.i0()[0]*pow(1-alpha1,n)*(Foam::pow(C2[3]/C2_ref[3],2)*(C2[0]/C2_ref[0])*exp((react.alphaT()[0]*F*eta)/(R*T))-Foam::pow(C2[2]/C2_ref[2],2)*exp((-react.alphaT()[1]*F*eta)/(R*T)))
+        	Pe*as[1]*react.i0()[1]*theta*(CR_Pe[3]*CR_Pe[0]*exp((react.alphaT()[2]*F*eta)/(R*T))-(CR_Pe[2])*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
+        	Ne*as[0]*react.i0()[0]*theta*(CR_Ne[3]*exp((react.alphaT()[0]*F*eta)/(R*T))-CR_Ne[2]*CR_Ne[1]*exp((-react.alphaT()[1]*F*eta)/(R*T)))
     		;
-            	
+		J.correctBoundaryConditions();

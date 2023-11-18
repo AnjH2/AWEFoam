@@ -6,4 +6,4 @@ slurry/slurry.C
 myNewtonian/myNewtonian.C
 myOldNewtonian/myOldNewtonian.C
 
-LIB = $(FOAM_USER_LIBBIN)/libdriftFluxTransportModels
+LIB = $(FOAM_USER_LIBBIN)/libOurDriftFluxTransportModels

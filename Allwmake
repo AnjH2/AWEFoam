@@ -5,6 +5,9 @@ cd "${0%/*}" || exit                                # Run from this directory
 
 wmake $targetType mixtureViscosityModels
 wmake $targetType relativeVelocityModels
+wmake $targetType coverageModels
+wmake $targetType concentrationLossModels
+wmake $targetType massAndSpeciesTransferModels
 wmake $targetType
 
 #------------------------------------------------------------------------------

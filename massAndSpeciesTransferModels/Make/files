@@ -1,0 +1,4 @@
+massAndSpeciesTransferModel/massAndSpeciesTransferModel.C
+surfaceSaturation/surfaceSaturation.C
+
+LIB = $(FOAM_USER_LIBBIN)/libOurDriftFluxMassAndSpeciesTransferModels

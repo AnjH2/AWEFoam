@@ -1,3 +1,33 @@
+IOdictionary transportProperties
+(
+	IOobject
+	(
+		"transportProperties",
+		runTime.constant(),
+		mesh,
+		IOobject::MUST_READ_IF_MODIFIED,
+		IOobject::NO_WRITE
+	)
+);
+IOdictionary fvSolution
+(
+	IOobject
+	(
+		"fvSolution",
+		runTime.system(),
+		mesh,
+		IOobject::MUST_READ_IF_MODIFIED,
+		IOobject::NO_WRITE
+	)
+);
+
+
+
+//scalar to define number of iterations each variables will be solved
+
+const scalar speciesCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("speciesCorrections");
+const scalar potentialCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("potentialCorrections");
+//scalar nT=transportProperties.get<scalar>("n_Temp");
 Info<< "Reading field p_rgh\n" << endl;
 volScalarField p_rgh
 (
@@ -25,10 +55,23 @@ volVectorField U
     ),
     mesh
 );
-
+volScalarField p
+(
+    IOobject
+    (
+        "p",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    p_rgh
+);
 Info<< "Reading porousProperties\n" << endl;
 porousProperties poroM(mesh);
 
+Info<< "Reading speciesProperties\n" << endl;
+speciesProperties speciesP(mesh,transportProperties);
 #include "createPhi.H"
 
 
@@ -37,6 +80,8 @@ incompressibleTwoPhaseInteractingMixture mixture(U, phi);
 
 Info<< "Reading reactionProperties\n" << endl;
 reactionProperties react(mesh);
+
+
 
 volScalarField& alpha1(mixture.alpha1());
 
@@ -49,7 +94,7 @@ volScalarField rho
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     mixture.rho()
 );
@@ -68,31 +113,7 @@ surfaceScalarField rhoPhi
     fvc::interpolate(rho)*phi
 );
 
-surfaceScalarField alpha2Phi
-(
-    IOobject
-    (
-        "alpha2Phi",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    phi
-);
 
-surfaceScalarField alpha1Phi
-(
-    IOobject
-    (
-        "alpha1Phi",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    phi
-);
 
 // Relative Velocity
 autoPtr<relativeVelocityModel> UdmModelPtr
@@ -121,18 +142,8 @@ autoPtr
 #include "gh.H"
 
 
-volScalarField p
-(
-    IOobject
-    (
-        "p",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    p_rgh + rho*gh
-);
+
+    p = p_rgh + rho*gh;
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
@@ -164,42 +175,7 @@ mesh.setFluxRequired(alpha1.name());
 tmp<surfaceScalarField> talphaPhiCorr0;
 
 
-//fields to correct  speices transfer
-PtrList <volScalarField> Psi_si(2);
-        	Psi_si.set
-    		(
-        		0,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-               				"Psi_si_H2",
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::NO_READ,
-                			IOobject::AUTO_WRITE
-            			),
-            			mesh,
-            			dimensionSet(1,-3,-1,0,0,0,0)
-        		)
-    		);
-        	Psi_si.set
-    		(
-        		1,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-               				"Psi_si_O2",
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::NO_READ,
-                			IOobject::AUTO_WRITE
-            			),
-            			mesh,
-            			dimensionSet(1,-3,-1,0,0,0,0)
-        		)
-    		);
+
 volScalarField Psi_gas
 (
 	IOobject
@@ -208,11 +184,12 @@ volScalarField Psi_gas
             	mesh.time().timeName(),
        	    	mesh,
             	IOobject::NO_READ,
-            	IOobject::NO_WRITE
+            	IOobject::AUTO_WRITE
 	),
 	mesh,
 	dimensionSet(0,0,-1,0,0,0,0)
 );
+
 volScalarField Psi_liquid
 (
 	IOobject
@@ -221,11 +198,13 @@ volScalarField Psi_liquid
             	mesh.time().timeName(),
        	    	mesh,
             	IOobject::NO_READ,
-            	IOobject::NO_WRITE
+            	IOobject::AUTO_WRITE
 	),
 	mesh,
 	dimensionSet(0,0,-1,0,0,0,0)
 );
+
+
 //********** Potential related Fields **********//
 
 Info << "Reading potential field UPe \n" << endl;
@@ -292,7 +271,7 @@ volScalarField eta
 		runTime.timeName(),
 		mesh,
 		IOobject::READ_IF_PRESENT,
-		IOobject::AUTO_WRITE
+		IOobject::NO_WRITE
 	),
 	mesh,
 	dimensionSet(1,2,-3,0,0,-1,0)
@@ -324,7 +303,67 @@ volVectorField IPe
 	),
 	fvc::grad(UPe)*poroM.sigma_s_eff()
 );
+Info << "Defining currentDistribution Ie \n" << endl;
+volVectorField Ie
+(
+	IOobject
+	(
+		"Ie",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::AUTO_WRITE
+	),
+	fvc::grad(UPe)*poroM.sigma_s_eff()
+);
 
+volScalarField TT
+(
+	IOobject
+	(
+		"TT",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::NO_WRITE
+	),
+	mesh,
+	dimensionedScalar("TT",dimensionSet(0,0,0,0,0,0,0),0)
+);
 
 #include "createMRF.H"
 #include "createFvOptions.H"
+
+Info<< "Reading speciesTransport\n" << endl;
+// speciesTransport
+speciesTransport sTp(mesh);
+
+// surface coverage
+autoPtr<coverageModel> thetaModelPtr
+(
+    coverageModel::New
+    (
+        transportProperties,
+        mesh
+    )
+);
+// surface coverage
+autoPtr<concentrationLossModel> CLModelPtr
+(
+    concentrationLossModel::New
+    (
+        transportProperties,
+        mesh
+    )
+);
+
+// massAndSpeciesTransferModel
+autoPtr<massAndSpeciesTransferModel> mSTaPtr
+(
+    massAndSpeciesTransferModel::New
+    (
+        transportProperties,
+        mesh,
+        mixture
+    )
+);

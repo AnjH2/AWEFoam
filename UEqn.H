@@ -5,11 +5,11 @@
     fvVectorMatrix UEqn
     (
         fvm::ddt(epsilon1*rho, U) + fvm::div(rhoPhi, U)
-      + MRF.DDt(epsilon1*rho, U)
+      + MRF.DDt(rho, U)
       + fvc::div(UdmModel.tauDm())
       + turbulence->divDevRhoReff(U)
      ==
-        fvOptions(epsilon1*rho, U)
+        fvOptions(rho, U)						//-epsilon1*F*z[3]*C2[3]*fvc::grad(Ue)
     );
 
     UEqn.relax();
