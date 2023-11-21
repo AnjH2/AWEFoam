@@ -26,7 +26,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "myOldNewtonian.H"
+#include "Beckermann.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -35,12 +35,12 @@ namespace Foam
 {
 namespace mixtureViscosityModels
 {
-    defineTypeNameAndDebug(myOldNewtonian, 0);
+    defineTypeNameAndDebug(Beckermann, 0);
 
     addToRunTimeSelectionTable
     (
         mixtureViscosityModel,
-        myOldNewtonian,
+        Beckermann,
         dictionary
     );
 }
@@ -49,30 +49,41 @@ namespace mixtureViscosityModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixtureViscosityModels::myOldNewtonian::myOldNewtonian
+Foam::mixtureViscosityModels::Beckermann::Beckermann
 (
     const word& name,
-    const dictionary& viscosityProperties,
+    const dictionary& viscosityPropertiesSub1,
+    const dictionary& viscosityPropertiesSub2,
     const volVectorField& U,
     const surfaceScalarField& phi,
     const word modelName
 )
 :
-    mixtureViscosityModel(name, viscosityProperties, U, phi),
-  //  myOldNewtonianCoeffs_(viscosityProperties.optionalSubDict(modelName + "Coeffs")),
-  
-    //mud_("mu", dimDynamicViscosity, myOldNewtonianCoeffs_),
-    
-    //myOldNewtonianViscosityExponent_("exponent", dimless, myOldNewtonianCoeffs_),
-    //muMax_("muMax", dimDynamicViscosity, myOldNewtonianCoeffs_),
+    mixtureViscosityModel(name, viscosityPropertiesSub1,viscosityPropertiesSub2, U, phi),
+    BeckermannCoeffsSub1_(viscosityPropertiesSub1.optionalSubDict(modelName + "Coeffs")),
+    BeckermannCoeffsSub2_(viscosityPropertiesSub2.optionalSubDict(modelName + "Coeffs")),
+    mud_("mu", dimDynamicViscosity, BeckermannCoeffsSub1_),
+    //BeckermannViscosityExponent_("exponent", dimless, BeckermannCoeffs_),
+    //muMax_("muMax", dimDynamicViscosity, BeckermannCoeffs_),
     alpha_
     (
         U.mesh().lookupObject<volScalarField>
         (
             IOobject::groupName
             (
-                viscosityProperties.getOrDefault<word>("alpha", "alpha"),
-                viscosityProperties.dictName()
+                viscosityPropertiesSub1.getOrDefault<word>("alpha", "alpha"),
+                viscosityPropertiesSub1.dictName()
+            )
+        )
+    ),
+    rhod_
+    (
+        U.mesh().lookupObject<volScalarField>
+        (
+            IOobject::groupName
+            (
+                viscosityPropertiesSub1.getOrDefault<word>("rhod", "rhod"),
+                viscosityPropertiesSub1.dictName()
             )
         )
     )
@@ -82,24 +93,24 @@ Foam::mixtureViscosityModels::myOldNewtonian::myOldNewtonian
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::mixtureViscosityModels::myOldNewtonian::mu(const volScalarField& muc) const
+Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& muc) const
 {
-    return muc*alpha_;
+    return pow(pow(alpha_,3)/muc+pow(1-alpha_,3)/mud_,-1);
 }
 
 
-bool Foam::mixtureViscosityModels::myOldNewtonian::read
+bool Foam::mixtureViscosityModels::Beckermann::read
 (
-    const dictionary& viscosityProperties
+    const dictionary& viscosityPropertiesSub1
 )
 {
-    //mixtureViscosityModel::read(viscosityProperties);
+    mixtureViscosityModel::read(viscosityPropertiesSub1);
 
-  //  myOldNewtonianCoeffs_ = viscosityProperties.optionalSubDict(typeName + "Coeffs");
+    BeckermannCoeffsSub1_ = viscosityPropertiesSub1.optionalSubDict(typeName + "Coeffs");
 
-   // myOldNewtonianCoeffs_.readEntry("k", myOldNewtonianViscosityCoeff_);
-  //  myOldNewtonianCoeffs_.readEntry("n", myOldNewtonianViscosityExponent_);
-   // myOldNewtonianCoeffs_.readEntry("muMax", muMax_);
+    BeckermannCoeffsSub1_.readEntry("mu", mud_);
+  //  BeckermannCoeffs_.readEntry("n", BeckermannViscosityExponent_);
+   // BeckermannCoeffs_.readEntry("muMax", muMax_);
 
     return true;
 }

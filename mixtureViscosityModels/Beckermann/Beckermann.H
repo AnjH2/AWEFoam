@@ -24,27 +24,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixtureViscosityModels::slurry
+    Foam::mixtureViscosityModels::Beckermann
 
 Description
-     Thomas' viscosity correction for slurry.
-
-     References:
-     \verbatim
-         "Transport characteristics of suspension:
-          VIII. A note on the viscosity of Newtonian suspensions
-          of uniform spherical particles".
-          D.G. Thomas,
-          J. Colloid Sci. 20 (3), 1965, p267.
-    \endverbatim
+     Viscosity correction model for generic newtonian flow.
 
 SourceFiles
-    slurry.C
+    Beckermann.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef slurry_H
-#define slurry_H
+#ifndef Beckermann_H
+#define Beckermann_H
 
 #include "mixtureViscosityModel.H"
 #include "dimensionedScalar.H"
@@ -61,10 +52,10 @@ namespace mixtureViscosityModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class slurry Declaration
+                           Class Beckermann Declaration
 \*---------------------------------------------------------------------------*/
 
-class slurry
+class Beckermann
 :
     public mixtureViscosityModel
 {
@@ -72,23 +63,35 @@ protected:
 
     // Protected data
 
-        //- Slurry phase fraction
+        //- Dictionary
+        dictionary BeckermannCoeffsSub1_;
+        dictionary BeckermannCoeffsSub2_;
+        //- Maximum viscosity
+        //dimensionedScalar muMax_;
+
+
+	dimensionedScalar mud_;
+	        
+	        
+        //- Beckermann phase fraction
         const volScalarField& alpha_;
+        const volScalarField& rhod_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("slurry");
+    TypeName("Beckermann");
 
 
     // Constructors
 
         //- Construct from components
-        slurry
+        Beckermann
         (
             const word& name,
-            const dictionary& viscosityProperties,
+            const dictionary& viscosityPropertiesSub1,
+            const dictionary& viscosityPropertiesSub2,
             const volVectorField& U,
             const surfaceScalarField& phi,
             const word modelName=typeName
@@ -96,7 +99,7 @@ public:
 
 
     //- Destructor
-    ~slurry()
+    ~Beckermann()
     {}
 
 
@@ -107,7 +110,7 @@ public:
         tmp<volScalarField> mu(const volScalarField& muc) const;
 
         //- Read transportProperties dictionary
-        bool read(const dictionary& viscosityProperties);
+        bool read(const dictionary& viscosityPropertiesSub1);
 };
 
 

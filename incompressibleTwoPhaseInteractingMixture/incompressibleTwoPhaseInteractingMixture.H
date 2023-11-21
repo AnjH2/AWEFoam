@@ -179,12 +179,6 @@ public:
             return alpha1_*rhod_+ alpha2_*rhoc_;// 
         }
         
-        //- Return the mixture density
-        volScalarField MW_m() const
-        {
-            
-            return C1_[0]/(C1_[0]+C1_[1])*MW_[0]+C1_[1]/(C1_[0]+C1_[1])*MW_[1];// 
-        }
 
         //- Return the mixture density for patch
         virtual tmp<scalarField> rho(const label patchi) const
@@ -217,12 +211,6 @@ public:
         }*/
         virtual void correct_rhod()
         {
-        	/*rhod_=min(
-        	max(
-        	(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1]+C1_[2]*MW_[2])*(1/(C1_[0]+C1_[1]+C1_[2])),
-        	p_num_/(Foam::constant::physicoChemical::R*T_)*MW_[0]),
-        	p_num_/(Foam::constant::physicoChemical::R*T_)*MW_[1]
-        	);*/
         	rhod_=(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1]+C1_[2]*MW_[2])*(1/(C1_[0]+C1_[1]+C1_[2]));
         }
         virtual void correct_nu()

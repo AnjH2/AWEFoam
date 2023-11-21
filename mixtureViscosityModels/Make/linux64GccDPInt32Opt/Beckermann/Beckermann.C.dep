@@ -1,6 +1,6 @@
-$(OBJECTS_DIR)/myOldNewtonian/myOldNewtonian.C.dep: \
-myOldNewtonian/myOldNewtonian.C \
-myOldNewtonian/myOldNewtonian.H \
+$(OBJECTS_DIR)/Beckermann/Beckermann.C.dep: \
+Beckermann/Beckermann.C \
+Beckermann/Beckermann.H \
 lnInclude/mixtureViscosityModel.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/dictionary.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/entry.H \
