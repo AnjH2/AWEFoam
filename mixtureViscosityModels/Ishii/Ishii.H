@@ -1,9 +1,11 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2020 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2014 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -22,96 +24,100 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::speciesTransport
+    Foam::mixtureViscosityModels::Ishii
 
 Description
-    A two-phase species mixture model
+     Viscosity correction model for generic newtonian flow.
 
 SourceFiles
-    speciesTransport.C
+    Ishii.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef speciesTransport_H
-#define speciesTransport_H
+#ifndef Ishii_H
+#define Ishii_H
 
-
+#include "mixtureViscosityModel.H"
+#include "dimensionedScalar.H"
 #include "volFields.H"
-#include "physicoChemicalConstants.H"
-//#include "IOdictionary.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+class incompressibleTwoPhaseInteractingMixture;
+
+namespace mixtureViscosityModels
+{
+
 /*---------------------------------------------------------------------------*\
-                       Class speciesTransport Declaration
+                           Class Ishii Declaration
 \*---------------------------------------------------------------------------*/
-class viscosityModel;
-class speciesTransport
-//:
-   //public IOdictionary
+
+class Ishii
+:
+    public mixtureViscosityModel
 {
 protected:
 
     // Protected data
-	dictionary	speciesTransportCoeffs_;
-	List<word> species2;
-	PtrList <volScalarField> C2_s_;
-	PtrList <volScalarField> k_as_; //can be tmp<>
-	volScalarField Re_p_; //can be tmp<>
-	volScalarField ReSMALLF_;
-	PtrList <volScalarField> Sc_; //can be tmp<>
-	PtrList <volScalarField> SH_; //can be tmp<>
-	PtrList <dimensionedScalar> sh_;
-	const PtrList <volScalarField>& D2_; //should not be affected by totursity
-	const PtrList <volScalarField>& C2_;
-	//const PtrList <volScalarField>& Psi_BV_; 
-	const volScalarField& Pe_;
-	const volScalarField& Ne_;
-	const volScalarField& Mem_;
-	const volScalarField& nuc_;
-	const volVectorField& U_;
-	const PtrList <dimensionedScalar>& as_;
-	const PtrList <dimensionedScalar>& D_pore_;
-	
-	
 
-	
+        //- Dictionary
+        dictionary IshiiCoeffsSub1_;
+        dictionary IshiiCoeffsSub2_;
+        //- Maximum viscosity
+        //dimensionedScalar muMax_;
 
 
-
+	dimensionedScalar mud_;
+	dimensionedScalar alpha_crit_;
+	        
+	        
+        //- Ishii phase fraction
+        const volScalarField& alpha_;
+        //const volScalarField& rhod_;
 
 
 public:
-	//TypeName("speciesTransport");
+
+    //- Runtime type information
+    TypeName("Ishii");
+
+
     // Constructors
 
         //- Construct from components
-        speciesTransport
+        Ishii
         (
-    		const fvMesh& mesh,
-    		const dictionary& dict
+            const word& name,
+            const dictionary& viscosityPropertiesSub1,
+            const dictionary& viscosityPropertiesSub2,
+            const volVectorField& U,
+            const surfaceScalarField& phi,
+            const word modelName=typeName
         );
 
 
     //- Destructor
- 	virtual ~speciesTransport() = default;
+    ~Ishii()
+    {}
 
 
     // Member Functions
-    const PtrList <volScalarField>& C2_s() const
-        {
-            return C2_s_;
-        }
-    
-	void correct(const int i, const PtrList <volScalarField>& Psi_BV_,const volScalarField& theta_);
-}; 
+
+        //- Return the mixture viscosity
+        //  given the viscosity of the continuous phase
+        tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
+
+        //- Read transportProperties dictionary
+        bool read(const dictionary& viscosityPropertiesSub1);
+};
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace mixtureViscosityModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

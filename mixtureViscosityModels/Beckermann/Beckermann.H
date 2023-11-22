@@ -71,11 +71,12 @@ protected:
 
 
 	dimensionedScalar mud_;
+	dimensionedScalar rhoc_;
 	        
 	        
         //- Beckermann phase fraction
         const volScalarField& alpha_;
-        const volScalarField& rhod_;
+        //const volScalarField& rhod_;
 
 
 public:
@@ -107,7 +108,7 @@ public:
 
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
-        tmp<volScalarField> mu(const volScalarField& muc) const;
+        tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
 
         //- Read transportProperties dictionary
         bool read(const dictionary& viscosityPropertiesSub1);

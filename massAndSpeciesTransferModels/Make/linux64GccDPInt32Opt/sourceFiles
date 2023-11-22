@@ -1,5 +1,0 @@
-SOURCE = \
-massAndSpeciesTransferModel/massAndSpeciesTransferModel.C \
-surfaceSaturation/surfaceSaturation.C \
-
-# sources

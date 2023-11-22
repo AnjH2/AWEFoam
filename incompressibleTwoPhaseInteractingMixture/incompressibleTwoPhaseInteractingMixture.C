@@ -45,24 +45,12 @@ Foam::incompressibleTwoPhaseInteractingMixture::
 incompressibleTwoPhaseInteractingMixture
 (
     const volVectorField& U,
-    const surfaceScalarField& phi
+    const surfaceScalarField& phi,
+    const dictionary& dict
 )
 :
- 
-    IOdictionary
-    (
-        IOobject
-        (
-            "transportProperties",
-            U.time().constant(),
-            U.db(),
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
-        )
-    ),
-    
-    twoPhaseMixture(U.mesh(), *this),
-    
+    twoPhaseMixture(U.mesh(), dict),
+    dict_(dict),
     species2({"H2","O2","H2O","OH"}),
     species1({"H2","O2","H2O"}),
 	C1_(
@@ -83,14 +71,16 @@ incompressibleTwoPhaseInteractingMixture
             		"speciesProperties"
         	).MW()
 	),
+
     
-    muModel_
+    
+        muModel_
     (
         mixtureViscosityModel::New
         (
             "mu",
-            subDict(phase1Name_),
-            subDict(phase2Name_),
+            dict.subDict(phase1Name_),
+            dict.subDict(phase2Name_),
             U,
             phi
         )
@@ -101,15 +91,13 @@ incompressibleTwoPhaseInteractingMixture
         viscosityModel::New
         (
             "nuc",
-            subDict(phase2Name_),
+            dict.subDict(phase2Name_),
             U,
             phi
         )
     ),
-   
-    p_num_("p_num", dimPressure, *this),
     
-    //rhod_("rho", dimDensity, muModel_->viscosityProperties()),
+        p_num_("p_num", dimPressure, dict),
     
     rhod_
     (
@@ -125,18 +113,6 @@ incompressibleTwoPhaseInteractingMixture
     ),
     rhoc_("rho", dimDensity, nucModel_->viscosityProperties()),
     
-    /*rhoc_
-    (
-        IOobject
-        (
-            "rhoc",
-            U.time().timeName(),
-            U.mesh(),
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4]
-    ),*/
     dd_
     (
         "d",
@@ -168,7 +144,7 @@ incompressibleTwoPhaseInteractingMixture
             U.time().timeName(),
             U.mesh(),
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mu_/rho()
     ),
@@ -183,7 +159,9 @@ incompressibleTwoPhaseInteractingMixture
     		)
   	)
 {
+
     correct();
+    
 }
 
 
@@ -191,12 +169,12 @@ incompressibleTwoPhaseInteractingMixture
 
 bool Foam::incompressibleTwoPhaseInteractingMixture::read()
 {
-    if (regIOobject::read())
-    {
+    //if (regIOobject::read())
+    //{
         if
         (
-            muModel_().read(subDict(phase1Name_))
-         && nucModel_().read(subDict(phase2Name_))
+            muModel_().read(dict_.subDict(phase1Name_))
+         && nucModel_().read(dict_.subDict(phase2Name_))
         )
         {
             muModel_->viscosityPropertiesSub1().readEntry("rho", rhod_);
@@ -218,7 +196,7 @@ bool Foam::incompressibleTwoPhaseInteractingMixture::read()
 
             return true;
         }
-    }
+    //}
 
     return false;
 }

@@ -1,7 +1,0 @@
-SOURCE = \
-concentrationLossModel/concentrationLossModel.C \
-constantRatio/constantRatio.C \
-fixedReferenceValue/fixedReferenceValue.C \
-localReference/localReference.C \
-
-# sources

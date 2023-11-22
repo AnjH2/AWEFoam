@@ -44,7 +44,7 @@ SourceFiles
 #include "incompressible/viscosityModels/viscosityModel/viscosityModel.H"
 #include "mixtureViscosityModel.H"
 #include "twoPhaseMixture.H"
-#include "IOdictionary.H"
+//#include "IOdictionary.H"
 #include "physicoChemicalConstants.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -58,24 +58,26 @@ namespace Foam
 
 class incompressibleTwoPhaseInteractingMixture
 :
-    public IOdictionary,
     public compressibleTransportModel,
     public twoPhaseMixture
 {
 protected:
+	dictionary dict_;
 	List<word> species2;
 	List<word> species1;
 	const PtrList <volScalarField>& C1_;
 	const volScalarField&	T_;
 	const PtrList <dimensionedScalar>& MW_;
-	
-        autoPtr<mixtureViscosityModel> muModel_;
+
+
+	autoPtr<mixtureViscosityModel> muModel_;
         autoPtr<viscosityModel> nucModel_;
-	
-	dimensionedScalar p_num_;
+        
+        
+        dimensionedScalar p_num_;
         volScalarField rhod_;
         dimensionedScalar rhoc_;
-
+        
         //- Optional diameter of the dispersed phase particles
         dimensionedScalar dd_;
 
@@ -102,7 +104,8 @@ public:
         incompressibleTwoPhaseInteractingMixture
         (
             const volVectorField& U,
-            const surfaceScalarField& phi
+            const surfaceScalarField& phi,
+    	    const dictionary& dict
         );
 
 
@@ -194,6 +197,7 @@ public:
             return mu_/rho();
         }
 
+
         //- Return the mixture viscosity for patch
         virtual tmp<scalarField> nu(const label patchi) const
         {
@@ -203,7 +207,7 @@ public:
         //- Correct the laminar viscosity
         virtual void correct()
         {
-            mu_ = muModel_->mu(rhoc_*nucModel_->nu());
+            mu_ = muModel_->mu(rhoc_*nucModel_->nu(), rhod_);
         }
         /*virtual void correct_D1()
         {

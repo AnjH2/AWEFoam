@@ -36,21 +36,11 @@ License
 
 Foam::speciesTransport::speciesTransport
 (
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const dictionary& dict
 )
 :
-    IOdictionary
-    (
-        IOobject
-        (
-            "transportProperties",
-            mesh.time().constant(),
-            mesh,
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
-        )
-    ),
-    	speciesTransportCoeffs_(this->optionalSubDict("speciesTransport")),
+    	speciesTransportCoeffs_(dict.optionalSubDict("speciesTransport")),
     	species2({"H2","O2","H2O","OH"}),
     	C2_s_(species2.size()),
     	k_as_(species2.size()),
@@ -126,10 +116,10 @@ Foam::speciesTransport::speciesTransport
             		"Mem"
         	)
 	),
-		nu_(
+		nuc_(
 	        mesh.lookupObject<volScalarField>
         	(
-            		"nu"
+            		"nuc"
         	)
 	),
 	U_(
@@ -243,8 +233,8 @@ forAll(species2,i)
 void Foam::speciesTransport::correct(const int i, const PtrList <volScalarField>& Psi_BV_,const volScalarField& theta_)
 {
 
-	Re_p_=max((mag(U_)+dimensionedScalar("USMALL",U_.dimensions(),SMALL))*D_pore_[0]/nu_,ReSMALLF_);//this have to be done smarter!!
-		Sc_[i]=nu_/D2_[i];
+	Re_p_=max((mag(U_)+dimensionedScalar("USMALL",U_.dimensions(),SMALL))*D_pore_[0]/nuc_,ReSMALLF_);//this have to be done smarter!!
+		Sc_[i]=(nuc_)/D2_[i];
 		SH_[i]=sh_[0]*pow(Re_p_,sh_[1])*pow(Sc_[i],sh_[2]);
 		k_as_[i]=SH_[i]*(D2_[i])/(D_pore_[0]);
 		C2_s_[i]=Psi_BV_[i]/(k_as_[i]*as_[0]*theta_)+C2_[i];

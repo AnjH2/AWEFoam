@@ -1,6 +1,0 @@
-SOURCE = \
-mixtureViscosityModel/mixtureViscosityModel.C \
-mixtureViscosityModel/mixtureViscosityModelNew.C \
-Beckermann/Beckermann.C \
-
-# sources

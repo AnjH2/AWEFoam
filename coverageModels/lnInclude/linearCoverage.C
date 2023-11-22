@@ -1,1 +1,0 @@
-../linearCoverage/linearCoverage.C

@@ -26,7 +26,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Beckermann.H"
+#include "Ishii.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -35,12 +35,12 @@ namespace Foam
 {
 namespace mixtureViscosityModels
 {
-    defineTypeNameAndDebug(Beckermann, 0);
+    defineTypeNameAndDebug(Ishii, 0);
 
     addToRunTimeSelectionTable
     (
         mixtureViscosityModel,
-        Beckermann,
+        Ishii,
         dictionary
     );
 }
@@ -49,7 +49,7 @@ namespace mixtureViscosityModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixtureViscosityModels::Beckermann::Beckermann
+Foam::mixtureViscosityModels::Ishii::Ishii
 (
     const word& name,
     const dictionary& viscosityPropertiesSub1,
@@ -60,12 +60,12 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
 )
 :
     mixtureViscosityModel(name, viscosityPropertiesSub1,viscosityPropertiesSub2, U, phi),
-    BeckermannCoeffsSub1_(viscosityPropertiesSub1.optionalSubDict(modelName + "Coeffs")),
-    BeckermannCoeffsSub2_(viscosityPropertiesSub2.optionalSubDict(modelName + "Coeffs")),
-    mud_("mu", dimDynamicViscosity, BeckermannCoeffsSub1_),
-    rhoc_("rho", dimDensity, BeckermannCoeffsSub2_),
-    //BeckermannViscosityExponent_("exponent", dimless, BeckermannCoeffs_),
-    //muMax_("muMax", dimDynamicViscosity, BeckermannCoeffs_),
+    IshiiCoeffsSub1_(viscosityPropertiesSub1.optionalSubDict(modelName + "Coeffs")),
+    IshiiCoeffsSub2_(viscosityPropertiesSub2.optionalSubDict(modelName + "Coeffs")),
+    mud_("mu", dimDynamicViscosity, IshiiCoeffsSub1_),
+    alpha_crit_("alpha_crit", dimless, IshiiCoeffsSub1_),
+    //IshiiViscosityExponent_("exponent", dimless, IshiiCoeffs_),
+    //muMax_("muMax", dimDynamicViscosity, IshiiCoeffs_),
     alpha_
     (
         U.mesh().lookupObject<volScalarField>
@@ -83,24 +83,25 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& muc, const volScalarField& rhod) const
+Foam::mixtureViscosityModels::Ishii::mu(const volScalarField& muc, const volScalarField& rhod) const
 {
-    return pow(pow(1-alpha_,3)/(muc/rhoc_)+pow(alpha_,3)/(mud_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
+
+    return muc*pow(1-alpha_/alpha_crit_,-2.5*alpha_crit_*((mud_+0.4*muc)/(mud_+muc)));
 }
 
 
-bool Foam::mixtureViscosityModels::Beckermann::read
+bool Foam::mixtureViscosityModels::Ishii::read
 (
     const dictionary& viscosityPropertiesSub1
 )
 {
     mixtureViscosityModel::read(viscosityPropertiesSub1);
 
-    BeckermannCoeffsSub1_ = viscosityPropertiesSub1.optionalSubDict(typeName + "Coeffs");
+    IshiiCoeffsSub1_ = viscosityPropertiesSub1.optionalSubDict(typeName + "Coeffs");
 
-    BeckermannCoeffsSub1_.readEntry("mu", mud_);
-  //  BeckermannCoeffs_.readEntry("n", BeckermannViscosityExponent_);
-   // BeckermannCoeffs_.readEntry("muMax", muMax_);
+    IshiiCoeffsSub1_.readEntry("mu", mud_);
+  //  IshiiCoeffs_.readEntry("n", IshiiViscosityExponent_);
+   // IshiiCoeffs_.readEntry("muMax", muMax_);
 
     return true;
 }

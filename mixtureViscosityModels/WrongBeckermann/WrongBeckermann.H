@@ -24,18 +24,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixtureViscosityModels::myNewtonian
+    Foam::mixtureViscosityModels::WrongBeckermann
 
 Description
      Viscosity correction model for generic newtonian flow.
 
 SourceFiles
-    myNewtonian.C
+    WrongBeckermann.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef myNewtonian_H
-#define myNewtonian_H
+#ifndef WrongBeckermann_H
+#define WrongBeckermann_H
 
 #include "mixtureViscosityModel.H"
 #include "dimensionedScalar.H"
@@ -52,10 +52,10 @@ namespace mixtureViscosityModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class myNewtonian Declaration
+                           Class WrongBeckermann Declaration
 \*---------------------------------------------------------------------------*/
 
-class myNewtonian
+class WrongBeckermann
 :
     public mixtureViscosityModel
 {
@@ -64,31 +64,35 @@ protected:
     // Protected data
 
         //- Dictionary
-        dictionary myNewtonianCoeffs_;
+        dictionary WrongBeckermannCoeffsSub1_;
+        dictionary WrongBeckermannCoeffsSub2_;
         //- Maximum viscosity
         //dimensionedScalar muMax_;
 
 
 	dimensionedScalar mud_;
+	dimensionedScalar rhoc_;
 	        
 	        
-        //- myNewtonian phase fraction
+        //- WrongBeckermann phase fraction
         const volScalarField& alpha_;
+        //const volScalarField& rhod_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("myNewtonian");
+    TypeName("WrongBeckermann");
 
 
     // Constructors
 
         //- Construct from components
-        myNewtonian
+        WrongBeckermann
         (
             const word& name,
-            const dictionary& viscosityProperties,
+            const dictionary& viscosityPropertiesSub1,
+            const dictionary& viscosityPropertiesSub2,
             const volVectorField& U,
             const surfaceScalarField& phi,
             const word modelName=typeName
@@ -96,7 +100,7 @@ public:
 
 
     //- Destructor
-    ~myNewtonian()
+    ~WrongBeckermann()
     {}
 
 
@@ -104,10 +108,10 @@ public:
 
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
-        tmp<volScalarField> mu(const volScalarField& muc) const;
+        tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
 
         //- Read transportProperties dictionary
-        bool read(const dictionary& viscosityProperties);
+        bool read(const dictionary& viscosityPropertiesSub1);
 };
 
 

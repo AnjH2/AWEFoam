@@ -76,7 +76,7 @@ speciesProperties speciesP(mesh,transportProperties);
 
 
 Info<< "Reading incompressibleTwoPhaseInteractingMixture\n" << endl;
-incompressibleTwoPhaseInteractingMixture mixture(U, phi);
+incompressibleTwoPhaseInteractingMixture mixture(U, phi,transportProperties);
 
 Info<< "Reading reactionProperties\n" << endl;
 reactionProperties react(mesh);
@@ -120,7 +120,7 @@ autoPtr<relativeVelocityModel> UdmModelPtr
 (
     relativeVelocityModel::New
     (
-        mixture,
+        transportProperties,
         mixture
     )
 );
@@ -336,7 +336,7 @@ volScalarField TT
 
 Info<< "Reading speciesTransport\n" << endl;
 // speciesTransport
-speciesTransport sTp(mesh);
+speciesTransport sTp(mesh,transportProperties);
 
 // surface coverage
 autoPtr<coverageModel> thetaModelPtr

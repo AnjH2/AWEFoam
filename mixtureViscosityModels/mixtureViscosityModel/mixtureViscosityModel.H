@@ -148,7 +148,7 @@ public:
 
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
-        virtual tmp<volScalarField> mu(const volScalarField& muc) const = 0;
+        virtual tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const = 0;
 
         //- Read transportProperties dictionary
         virtual bool read(const dictionary& viscosityPropertiesSub1) = 0;
