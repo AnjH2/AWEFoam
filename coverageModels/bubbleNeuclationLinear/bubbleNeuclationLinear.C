@@ -251,7 +251,7 @@ void Foam::coverageModels::bubbleNeuclationLinear::correct()
 
  // Info<<"nb="<<nb_<<endl;
   //Info<<"numerator="<<A_sb_*nb_*tau_d_<<endl;
-  theta_ ==max(1.-(A_sb_*nb_/(as_[0]*tau_d_)),Zero);
+  theta_ ==max((A_sb_*nb_/(as_[0]*tau_d_)),Zero);
 
   //theta_ ==max(min(1-((A_sb_*nb_*tau_d_/as_[0])*Ne_+(A_sb_*nb_*tau_d_/as_[1])*Pe_),Pe_+Ne_),theta_*0);
 

@@ -69,7 +69,7 @@ Foam::coverageModels::linearCoverage::~linearCoverage()
 
 void Foam::coverageModels::linearCoverage::correct()
 {
-    theta_ =1-alphad_;
+    theta_ =alphad_;
     theta_.correctBoundaryConditions();
 }
 

@@ -96,6 +96,26 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
             "T"
         )
     ),
+    alpha_
+    (
+        mesh.lookupObject<volScalarField>
+        (
+            "alpha.gas"
+        )
+    ),
+    epsilon_
+    (
+        mesh.lookupObject<volScalarField>
+        (
+            "eps"
+        )
+    ),
+        as_(
+	mesh.lookupObject<porousProperties>
+        (
+            "porousProperties"
+        ).as()
+        ),
     t_OH_
     (
 	mesh.lookupObject<reactionProperties>
@@ -158,7 +178,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
-                		IOobject::NO_WRITE
+                		IOobject::AUTO_WRITE
             		),
             		mesh,
             		dimensionSet(0,-3,-1,0,1,0,0)

@@ -24,18 +24,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::surfaceSaturation
+    Foam::bulkSaturation
 
 Description
-    surfaceSaturation loss model, used in the butlerVolmer model
+    bulkSaturation loss model, used in the butlerVolmer model
 
 SourceFiles
-    surfaceSaturation.C
+    bulkSaturation.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef surfaceSaturation_H
-#define surfaceSaturation_H
+#ifndef bulkSaturation_H
+#define bulkSaturation_H
 
 #include "volFields.H"
 #include "massAndSpeciesTransferModel.H"
@@ -51,12 +51,11 @@ namespace massAndSpeciesTransferModels
                          Class linear Declaration
 \*---------------------------------------------------------------------------*/
 
-class surfaceSaturation
+class bulkSaturation
 :
     public massAndSpeciesTransferModel
 {
     // Private data
-	const dimensionedScalar	tau_c_;
 	const dimensionedScalar	tau_b_;
 	const PtrList<volScalarField>& C2_;
 	const PtrList <volScalarField>& k_H_;
@@ -65,13 +64,13 @@ class surfaceSaturation
 public:
 
     //- Runtime type information
-    TypeName("surfaceSaturation");
+    TypeName("bulkSaturation");
 
 
     // Constructors
 
         //- Construct from components
-        surfaceSaturation
+        bulkSaturation
         (
             const dictionary& dict,
             const fvMesh& mesh,
@@ -80,7 +79,7 @@ public:
 
 
     //- Destructor
-    ~surfaceSaturation();
+    ~bulkSaturation();
 
 
     // Member Functions

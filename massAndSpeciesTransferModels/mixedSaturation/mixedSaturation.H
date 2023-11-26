@@ -24,18 +24,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::surfaceSaturation
+    Foam::mixedSaturation
 
 Description
-    surfaceSaturation loss model, used in the butlerVolmer model
+    mixedSaturation loss model, used in the butlerVolmer model
 
 SourceFiles
-    surfaceSaturation.C
+    mixedSaturation.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef surfaceSaturation_H
-#define surfaceSaturation_H
+#ifndef mixedSaturation_H
+#define mixedSaturation_H
 
 #include "volFields.H"
 #include "massAndSpeciesTransferModel.H"
@@ -51,27 +51,29 @@ namespace massAndSpeciesTransferModels
                          Class linear Declaration
 \*---------------------------------------------------------------------------*/
 
-class surfaceSaturation
+class mixedSaturation
 :
     public massAndSpeciesTransferModel
 {
     // Private data
-	const dimensionedScalar	tau_c_;
-	const dimensionedScalar	tau_b_;
+	const dimensionedScalar	K_AB_;
+	const dimensionedScalar	K_DB_;
+	const dimensionedScalar	R_DB_;
 	const PtrList<volScalarField>& C2_;
+	const volScalarField& theta_;
 	const PtrList <volScalarField>& k_H_;
 	const PtrList <dimensionedScalar>& MW_;
 	
 public:
 
     //- Runtime type information
-    TypeName("surfaceSaturation");
+    TypeName("mixedSaturation");
 
 
     // Constructors
 
         //- Construct from components
-        surfaceSaturation
+        mixedSaturation
         (
             const dictionary& dict,
             const fvMesh& mesh,
@@ -80,7 +82,7 @@ public:
 
 
     //- Destructor
-    ~surfaceSaturation();
+    ~mixedSaturation();
 
 
     // Member Functions

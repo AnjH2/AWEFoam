@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "surfaceSaturation.H"
+#include "mixedSaturation.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvc.H"
 #include "../../reactionProperties/reactionProperties.H"
@@ -39,15 +39,15 @@ namespace Foam
 {
 namespace massAndSpeciesTransferModels
 {
-    defineTypeNameAndDebug(surfaceSaturation, 0);
-    addToRunTimeSelectionTable(massAndSpeciesTransferModel, surfaceSaturation, dictionary);
+    defineTypeNameAndDebug(mixedSaturation, 0);
+    addToRunTimeSelectionTable(massAndSpeciesTransferModel, mixedSaturation, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::massAndSpeciesTransferModels::surfaceSaturation::surfaceSaturation
+Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
 (
     const dictionary& dict,
     const fvMesh& mesh,
@@ -55,16 +55,22 @@ Foam::massAndSpeciesTransferModels::surfaceSaturation::surfaceSaturation
 )
 :
     massAndSpeciesTransferModel(dict,mesh,mixture),
-    tau_c_
+    K_AB_
 	(
-		"tau_c",
-		dimensionSet ( 0, 0, 1, 0, 0, 0,0),
+		"K_AB",
+		dimensionSet ( 0, 1, -1, 0, 0, 0,0),
 		dict
 	),
-	    tau_b_
+   K_DB_
 	(
-		"tau_b",
-		dimensionSet ( 0, 0, 1, 0, 0, 0,0),
+		"K_DB",
+		dimensionSet ( 0, 1, -1, 0, 0, 0,0),
+		dict
+	),
+   R_DB_
+	(
+		"R_DB",
+		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
 		dict
 	),
 	C2_(
@@ -73,6 +79,14 @@ Foam::massAndSpeciesTransferModels::surfaceSaturation::surfaceSaturation
             "speciesProperties"
         ).C2()
         ),
+    theta_
+    (
+        mesh.lookupObject<volScalarField>
+        (
+            "theta"
+        )
+    ),
+        
     k_H_(
 	mesh.lookupObject<reactionProperties>
         (
@@ -90,24 +104,21 @@ Foam::massAndSpeciesTransferModels::surfaceSaturation::surfaceSaturation
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::massAndSpeciesTransferModels::surfaceSaturation::~surfaceSaturation()
+Foam::massAndSpeciesTransferModels::mixedSaturation::~mixedSaturation()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::massAndSpeciesTransferModels::surfaceSaturation::correct_Psi_m(const int i, const PtrList<volScalarField>& C2_s)
+void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_Psi_m(const int i, const PtrList<volScalarField>& C2_s)
 {
 	if (i<=1){
-		Psi_m_[i]=(Pe_+Ne_) */*
-		(
-			
-		max(min(
-			(1)/tau_c_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()-p_water_)),
-			MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*dimensionedScalar("__",dimensionSet ( 0, 0, -1, 0, 0, 0,0),1/C2_[i].mesh().time().deltaTValue())+Psi_BV_[i]*MW_[i]
-			)
-			,Psi_m_[i]*0) //(1-alpha1)*epsilon1**/
-			(max((1)/tau_c_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()-p_water_))*(1-alpha_)*epsilon_,Psi_m_[i]*0)+min((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*alpha_*epsilon_,Psi_m_[i]*0));
+		Psi_m_[i]=(Pe_+Ne_)*(
+			max(K_AB_*as_[i]*theta_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()-p_water_))+K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))
+				,Psi_m_[i]*0)+
+			min(K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))
+				,Psi_m_[i]*0)
+		);
 		
 	} else if (i==2 and waterVapour_) {
 		Psi_m_[i]=((Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1]))*MW_[2];

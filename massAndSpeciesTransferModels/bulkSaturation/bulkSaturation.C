@@ -25,87 +25,86 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "vogt.H"
+#include "bulkSaturation.H"
 #include "addToRunTimeSelectionTable.H"
+#include "fvc.H"
+#include "../../reactionProperties/reactionProperties.H"
 #include "../../porousProperties/porousProperties.H"
-
+#include "../../speciesProperties/speciesProperties.H"
+#include "../../speciesTransport/speciesTransport.H"
+#include "../../incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.H"
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coverageModels
+namespace massAndSpeciesTransferModels
 {
-    defineTypeNameAndDebug(vogt, 0);
-    addToRunTimeSelectionTable(coverageModel, vogt, dictionary);
+    defineTypeNameAndDebug(bulkSaturation, 0);
+    addToRunTimeSelectionTable(massAndSpeciesTransferModel, bulkSaturation, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coverageModels::vogt::vogt
+Foam::massAndSpeciesTransferModels::bulkSaturation::bulkSaturation
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const incompressibleTwoPhaseInteractingMixture& mixture
 )
 :
-    coverageModel(dict,mesh),
-    J_
-    (
-        mesh.lookupObject<volScalarField>
-        (
-            "J"
-        )
-    ),
-        
-    J_lim_
+    massAndSpeciesTransferModel(dict,mesh,mixture),
+    tau_b_
 	(
-		"J_lim",
-		dimensionSet (0,-2,0,0,0,1,0),//find true dimension!!!--------------
+		"tau_b",
+		dimensionSet ( 0, 0, 1, 0, 0, 0,0),
 		dict
 	),
-    J_scale_
-	(
-		"J_scale",
-		dimless,//find true dimension!!!--------------
-		dict
-	),
-    as_(
-	mesh.lookupObject<porousProperties>
+	C2_(
+	mesh.lookupObject<speciesProperties>
         (
-            "porousProperties"
-        ).as()
+            "speciesProperties"
+        ).C2()
         ),
-    Pe_
-    (
-        mesh.lookupObject<volScalarField>
+    k_H_(
+	mesh.lookupObject<reactionProperties>
         (
-            "Pe"
-        )
-    ),
-    Ne_
-    (
-        mesh.lookupObject<volScalarField>
+            "reactionProperties"
+        ).k_H()
+        ),
+    MW_(
+	mesh.lookupObject<speciesProperties>
         (
-            "Ne"
+            "speciesProperties"
+        ).MW()
         )
-    )
-    
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coverageModels::vogt::~vogt()
+Foam::massAndSpeciesTransferModels::bulkSaturation::~bulkSaturation()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::coverageModels::vogt::correct()
+void Foam::massAndSpeciesTransferModels::bulkSaturation::correct_Psi_m(const int i, const PtrList<volScalarField>& C2_s)
 {
-    theta_ =(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*0.0001)*J_lim_),0.3));
-    theta_.correctBoundaryConditions();
+	if (i<=1){
+		Psi_m_[i]=(Pe_+Ne_)*(
+		max((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*(1-alpha_)*epsilon_,Psi_m_[i]*0)+
+		min((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*alpha_*epsilon_,Psi_m_[i]*0)
+		);
+		
+	} else if (i==2 and waterVapour_) {
+		Psi_m_[i]=((Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1]))*MW_[2];
+		
+	} else {
+		Psi_m_[i]=Psi_m_[0]*0;
+	}
+	Psi_m_[i].correctBoundaryConditions();
 }
 
 

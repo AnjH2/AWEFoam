@@ -78,6 +78,9 @@ protected:
         const volScalarField& Ne_; 
         const volScalarField& J_;
         const volScalarField& T_;
+        const volScalarField& alpha_;
+        const volScalarField& epsilon_;
+        const PtrList <dimensionedScalar>& as_;
         const dimensionedScalar& t_OH_;
         //const dimensionedScalar& p_num_;
         //Mass transfer model.
