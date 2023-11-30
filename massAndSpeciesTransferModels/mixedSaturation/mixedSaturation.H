@@ -57,6 +57,7 @@ class mixedSaturation
 {
     // Private data
 	const dimensionedScalar	K_AB_;
+	const dimensionedScalar	c_AB_;
 	const dimensionedScalar	K_DB_;
 	const dimensionedScalar	R_DB_;
 	const PtrList<volScalarField>& C2_;

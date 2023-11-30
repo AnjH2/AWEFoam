@@ -61,6 +61,12 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
 		dimensionSet ( 0, 1, -1, 0, 0, 0,0),
 		dict
 	),
+    c_AB_
+	(
+		"c_AB",
+		dimless,
+		dict
+	),
    K_DB_
 	(
 		"K_DB",
@@ -114,7 +120,7 @@ void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_Psi_m(const in
 {
 	if (i<=1){
 		Psi_m_[i]=(Pe_+Ne_)*(
-			max(K_AB_*as_[i]*theta_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()-p_water_))+K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))
+			max(c_AB_*K_AB_*as_[i]*theta_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()-p_water_))+3*K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))
 				,Psi_m_[i]*0)+
 			min(K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))
 				,Psi_m_[i]*0)
