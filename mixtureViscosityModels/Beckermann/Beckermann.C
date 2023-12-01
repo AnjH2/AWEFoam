@@ -64,6 +64,7 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
     BeckermannCoeffsSub2_(viscosityPropertiesSub2.optionalSubDict(modelName + "Coeffs")),
     mud_("mu", dimDynamicViscosity, BeckermannCoeffsSub1_),
     rhoc_("rho", dimDensity, BeckermannCoeffsSub2_),
+    kr_("kr", dimless, BeckermannCoeffsSub1_),
     //BeckermannViscosityExponent_("exponent", dimless, BeckermannCoeffs_),
     //muMax_("muMax", dimDynamicViscosity, BeckermannCoeffs_),
     alpha_
@@ -85,7 +86,7 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
 Foam::tmp<Foam::volScalarField>
 Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& muc, const volScalarField& rhod) const
 {
-    return pow(pow(1-alpha_,3)/(muc/rhoc_)+pow(alpha_,3)/(mud_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
+    return pow(pow(1-alpha_,kr_)/(muc/rhoc_)+pow(alpha_,kr_)/(mud_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
 }
 
 

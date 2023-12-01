@@ -72,6 +72,7 @@ protected:
 
 	dimensionedScalar mud_;
 	dimensionedScalar rhoc_;
+	dimensionedScalar kr_;
 	        
 	        
         //- Beckermann phase fraction
