@@ -40,7 +40,7 @@ Foam::reactionProperties::reactionProperties
     (
         IOobject
         (
-            "transportProperties",
+            "reactionProperties",
             mesh.time().constant(),
             mesh,
             IOobject::MUST_READ_IF_MODIFIED,
@@ -56,7 +56,6 @@ Foam::reactionProperties::reactionProperties
 	T_H_ref_(2),
 	k_H_(2),
     	psi_(species2.size()*electrodes.size()),
-    	Psi_(species2.size()),
 	E0_ref_(electrodes.size()),
 	T0_E0_(electrodes.size()),
 	Ds_(electrodes.size()),
@@ -66,12 +65,6 @@ Foam::reactionProperties::reactionProperties
 	T0_i0_(electrodes.size()),
 	i0_(electrodes.size()),
 	alphaT_(electrodes.size()*2),
-	n_
-	(
-		"n",
-		dimensionSet( 0, 0, 0, 0, 0, 0, 0),
-		reactionCoeffs_
-	),
 	u_K_
 	(
 		"u_K",
@@ -110,12 +103,7 @@ Foam::reactionProperties::reactionProperties
 {
 forAll(species2,i)
 	{
-		Info<< "reading reference concentration for "+species2[i]+" used in butler volmer equation\n" << endl;
-        	C_ref_.set
-    		(
-        	i,
-        	new dimensionedScalar("C_"+species2[i]+"_ref", dimensionSet ( 0, -3, 0, 0, 1, 0, 0),reactionCoeffs_)
-        	);
+
         	if (species2[i]=="H2"||species2[i]=="O2")
         	{
         		DeltaH_.set
@@ -152,23 +140,6 @@ forAll(species2,i)
     			);
         		
         	}
-        	Psi_.set
-    		(
-        		i,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-               				"Psi_"+species2[i],
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::NO_READ,
-                			IOobject::NO_WRITE
-            			),
-            			mesh,
-            			dimensionSet(0,-3,-1,0,1,0,0)
-        		)
-    		);
 	}
 	
 forAll(electrodes,i)
@@ -260,7 +231,6 @@ forAll(electrodes,i)
     	
 	}
 t_OH_=u_OH_/(u_K_+u_OH_);
-
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 

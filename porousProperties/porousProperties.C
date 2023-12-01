@@ -39,7 +39,7 @@ Foam::porousProperties::porousProperties
     (
         IOobject
         (
-            "transportProperties",
+            "porousProperties",
             mesh.time().constant(),
             mesh,
             IOobject::MUST_READ_IF_MODIFIED,
@@ -48,6 +48,7 @@ Foam::porousProperties::porousProperties
     ),
     electrodes({"Ne","Pe"}),
     as_(electrodes.size()),
+    D_pore_(electrodes.size()),
     epsilon_
     (
         IOobject
@@ -137,6 +138,11 @@ forAll(electrodes,i)
     	(
         	i,
         	new dimensionedScalar("as_"+electrodes[i], dimensionSet (  0, -1, 0, 0, 0, 0, 0),*this)
+        );
+        D_pore_.set
+    	(
+        	i,
+        	new dimensionedScalar("D_pore_"+electrodes[i], dimensionSet (  0, 1, 0, 0, 0, 0, 0),*this)
         );
 	}
 

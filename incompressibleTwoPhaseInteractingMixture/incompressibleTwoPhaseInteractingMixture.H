@@ -44,10 +44,8 @@ SourceFiles
 #include "incompressible/viscosityModels/viscosityModel/viscosityModel.H"
 #include "mixtureViscosityModel.H"
 #include "twoPhaseMixture.H"
-#include "../speciesMixture/speciesMixture.H"
-//#include "../electroChemical/electroChemical.H"
-#include "IOdictionary.H"
-
+//#include "IOdictionary.H"
+#include "physicoChemicalConstants.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,18 +58,23 @@ namespace Foam
 
 class incompressibleTwoPhaseInteractingMixture
 :
-    public IOdictionary,
     public compressibleTransportModel,
-    public twoPhaseMixture,
-    public speciesMixture
+    public twoPhaseMixture
 {
 protected:
+	dictionary dict_;
+	List<word> species2;
+	List<word> species1;
+	const PtrList <volScalarField>& C1_;
+	const volScalarField&	T_;
+	const PtrList <dimensionedScalar>& MW_;
 
-	
-        autoPtr<mixtureViscosityModel> muModel_;
+
+	autoPtr<mixtureViscosityModel> muModel_;
         autoPtr<viscosityModel> nucModel_;
-	
-	dimensionedScalar p_num_;
+        
+        
+        dimensionedScalar p_num_;
         volScalarField rhod_;
         dimensionedScalar rhoc_;
 
@@ -101,7 +104,8 @@ public:
         incompressibleTwoPhaseInteractingMixture
         (
             const volVectorField& U,
-            const surfaceScalarField& phi
+            const surfaceScalarField& phi,
+    	    const dictionary& dict
         );
 
 
@@ -184,6 +188,7 @@ public:
             
             return C1_[0]/(C1_[0]+C1_[1])*MW_[0]+C1_[1]/(C1_[0]+C1_[1])*MW_[1];// 
         }
+        
 
         //- Return the mixture density for patch
         virtual tmp<scalarField> rho(const label patchi) const
@@ -199,6 +204,7 @@ public:
             return mu_/rho();
         }
 
+
         //- Return the mixture viscosity for patch
         virtual tmp<scalarField> nu(const label patchi) const
         {
@@ -208,7 +214,7 @@ public:
         //- Correct the laminar viscosity
         virtual void correct()
         {
-            mu_ = muModel_->mu(rhoc_*nucModel_->nu());
+            mu_ = muModel_->mu(rhoc_*nucModel_->nu(), rhod_);
         }
         /*virtual void correct_D1()
         {

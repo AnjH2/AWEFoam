@@ -68,7 +68,8 @@ protected:
     // Protected data
 
         word name_;
-        dictionary viscosityProperties_;
+        dictionary viscosityPropertiesSub1_;
+        dictionary viscosityPropertiesSub2_;
 
         const volVectorField& U_;
         const surfaceScalarField& phi_;
@@ -98,11 +99,12 @@ public:
             dictionary,
             (
                 const word& name,
-                const dictionary& viscosityProperties,
+                const dictionary& viscosityPropertiesSub1,
+                const dictionary& viscosityPropertiesSub2,
                 const volVectorField& U,
                 const surfaceScalarField& phi
             ),
-            (name, viscosityProperties, U, phi)
+            (name, viscosityPropertiesSub1, viscosityPropertiesSub2, U, phi)
         );
 
 
@@ -112,7 +114,8 @@ public:
         static autoPtr<mixtureViscosityModel> New
         (
             const word& name,
-            const dictionary& viscosityProperties,
+            const dictionary& viscosityPropertiesSub1,
+            const dictionary& viscosityPropertiesSub2,
             const volVectorField& U,
             const surfaceScalarField& phi
         );
@@ -124,7 +127,8 @@ public:
         mixtureViscosityModel
         (
             const word& name,
-            const dictionary& viscosityProperties,
+            const dictionary& viscosityPropertiesSub1,
+            const dictionary& viscosityPropertiesSub2,
             const volVectorField& U,
             const surfaceScalarField& phi
         );
@@ -137,17 +141,17 @@ public:
     // Member Functions
 
         //- Return the phase transport properties dictionary
-        const dictionary& viscosityProperties() const
+        const dictionary& viscosityPropertiesSub1() const
         {
-            return viscosityProperties_;
+            return viscosityPropertiesSub1_;
         }
 
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
-        virtual tmp<volScalarField> mu(const volScalarField& muc) const = 0;
+        virtual tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const = 0;
 
         //- Read transportProperties dictionary
-        virtual bool read(const dictionary& viscosityProperties) = 0;
+        virtual bool read(const dictionary& viscosityPropertiesSub1) = 0;
 };
 
 

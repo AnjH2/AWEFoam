@@ -67,7 +67,6 @@ protected:
 	PtrList <volScalarField> k_H_;
 	
 	PtrList <dimensionedScalar> psi_;
-	PtrList <volScalarField> Psi_;
 	PtrList <dimensionedScalar> E0_ref_;
 	PtrList <dimensionedScalar> T0_E0_;
 	PtrList <dimensionedScalar> Ds_;
@@ -120,10 +119,6 @@ public:
         {
             return psi_;
         }
-	PtrList <volScalarField>& Psi()
-        {
-            return Psi_;
-        }
         const PtrList <volScalarField>& i0() const
         {
             return i0_;
@@ -133,6 +128,7 @@ public:
         {
             return alphaT_;
         }
+ 
         
         const PtrList <volScalarField>& E0() const
         {
@@ -142,14 +138,14 @@ public:
         {
             return t_OH_;
         }
-        const dimensionedScalar& n() const
+        const dimensionedScalar& nT() const
         {
-            return n_;
+            return nT_;
         }
-        
-        const dimensionedScalar& tau_c() const
+
+        const PtrList <volScalarField>& k_H() const
         {
-            return tau_c_;
+            return k_H_;
         }
         const PtrList <volScalarField>& k_H() const
         {

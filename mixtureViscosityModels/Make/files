@@ -1,9 +1,7 @@
 mixtureViscosityModel/mixtureViscosityModel.C
 mixtureViscosityModel/mixtureViscosityModelNew.C
-plastic/plastic.C
-BinghamPlastic/BinghamPlastic.C
-slurry/slurry.C
-myNewtonian/myNewtonian.C
-myOldNewtonian/myOldNewtonian.C
+Beckermann/Beckermann.C
+Ishii/Ishii.C
+WrongBeckermann/WrongBeckermann.C
 
-LIB = $(FOAM_USER_LIBBIN)/libdriftFluxTransportModels
+LIB = $(FOAM_USER_LIBBIN)/libOurDriftFluxTransportModels

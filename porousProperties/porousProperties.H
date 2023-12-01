@@ -59,8 +59,10 @@ protected:
     // Protected data
     	List<word> electrodes;	
     	PtrList <dimensionedScalar> as_;//electrode surface area.
+    	PtrList <dimensionedScalar> D_pore_;//poreDiameter
 	const volScalarField epsilon_;
 	const volScalarField tau_;
+
 
 	
 
@@ -122,6 +124,10 @@ public:
         const volScalarField& Mem() const
         {
             return Mem_;
+        }
+        const PtrList <dimensionedScalar>& D_pore() const
+        {
+            return D_pore_;
         }
 
 

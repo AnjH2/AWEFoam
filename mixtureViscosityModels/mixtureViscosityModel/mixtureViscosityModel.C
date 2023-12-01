@@ -43,13 +43,15 @@ namespace Foam
 Foam::mixtureViscosityModel::mixtureViscosityModel
 (
     const word& name,
-    const dictionary& viscosityProperties,
+    const dictionary& viscosityPropertiesSub1,
+    const dictionary& viscosityPropertiesSub2,
     const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
     name_(name),
-    viscosityProperties_(viscosityProperties),
+    viscosityPropertiesSub1_(viscosityPropertiesSub1),
+    viscosityPropertiesSub2_(viscosityPropertiesSub2),
     U_(U),
     phi_(phi)
 {}
@@ -57,9 +59,9 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-bool Foam::mixtureViscosityModel::read(const dictionary& viscosityProperties)
+bool Foam::mixtureViscosityModel::read(const dictionary& viscosityPropertiesSub1)
 {
-    viscosityProperties_ = viscosityProperties;
+    viscosityPropertiesSub1_ = viscosityPropertiesSub1;
 
     return true;
 }
