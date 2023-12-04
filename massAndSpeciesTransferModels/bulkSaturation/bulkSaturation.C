@@ -94,8 +94,8 @@ void Foam::massAndSpeciesTransferModels::bulkSaturation::correct_Psi_m(const int
 {
 	if (i<=1){
 		Psi_m_[i]=(Pe_+Ne_)*(
-		max((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*(1-alpha_)*epsilon_,Psi_m_[i]*0)+
-		min((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*alpha_*epsilon_,Psi_m_[i]*0)
+		max((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()))*(1-alpha_)*epsilon_,Psi_m_[i]*0)+
+		min((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()))*alpha_*epsilon_,Psi_m_[i]*0)
 		);
 		
 	} else if (i==2 and waterVapour_) {

@@ -107,7 +107,7 @@ void Foam::massAndSpeciesTransferModels::surfaceSaturation::correct_Psi_m(const 
 			MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*dimensionedScalar("__",dimensionSet ( 0, 0, -1, 0, 0, 0,0),1/C2_[i].mesh().time().deltaTValue())+Psi_BV_[i]*MW_[i]
 			)
 			,Psi_m_[i]*0) //(1-alpha1)*epsilon1**/
-			(max((1)/tau_c_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()-p_water_))*(1-alpha_)*epsilon_,Psi_m_[i]*0)+min((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))*alpha_*epsilon_,Psi_m_[i]*0));
+			(max((1)/tau_c_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()))*(1-alpha_)*epsilon_,Psi_m_[i]*0)+min((1)/tau_b_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()))*alpha_*epsilon_,Psi_m_[i]*0));
 		
 	} else if (i==2 and waterVapour_) {
 		Psi_m_[i]=((Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1]))*MW_[2];

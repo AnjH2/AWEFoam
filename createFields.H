@@ -271,7 +271,7 @@ volScalarField eta
 		runTime.timeName(),
 		mesh,
 		IOobject::READ_IF_PRESENT,
-		IOobject::NO_WRITE
+		IOobject::AUTO_WRITE
 	),
 	mesh,
 	dimensionSet(1,2,-3,0,0,-1,0)

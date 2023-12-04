@@ -63,6 +63,8 @@ protected:
 	PtrList <dimensionedScalar> DeltaH_;
 	PtrList <dimensionedScalar> H_ref_;
 	PtrList <dimensionedScalar> T_H_ref_;
+	PtrList <dimensionedScalar> f_;
+	PtrList <volScalarField> k_H_pure_;
 	PtrList <volScalarField> k_H_;
 	
 	PtrList <dimensionedScalar> psi_;
@@ -82,6 +84,7 @@ protected:
 	dimensionedScalar t_OH_;
 
 	const volScalarField&	T_;
+	const volScalarField&	C_OH_;
 	const dimensionedScalar	nT_; //variable to remove influence of Temperature in butlervolmer equation
 
 	
@@ -138,6 +141,10 @@ public:
         const PtrList <volScalarField>& k_H() const
         {
             return k_H_;
+        }
+        const PtrList <volScalarField>& k_H_pure() const
+        {
+            return k_H_pure_;
         }
 
 
