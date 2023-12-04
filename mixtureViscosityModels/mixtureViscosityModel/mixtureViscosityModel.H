@@ -68,11 +68,17 @@ protected:
     // Protected data
 
         word name_;
+        List<word> species1;
         dictionary viscosityPropertiesSub1_;
         dictionary viscosityPropertiesSub2_;
 
         const volVectorField& U_;
         const surfaceScalarField& phi_;
+        const PtrList <dimensionedScalar>& MW_;
+        const volScalarField& T_;
+        PtrList <volScalarField> x_;
+        PtrList <volScalarField> phi1_;
+        
 
 
     // Private Member Functions

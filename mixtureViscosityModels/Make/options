@@ -1,5 +1,6 @@
 EXE_INC = \
     -I../incompressibleTwoPhaseInteractingMixture \
+    -I../speciesProperties \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \

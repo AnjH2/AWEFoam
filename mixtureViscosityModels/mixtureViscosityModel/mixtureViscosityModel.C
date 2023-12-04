@@ -28,6 +28,7 @@ License
 #include "mixtureViscosityModel.H"
 #include "volFields.H"
 #include "surfaceMesh.H"
+#include "../../speciesProperties/speciesProperties.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -50,10 +51,26 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
 )
 :
     name_(name),
+    species1({"H2","O2","H2O"}),
     viscosityPropertiesSub1_(viscosityPropertiesSub1),
     viscosityPropertiesSub2_(viscosityPropertiesSub2),
     U_(U),
-    phi_(phi)
+    phi_(phi),
+    MW_(
+		U_.mesh().lookupObject<speciesProperties>
+        	(
+            		"speciesProperties"
+        	).MW()
+	),
+    T_(
+	        U_.mesh().lookupObject<volScalarField>
+        	(
+            		"T"
+        	)
+	),
+	x_(species1.size()),
+	phi1_(species1.size()*species1.size())
+	
 {}
 
 
