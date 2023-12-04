@@ -110,6 +110,18 @@ incompressibleTwoPhaseInteractingMixture
     ),
     rhoc_("rho", dimDensity, nucModel_->viscosityProperties()),
     
+    /*rhoc_
+    (
+        IOobject
+        (
+            "rhoc",
+            U.time().timeName(),
+            U.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4]
+    ),*/
     dd_
     (
         "d",
@@ -173,7 +185,7 @@ bool Foam::incompressibleTwoPhaseInteractingMixture::read()
          && nucModel_().read(dict_.subDict(phase2Name_))
         )
         {
-            muModel_->viscosityPropertiesSub1().readEntry("rho", rhod_);
+            muModel_->viscosityProperties().readEntry("rho", rhod_);
             nucModel_->viscosityProperties().readEntry("rho", rhoc_);
 
             dd_ = dimensionedScalar

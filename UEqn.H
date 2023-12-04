@@ -9,7 +9,7 @@
       + fvc::div(UdmModel.tauDm())
       + (1.0/epsilon1)*turbulence->divDevRhoReff(U)
      ==
-        fvOptions(rho, U)						//-epsilon1*F*z[3]*C2[3]*fvc::grad(Ue)
+        fvOptions(rho, U)
     );
 
     UEqn.relax();

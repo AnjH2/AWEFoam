@@ -90,12 +90,13 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
 
     volScalarField& alpha2(mixture.alpha2());
+    const volScalarField& rho1 = mixture.rhod();
     const dimensionedScalar& rho2 = mixture.rhoc();
-    PtrList <volScalarField>& C2 = speciesP.C2();
-    PtrList <volScalarField>& C1 = speciesP.C1();
-    const PtrList <dimensionedScalar>& MW = speciesP.MW();
-    const PtrList <dimensionedScalar>& z = speciesP.z();
-    const volScalarField& T = speciesP.T();
+    PtrList <volScalarField>& C2 = mixture.C2();
+    PtrList <volScalarField>& C1 = mixture.C1();
+    const PtrList <dimensionedScalar>& MW = mixture.MW();
+    const PtrList <dimensionedScalar>& z = mixture.z();
+    const volScalarField& T = mixture.T();
 
     
     relativeVelocityModel& UdmModel(UdmModelPtr());
@@ -113,7 +114,12 @@ int main(int argc, char *argv[])
     const PtrList <dimensionedScalar>& as = poroM.as();
     const volScalarField& Ne = poroM.Ne();
     const volScalarField& Pe = poroM.Pe();
-    //const volScalarField& Mem = poroM.Mem();
+    const volScalarField& Mem = poroM.Mem();
+    
+    const PtrList <dimensionedScalar>& C2_ref = react.C2_ref();
+    const dimensionedScalar& n =react.n();
+    const dimensionedScalar& J_lim =react.J_lim();
+    const PtrList <volScalarField>& k_H = react.k_H(); //dependent on temperature.
     
     const dimensionedScalar& F=Foam::constant::physicoChemical::F;
     const dimensionedScalar& R=Foam::constant::physicoChemical::R;
@@ -136,7 +142,9 @@ int main(int argc, char *argv[])
         ++runTime;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
+	theta_b = pow(mag(J)/(as[0]+as[1])/J_lim,0.3); //calculates coverage for the given time step.
         // --- Pressure-velocity PIMPLE corrector loop
+        
         while (pimple.loop())
         {
             #include "alphaControls.H"
@@ -144,13 +152,14 @@ int main(int argc, char *argv[])
             //thetaModel.correct();
             thetaModel.correct();
             #include "alphaEqnSubCycle.H"
-            
+	    
 	    //mixture.correct_rhoc();
 	    mixture.correct_rhod();
             mixture.correct();
             //mixture.correct_D1();
             mixture.correct_nu();
-            speciesP.correct_D2_eff(1-alpha2);
+            mixture.correct_D2_eff();
+
             #include "UEqn.H"
 
             // --- Pressure corrector loop
@@ -159,15 +168,20 @@ int main(int argc, char *argv[])
 		
                 #include "pEqn.H"
             }
+
             if (pimple.turbCorr())
             {
                 turbulence->correct();
             }
-            CLModel.correct(sTp.C2_s());
-
-            for (int j=0; j<=potentialCorrections; j++)
+            
+            for (int j=0; j<=2; j++)
             {
             #include "potentialEqn.H"
+            #include "CiEqn.H"
+                UNeEqn.solve();
+            	UeEqn.solve();
+            	UPeEqn.solve();
+            mixture.correct_rhod();
             }
 
             for (int j=0; j<=speciesCorrections; j++)

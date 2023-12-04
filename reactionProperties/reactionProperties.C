@@ -50,6 +50,7 @@ Foam::reactionProperties::reactionProperties
     	reactionCoeffs_(this->optionalSubDict("reactionCoeffs")),
     	electrodes({"Ne","Pe"}),
     	species2({"H2","O2","H2O","OH"}),
+    	C_ref_(species2.size()),
 	DeltaH_(2),
 	H_ref_(2),
 	T_H_ref_(2),
@@ -77,7 +78,15 @@ Foam::reactionProperties::reactionProperties
 		"u_OH",
 		dimensionSet( 0, -1, 0, 0, 0, 0, 0),
 		reactionCoeffs_
-	),	
+	),
+	tau_c_
+	(
+		"tau_c",
+		dimensionSet( 0, 0, 1, 0, 0, 0, 0),
+		reactionCoeffs_
+	),
+	
+	
 	T_
    	(
     		mesh.lookupObject<volScalarField>
@@ -87,6 +96,7 @@ Foam::reactionProperties::reactionProperties
     			//)
     		)
   	),
+
   	C_OH_
    	(
     		mesh.lookupObject<volScalarField>
@@ -97,11 +107,17 @@ Foam::reactionProperties::reactionProperties
     		)
   	),
   		nT_
+
 	(
+
 		"n_Temp",
+
 		dimless,
+
 		reactionCoeffs_
+
 	)
+
 {
 forAll(species2,i)
 	{

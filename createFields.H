@@ -303,32 +303,19 @@ volVectorField IPe
 	),
 	fvc::grad(UPe)*poroM.sigma_s_eff()
 );
-Info << "Defining currentDistribution Ie \n" << endl;
-volVectorField Ie
+Info << "Defining coverage ratio \n" << endl;
+volScalarField theta_b
 (
 	IOobject
 	(
-		"Ie",
+		"theta_b",
 		runTime.timeName(),
 		mesh,
 		IOobject::NO_READ,
 		IOobject::AUTO_WRITE
 	),
-	fvc::grad(UPe)*poroM.sigma_s_eff()
-);
-
-volScalarField TT
-(
-	IOobject
-	(
-		"TT",
-		runTime.timeName(),
-		mesh,
-		IOobject::NO_READ,
-		IOobject::NO_WRITE
-	),
 	mesh,
-	dimensionedScalar("TT",dimensionSet(0,0,0,0,0,0,0),0)
+	dimless
 );
 
 #include "createMRF.H"

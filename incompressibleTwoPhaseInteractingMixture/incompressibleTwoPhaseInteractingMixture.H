@@ -77,7 +77,7 @@ protected:
         dimensionedScalar p_num_;
         volScalarField rhod_;
         dimensionedScalar rhoc_;
-        
+
         //- Optional diameter of the dispersed phase particles
         dimensionedScalar dd_;
 
@@ -182,6 +182,13 @@ public:
             return alpha1_*rhod_+ alpha2_*rhoc_;// 
         }
         
+        //- Return the mixture density
+        volScalarField MW_m() const
+        {
+            
+            return C1_[0]/(C1_[0]+C1_[1])*MW_[0]+C1_[1]/(C1_[0]+C1_[1])*MW_[1];// 
+        }
+        
 
         //- Return the mixture density for patch
         virtual tmp<scalarField> rho(const label patchi) const
@@ -215,8 +222,10 @@ public:
         }*/
         virtual void correct_rhod()
         {
+
         	rhod_=(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1]+C1_[2]*MW_[2])*(1/(C1_[0]+C1_[1]+C1_[2]));
         	rhod_.correctBoundaryConditions();
+
         }
         virtual void correct_nu()
         {
@@ -227,6 +236,14 @@ public:
         	rhoc_=C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4];
         }*/
 
+        virtual void correct_D2_eff()
+        {
+        	forAll(species2,i)
+        		{
+        			D2_eff_[i]=Foam::pow(epsilon_,tau_)*Foam::pow(1-alphad1_,1-tau_)*D2_[i];
+        		}
+
+        }
         
         
 //	virtual void correct();
