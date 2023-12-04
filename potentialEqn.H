@@ -5,25 +5,27 @@
 //******************************************* constants used in eqation
 		volScalarField C1Ne
 		(
-		Ne*as[0]*react.i0()[0]*(1-theta_b)*Foam::pow(C2[3]/C2_ref[3],2) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Ne*as[0]*react.i0()[0]*(1-theta)*(CR_Ne[3]*CR_Ne[0]) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
 
 		volScalarField C1Pe
 		(
-		Pe*as[1]*react.i0()[1]*(1-theta_b)*Foam::pow(C2[3]/C2_ref[3],2) //Foam::pow(((react.Psi()[3]/as[1])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Pe*as[1]*react.i0()[1]*(1-theta)*(CR_Pe[3]) //Foam::pow(((react.Psi()[3]/as[1])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
 
 		volScalarField C2Ne
 		(
-		Ne*as[0]*react.i0()[0]*(1-theta_b)*Foam::pow(C2[2]/C2_ref[2],2) //Foam::pow(((react.Psi()[2]/as[0])/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
+		Ne*as[0]*react.i0()[0]*(1-theta)*(CR_Ne[2]) //Foam::pow(((react.Psi()[2]/as[0])/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
 		);
 
 		volScalarField C2Pe
 		(
-		Pe*as[1]*react.i0()[1]*(1-theta_b)*(C2[2]/C2_ref[2]) //(((react.Psi()[2]/as[1])/(mixture.D2_eff()[2])+C2[2])/C2[2])
+		Pe*as[1]*react.i0()[1]*(1-theta)*(CR_Pe[2]*CR_Pe[1]) //(((react.Psi()[2]/as[1])/(mixture.D2_eff()[2])+C2[2])/C2[2])
 		);
 		//opdated 1511-2022 fixed error
 		//opdated 0307-2023 removed H2 and O2 fraction, added concentration gradient to the surface of the electrodes.
+		//opdated 2609-2023 added class to model concentration losses and inserted H2 and O2 again.
+
 //******************************************* constants used in eqation
 		
 		volScalarField C3Ne
@@ -139,7 +141,7 @@
             	eta=(UNe-Ue-react.E0()[0])*Ne+(UPe-Ue-react.E0()[1])*Pe;
             	eta.correctBoundaryConditions();
         	J=
-        	Pe*as[1]*react.i0()[1]*(1-theta_b)*(Foam::pow(C2[3]/C2_ref[3],2)*exp((react.alphaT()[2]*F*eta)/(R*T))-(C2[2]/C2_ref[2])*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
-        	Ne*as[0]*react.i0()[0]*(1-theta_b)*(Foam::pow(C2[3]/C2_ref[3],2)*exp((react.alphaT()[0]*F*eta)/(R*T))-Foam::pow(C2[2]/C2_ref[2],2)*exp((-react.alphaT()[1]*F*eta)/(R*T)))
+        	Pe*as[1]*react.i0()[1]*(1-theta)*(CR_Pe[3]*CR_Pe[0]*exp((react.alphaT()[2]*F*eta)/(R*T))-(CR_Pe[2])*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
+        	Ne*as[0]*react.i0()[0]*(1-theta)*(CR_Ne[3]*exp((react.alphaT()[0]*F*eta)/(R*T))-CR_Ne[2]*CR_Ne[1]*exp((-react.alphaT()[1]*F*eta)/(R*T)))
     		;
 		J.correctBoundaryConditions();
