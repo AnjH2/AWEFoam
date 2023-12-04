@@ -120,9 +120,9 @@ void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_Psi_m(const in
 {
 	if (i<=1){
 		Psi_m_[i]=(Pe_+Ne_)*(
-			max(c_AB_*K_AB_*as_[i]*theta_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()-p_water_))+3*K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))
+			max(c_AB_*K_AB_*as_[i]*theta_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()))+3*K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()))
 				,Psi_m_[i]*0)+
-			min(K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()-p_water_))
+			min(K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()))
 				,Psi_m_[i]*0)
 		);
 		

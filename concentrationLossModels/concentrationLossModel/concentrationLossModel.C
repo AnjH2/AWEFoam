@@ -68,7 +68,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
-                		IOobject::NO_WRITE
+                		IOobject::AUTO_WRITE
             		),
             		mesh,
             		dimensionedScalar("CR__"+species2[i],dimless,One)
@@ -85,7 +85,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
-                		IOobject::NO_WRITE
+                		IOobject::AUTO_WRITE
             		),
             		mesh,
             		dimensionedScalar("CR__"+species2[i],dimless,One)

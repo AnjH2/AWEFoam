@@ -60,6 +60,7 @@ Description
 #include "IOobjectList.H"
 #include "loopControl.H"
 #include "condKOH.H"
+#include "Tensor.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -39,7 +39,8 @@ for(label i=0; i<C2.size(); i++)
 	fvScalarMatrix C2Eqn
 	(
         	fvm::ddt(MW[i]*alpha2*poroM.eps(),C2[i])
-        	+fvm::div((rhoPhi*fvc::interpolate(alpha2/rho)-fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
+        	+fvm::div((rhoPhi*fvc::interpolate(alpha2/rho))*MW[i],C2[i])
+        	//+fvm::div((rhoPhi*fvc::interpolate(alpha2/rho)-fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
         	//- fvc::laplacian(turbulence->nut()*pow(epsilon1,poroM.tau())*MW[i]*C2[i],alpha1)
         	==
         	fvm::laplacian(poroM.eps()*rho*alpha2*speciesP.D2_eff()[i]*MW[i]/rho2,C2[i])
@@ -78,7 +79,8 @@ for(label i=0; i<C1.size(); i++)
 	fvScalarMatrix C1Eqn
 	(
         fvm::ddt(MW[i]*alpha1*epsilon1,C1[i])
-        +fvm::div((rhoPhi*fvc::interpolate(alpha1/rho)+fvc::flux(UdmModel.Udm()))*MW[i],C1[i])  
+        +fvm::div((rhoPhi*fvc::interpolate(alpha1/rho))*MW[i],C1[i])  
+        //+fvm::div((rhoPhi*fvc::interpolate(alpha1/rho)+fvc::flux(UdmModel.Udm()))*MW[i],C1[i])  
         //- fvc::laplacian(turbulence->nut()*pow(epsilon1,poroM.tau())*MW[i]*C1[i],alpha1)  
         );
         //relax equation and solves.

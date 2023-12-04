@@ -69,9 +69,9 @@ protected:
 	const volScalarField&	T_;
 	const PtrList <dimensionedScalar>& MW_;
 
-
 	autoPtr<mixtureViscosityModel> muModel_;
         autoPtr<viscosityModel> nucModel_;
+	
         
         
         dimensionedScalar p_num_;
@@ -222,12 +222,10 @@ public:
         }*/
         virtual void correct_rhod()
         {
-        	rhod_=min(
-        	max(
-        	(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1])*(1/(C1_[0]+C1_[1])),
-        	p_num_/(Foam::constant::physicoChemical::R*T_)*MW_[0]),
-        	p_num_/(Foam::constant::physicoChemical::R*T_)*MW_[1]
-        	);
+
+        	rhod_=(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1]+C1_[2]*MW_[2])*(1/(C1_[0]+C1_[1]+C1_[2]));
+        	rhod_.correctBoundaryConditions();
+
         }
         virtual void correct_nu()
         {
