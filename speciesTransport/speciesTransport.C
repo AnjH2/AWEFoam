@@ -116,7 +116,7 @@ Foam::speciesTransport::speciesTransport
             		"Mem"
         	)
 	),
-		nuc_(
+	nuc_(
 	        mesh.lookupObject<volScalarField>
         	(
             		"nuc"

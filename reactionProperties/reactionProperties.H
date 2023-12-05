@@ -59,13 +59,10 @@ protected:
 	dictionary	reactionCoeffs_;
 	List<word> electrodes;
 	List<word> species2;
-	PtrList <dimensionedScalar> C_ref_;
 	//henrys law
 	PtrList <dimensionedScalar> DeltaH_;
 	PtrList <dimensionedScalar> H_ref_;
 	PtrList <dimensionedScalar> T_H_ref_;
-	PtrList <dimensionedScalar> f_;
-	PtrList <volScalarField> k_H_pure_;
 	PtrList <volScalarField> k_H_;
 	
 	PtrList <dimensionedScalar> psi_;
@@ -80,15 +77,11 @@ protected:
 	PtrList <dimensionedScalar> alphaT_;
 
 	////
-	const dimensionedScalar n_;	
 	const dimensionedScalar u_K_;
 	const dimensionedScalar u_OH_;
 	dimensionedScalar t_OH_;
-	dimensionedScalar tau_c_;
 
 	const volScalarField&	T_;
-
-	const volScalarField&	C_OH_;
 	const dimensionedScalar	nT_; //variable to remove influence of Temperature in butlervolmer equation
 
 	
@@ -113,12 +106,6 @@ public:
 
 
     // Member Functions
-
-        const PtrList <dimensionedScalar>& C2_ref() const
-        {
-            return C_ref_;
-        }
-
 
         const PtrList <dimensionedScalar>& psi() const
         {
@@ -153,10 +140,6 @@ public:
             return k_H_;
         }
 
-        const PtrList <volScalarField>& k_H_pure() const
-        {
-            return k_H_pure_;
-        }
 
 };
 

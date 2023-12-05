@@ -45,6 +45,7 @@ SourceFiles
 #ifndef mixtureViscosityModel_H
 #define mixtureViscosityModel_H
 
+#include "fvCFD.H"
 #include "dictionary.H"
 #include "volFieldsFwd.H"
 #include "surfaceFieldsFwd.H"
@@ -68,11 +69,18 @@ protected:
     // Protected data
 
         word name_;
+        List<word> species1;
         dictionary viscosityPropertiesSub1_;
         dictionary viscosityPropertiesSub2_;
 
         const volVectorField& U_;
         const surfaceScalarField& phi_;
+        const PtrList <dimensionedScalar>& MW_;
+        const PtrList <volScalarField>& C1_;
+        const volScalarField& T_;
+        volScalarField mu_m;
+        PtrList <volScalarField> phi1_;
+        
 
 
     // Private Member Functions
@@ -145,11 +153,16 @@ public:
         {
             return viscosityPropertiesSub1_;
         }
-
+	tmp<volScalarField> x_(const int i){
+		return C1_[i]/(C1_[0]+C1_[1]+C1_[2]);
+	}
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
         virtual tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const = 0;
 
+	//correting mud_m 
+	virtual void mud_m_correct() = 0;
+	
         //- Read transportProperties dictionary
         virtual bool read(const dictionary& viscosityPropertiesSub1) = 0;
 };

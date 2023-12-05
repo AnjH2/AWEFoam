@@ -62,7 +62,36 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
     mixtureViscosityModel(name, viscosityPropertiesSub1,viscosityPropertiesSub2, U, phi),
     BeckermannCoeffsSub1_(viscosityPropertiesSub1.optionalSubDict(modelName + "Coeffs")),
     BeckermannCoeffsSub2_(viscosityPropertiesSub2.optionalSubDict(modelName + "Coeffs")),
-    mud_("mu", dimDynamicViscosity, BeckermannCoeffsSub1_),
+    mud_ref_(species1.size()),
+    T_muref_(species1.size()),
+    n_mu_(species1.size()),
+    mud_(species1.size()),
+        a_(
+            	IOobject
+            	(
+               		"a_",
+                	U.mesh().time().timeName(),
+                	U.mesh(),
+                	IOobject::NO_READ,
+                	IOobject::NO_WRITE
+            	),
+            	U.mesh(),
+            	dimensionedScalar(dimless,0)
+        
+        ),
+    mud_m_(
+            	IOobject
+            	(
+               		"mud",
+                	U.mesh().time().timeName(),
+                	U.mesh(),
+                	IOobject::NO_READ,
+                	IOobject::AUTO_WRITE
+            	),
+            	U.mesh(),
+            	dimensionedScalar(dimDynamicViscosity,0)
+        
+        ),
     rhoc_("rho", dimDensity, BeckermannCoeffsSub2_),
     kr_("kr", dimless, BeckermannCoeffsSub1_),
     //BeckermannViscosityExponent_("exponent", dimless, BeckermannCoeffs_),
@@ -78,7 +107,72 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
             )
         )
     )
-{}
+{
+forAll(species1,i)
+	{
+        mud_ref_.set
+    	(
+        	i,
+        	new dimensionedScalar("mu_ref_"+species1[i], dimDynamicViscosity,BeckermannCoeffsSub1_)
+        );
+        T_muref_.set
+    	(
+        	i,
+        	new dimensionedScalar("T_muref_"+species1[i], dimTemperature,BeckermannCoeffsSub1_)
+        );
+        n_mu_.set
+    	(
+        	i,
+        	new dimensionedScalar("n_mu_"+species1[i], dimless,BeckermannCoeffsSub1_)
+        );
+        mud_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+        			IOobject
+        			(
+        				"mud_"+species1[i],
+        				U.mesh().time().timeName(),
+                			U.mesh(),
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			mud_ref_[i]*pow(T_/T_muref_[i],n_mu_[i])
+        		)
+        	);
+        
+	}
+
+
+forAll(species1,i)
+	{
+	a_=a_*0;
+	forAll(species1,j)
+		{
+		phi1_.set
+    		(
+        		i*3+j,
+        		new volScalarField
+        		(
+        			IOobject
+        			(
+        				"phi1_"+species1[i]+"_"+species1[j],
+        				U.mesh().time().timeName(),
+                			U.mesh(),
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			pow(1+pow(mud_[i]/mud_[j],0.5)*pow(MW_[j]/MW_[i],0.25),2)
+            			/(4/pow(2,0.5)*pow(1+MW_[i]/MW_[j],0.5))
+        		)
+        	);
+        	a_=a_+phi1_[i*3+j]*x_(j);
+		}
+	mud_m_=mud_m_+(x_(i)*mud_[i])/a_;
+	}
+
+}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -86,7 +180,24 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
 Foam::tmp<Foam::volScalarField>
 Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& muc, const volScalarField& rhod) const
 {
-    return pow(pow(1-alpha_,kr_)/(muc/rhoc_)+pow(alpha_,kr_)/(mud_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
+    return pow(pow(1-alpha_,kr_)/(muc/rhoc_)+pow(alpha_,kr_)/(mud_m_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
+}
+
+void Foam::mixtureViscosityModels::Beckermann::mud_m_correct(){
+mud_m_=mud_m_*0;
+forAll(species1,i)
+	{
+	a_=a_*0;
+	forAll(species1,j)
+		{
+		phi1_[i*3+j]=pow(1+pow(mud_[i]/mud_[j],0.5)*pow(MW_[j]/MW_[i],0.25),2)
+            			/(4/pow(2,0.5)*pow(1+MW_[i]/MW_[j],0.5));
+
+        	a_=a_+phi1_[i*3+j]*x_(j);
+		}
+	mud_m_=mud_m_+(x_(i)*mud_[i])/a_;
+	}
+
 }
 
 
@@ -99,7 +210,7 @@ bool Foam::mixtureViscosityModels::Beckermann::read
 
     BeckermannCoeffsSub1_ = viscosityPropertiesSub1.optionalSubDict(typeName + "Coeffs");
 
-    BeckermannCoeffsSub1_.readEntry("mu", mud_);
+    //BeckermannCoeffsSub1_.readEntry("mu", mud_);
   //  BeckermannCoeffs_.readEntry("n", BeckermannViscosityExponent_);
    // BeckermannCoeffs_.readEntry("muMax", muMax_);
 

@@ -50,12 +50,9 @@ Foam::reactionProperties::reactionProperties
     	reactionCoeffs_(this->optionalSubDict("reactionCoeffs")),
     	electrodes({"Ne","Pe"}),
     	species2({"H2","O2","H2O","OH"}),
-    	C_ref_(species2.size()),
 	DeltaH_(2),
 	H_ref_(2),
 	T_H_ref_(2),
-	f_(4),
-	k_H_pure_(2),
 	k_H_(2),
     	psi_(species2.size()*electrodes.size()),
 	E0_ref_(electrodes.size()),
@@ -78,15 +75,7 @@ Foam::reactionProperties::reactionProperties
 		"u_OH",
 		dimensionSet( 0, -1, 0, 0, 0, 0, 0),
 		reactionCoeffs_
-	),
-	tau_c_
-	(
-		"tau_c",
-		dimensionSet( 0, 0, 1, 0, 0, 0, 0),
-		reactionCoeffs_
-	),
-	
-	
+	),	
 	T_
    	(
     		mesh.lookupObject<volScalarField>
@@ -96,28 +85,12 @@ Foam::reactionProperties::reactionProperties
     			//)
     		)
   	),
-
-  	C_OH_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C_OH.electrolyte"
-    			//(
-    			//)
-    		)
-  	),
   		nT_
-
 	(
-
 		"n_Temp",
-
 		dimless,
-
 		reactionCoeffs_
-
 	)
-
 {
 forAll(species2,i)
 	{
@@ -139,33 +112,8 @@ forAll(species2,i)
         			i,
         			new dimensionedScalar("T_H_ref_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
         		);
-			f_.set
-    			(
-        			i*2,
-        			new dimensionedScalar("f0_"+species2[i], dimensionSet ( 0, 3, 0, 0, -1, 0, 0),reactionCoeffs_)
-        		);
-        		f_.set
-    			(
-        			i*2+1,
-        			new dimensionedScalar("f1_"+species2[i], dimensionSet ( 0, 3, 0, -1, -1, 0, 0),reactionCoeffs_)
-        		);
-        		k_H_pure_.set
-    			(
-        			i,
-        			new volScalarField
-        			(
-            				IOobject
-            				(
-               					"k_H_pure_"+species2[i],
-                				mesh.time().timeName(),
-                				mesh,
-                				IOobject::NO_READ,
-                				IOobject::NO_WRITE
-            				),
-            			H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))
-        			)
-    			);
-    			k_H_.set
+
+        		k_H_.set
     			(
         			i,
         			new volScalarField
@@ -178,9 +126,10 @@ forAll(species2,i)
                 				IOobject::NO_READ,
                 				IOobject::NO_WRITE
             				),
-            			k_H_pure_[i]*exp((f_[i*2]+f_[i*2+1]*T_)*C_OH_)
+            			H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))
         			)
     			);
+        		
         	}
 	}
 	
