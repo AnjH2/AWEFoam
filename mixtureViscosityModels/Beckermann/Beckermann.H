@@ -115,6 +115,8 @@ public:
         //  given the viscosity of the continuous phase
         tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
 
+	void mud_m_correct();
+
         //- Read transportProperties dictionary
         bool read(const dictionary& viscosityPropertiesSub1);
 };

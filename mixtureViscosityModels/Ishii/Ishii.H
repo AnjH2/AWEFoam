@@ -70,7 +70,12 @@ protected:
         //dimensionedScalar muMax_;
 
 
-	dimensionedScalar mud_;
+	PtrList <dimensionedScalar> mud_ref_;
+	PtrList <dimensionedScalar> T_muref_;
+	PtrList <dimensionedScalar> n_mu_;
+	PtrList <volScalarField> mud_;
+	volScalarField a_;
+	volScalarField mud_m_;
 	dimensionedScalar alpha_crit_;
 	        
 	        
@@ -109,7 +114,9 @@ public:
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
         tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
-
+        //correcting viscosity of mixture.
+	void mud_m_correct();
+	
         //- Read transportProperties dictionary
         bool read(const dictionary& viscosityPropertiesSub1);
 };

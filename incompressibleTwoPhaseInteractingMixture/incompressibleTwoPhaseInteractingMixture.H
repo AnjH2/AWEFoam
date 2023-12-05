@@ -207,6 +207,7 @@ public:
         //- Correct the laminar viscosity
         virtual void correct()
         {
+            muModel_->mud_m_correct();
             mu_ = muModel_->mu(rhoc_*nucModel_->nu(), rhod_);
         }
         /*virtual void correct_D1()

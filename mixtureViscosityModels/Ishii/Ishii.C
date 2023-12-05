@@ -62,7 +62,36 @@ Foam::mixtureViscosityModels::Ishii::Ishii
     mixtureViscosityModel(name, viscosityPropertiesSub1,viscosityPropertiesSub2, U, phi),
     IshiiCoeffsSub1_(viscosityPropertiesSub1.optionalSubDict(modelName + "Coeffs")),
     IshiiCoeffsSub2_(viscosityPropertiesSub2.optionalSubDict(modelName + "Coeffs")),
-    mud_("mu", dimDynamicViscosity, IshiiCoeffsSub1_),
+    mud_ref_(species1.size()),
+    T_muref_(species1.size()),
+    n_mu_(species1.size()),
+    mud_(species1.size()),
+        a_(
+            	IOobject
+            	(
+               		"a_",
+                	U.mesh().time().timeName(),
+                	U.mesh(),
+                	IOobject::NO_READ,
+                	IOobject::NO_WRITE
+            	),
+            	U.mesh(),
+            	dimensionedScalar(dimless,0)
+        
+        ),
+    mud_m_(
+            	IOobject
+            	(
+               		"mud",
+                	U.mesh().time().timeName(),
+                	U.mesh(),
+                	IOobject::NO_READ,
+                	IOobject::AUTO_WRITE
+            	),
+            	U.mesh(),
+            	dimensionedScalar(dimDynamicViscosity,0)
+        
+        ),
     alpha_crit_("alpha_crit", dimless, IshiiCoeffsSub1_),
     //IshiiViscosityExponent_("exponent", dimless, IshiiCoeffs_),
     //muMax_("muMax", dimDynamicViscosity, IshiiCoeffs_),
@@ -77,7 +106,72 @@ Foam::mixtureViscosityModels::Ishii::Ishii
             )
         )
     )
-{}
+{
+forAll(species1,i)
+	{
+        mud_ref_.set
+    	(
+        	i,
+        	new dimensionedScalar("mu_ref_"+species1[i], dimDynamicViscosity,IshiiCoeffsSub1_)
+        );
+        T_muref_.set
+    	(
+        	i,
+        	new dimensionedScalar("T_muref_"+species1[i], dimTemperature,IshiiCoeffsSub1_)
+        );
+        n_mu_.set
+    	(
+        	i,
+        	new dimensionedScalar("n_mu_"+species1[i], dimless,IshiiCoeffsSub1_)
+        );
+        mud_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+        			IOobject
+        			(
+        				"mud_"+species1[i],
+        				U.mesh().time().timeName(),
+                			U.mesh(),
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			mud_ref_[i]*pow(T_/T_muref_[i],n_mu_[i])
+        		)
+        	);
+        
+	}
+
+
+forAll(species1,i)
+	{
+	a_=a_*0;
+	forAll(species1,j)
+		{
+		phi1_.set
+    		(
+        		i*3+j,
+        		new volScalarField
+        		(
+        			IOobject
+        			(
+        				"phi1_"+species1[i]+"_"+species1[j],
+        				U.mesh().time().timeName(),
+                			U.mesh(),
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			pow(1+pow(mud_[i]/mud_[j],0.5)*pow(MW_[j]/MW_[i],0.25),2)
+            			/(4/pow(2,0.5)*pow(1+MW_[i]/MW_[j],0.5))
+        		)
+        	);
+        	a_=a_+phi1_[i*3+j]*x_(j);
+		}
+	mud_m_=mud_m_+(x_(i)*mud_[i])/a_;
+	}
+
+}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -86,7 +180,24 @@ Foam::tmp<Foam::volScalarField>
 Foam::mixtureViscosityModels::Ishii::mu(const volScalarField& muc, const volScalarField& rhod) const
 {
 
-    return muc*pow(1-alpha_/alpha_crit_,-2.5*alpha_crit_*((mud_+0.4*muc)/(mud_+muc)));
+    return muc*pow(1-alpha_/alpha_crit_,-2.5*alpha_crit_*((mud_m_+0.4*muc)/(mud_m_+muc)));
+}
+
+void Foam::mixtureViscosityModels::Ishii::mud_m_correct(){
+mud_m_=mud_m_*0;
+forAll(species1,i)
+	{
+	a_=a_*0;
+	forAll(species1,j)
+		{
+		phi1_[i*3+j]=pow(1+pow(mud_[i]/mud_[j],0.5)*pow(MW_[j]/MW_[i],0.25),2)
+            			/(4/pow(2,0.5)*pow(1+MW_[i]/MW_[j],0.5));
+
+        	a_=a_+phi1_[i*3+j]*x_(j);
+		}
+	mud_m_=mud_m_+(x_(i)*mud_[i])/a_;
+	}
+
 }
 
 
@@ -99,7 +210,7 @@ bool Foam::mixtureViscosityModels::Ishii::read
 
     IshiiCoeffsSub1_ = viscosityPropertiesSub1.optionalSubDict(typeName + "Coeffs");
 
-    IshiiCoeffsSub1_.readEntry("mu", mud_);
+    //IshiiCoeffsSub1_.readEntry("mu", mud_);
   //  IshiiCoeffs_.readEntry("n", IshiiViscosityExponent_);
    // IshiiCoeffs_.readEntry("muMax", muMax_);
 
