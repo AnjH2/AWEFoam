@@ -51,13 +51,115 @@ Foam::concentrationLossModel::concentrationLossModel
 :
 	concentrationLossModelDict_(dict),
 	species2({"H2","O2","H2O","OH"}),
-    	CR_Ne_(species2.size()),
-    	CR_Pe_(species2.size())
-
+	CR_(species2.size()),
+    	CRa_Ne_(
+    		IOobject
+    		(
+    	    		"CRa_Ne",
+            		mesh.time().timeName(),
+            		mesh,
+            		IOobject::NO_READ,
+            		IOobject::AUTO_WRITE
+    		),
+    		mesh,
+    		dimensionedScalar(dimless,One)
+    	),
+    	CRa_Pe_(
+    		IOobject
+    		(
+    	    		"CRa_Pe",
+            		mesh.time().timeName(),
+            		mesh,
+            		IOobject::NO_READ,
+            		IOobject::AUTO_WRITE
+    		),
+    		mesh,
+    		dimensionedScalar(dimless,One)
+    	),
+    	CRc_Ne_(
+    		IOobject
+    		(
+    	    		"CRc_Ne",
+            		mesh.time().timeName(),
+            		mesh,
+            		IOobject::NO_READ,
+            		IOobject::AUTO_WRITE
+    		),
+    		mesh,
+    		dimensionedScalar(dimless,One)
+    	),
+    	CRc_Pe_(
+    		IOobject
+    		(
+    	    		"CRc_Pe",
+            		mesh.time().timeName(),
+            		mesh,
+            		IOobject::NO_READ,
+            		IOobject::AUTO_WRITE
+    		),
+    		mesh,
+    		dimensionedScalar(dimless,One)
+    	),
+    	a_Ne_(concentrationLossModelDict_.get<wordList>("a_Ne")),
+	a_Pe_(concentrationLossModelDict_.get<wordList>("a_Pe")),
+	c_Ne_(concentrationLossModelDict_.get<wordList>("c_Ne")),
+	c_Pe_(concentrationLossModelDict_.get<wordList>("c_Pe")),
+	ab_Ne_(species2.size()),
+	ab_Pe_(species2.size()),
+	cb_Ne_(species2.size()),
+	cb_Pe_(species2.size()),
+	VOne_(
+    		IOobject
+    		(
+    	    		"VOne",
+            		mesh.time().timeName(),
+            		mesh,
+            		IOobject::NO_READ,
+            		IOobject::AUTO_WRITE
+    		),
+    		mesh,
+    		dimensionedScalar(dimless,One)
+    	)
 {
 forAll(species2,i)
 	{
-	CR_Ne_.set
+	forAll(a_Ne_,j){
+		if (a_Ne_[j]==species2[i]){
+			ab_Ne_[i]=1;
+			break;
+		} else {
+			ab_Ne_[i]=0;
+		}	
+	}
+		forAll(a_Pe_,j){
+		if (a_Pe_[j]==species2[i]){
+			ab_Pe_[i]=1;
+			break;
+		} else {
+			ab_Pe_[i]=0;
+		}
+		
+	}
+		forAll(c_Ne_,j){
+		if (c_Ne_[j]==species2[i]){
+			cb_Ne_[i]=1;
+			break;
+		} else {
+			cb_Ne_[i]=0;
+		}
+		
+	}
+		forAll(c_Pe_,j){
+		if (c_Pe_[j]==species2[i]){
+			cb_Pe_[i]=1;
+			break;
+		} else {
+			cb_Pe_[i]=0;
+		}
+		
+	}
+
+	CR_.set
     	(
         	i,
         	new volScalarField
@@ -71,27 +173,16 @@ forAll(species2,i)
                 		IOobject::AUTO_WRITE
             		),
             		mesh,
-            		dimensionedScalar("CR__"+species2[i],dimless,One)
+            		dimensionedScalar("CR_"+species2[i],dimless,One)
         	)
         );
-        CR_Pe_.set
-    	(
-        	i,
-        	new volScalarField
-        	(
-        		IOobject
-        		(
-        			"CR_"+species2[i],
-        			mesh.time().timeName(),
-                		mesh,
-                		IOobject::NO_READ,
-                		IOobject::AUTO_WRITE
-            		),
-            		mesh,
-            		dimensionedScalar("CR__"+species2[i],dimless,One)
-        	)
-        );	
 	}
+	/*
+	Info<<"ab_Ne"<<ab_Ne_<<endl;
+	Info<<"ab_Pe"<<ab_Pe_<<endl;
+	Info<<"cb_Ne"<<cb_Ne_<<endl;
+	Info<<"cb_Pe"<<cb_Pe_<<endl;
+	*/
 }
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //

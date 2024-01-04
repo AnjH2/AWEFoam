@@ -60,6 +60,7 @@ class localReference
 	PtrList <dimensionedScalar> n_Pe_;
 	//const PtrList<volScalarField>& C2_s_;
 	const PtrList<volScalarField>& C2_;
+	const bool nb_;
 public:
 
     //- Runtime type information

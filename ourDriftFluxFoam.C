@@ -103,8 +103,10 @@ int main(int argc, char *argv[])
     const volScalarField& theta=thetaModel.theta();
     
     concentrationLossModel& CLModel(CLModelPtr());
-    const PtrList <volScalarField>& CR_Ne = CLModel.CR_Ne();
-    const PtrList <volScalarField>& CR_Pe = CLModel.CR_Pe();
+    const volScalarField& CRa_Ne = CLModel.CRa_Ne();
+    const volScalarField& CRa_Pe = CLModel.CRa_Pe();
+    const volScalarField& CRc_Ne = CLModel.CRc_Ne();
+    const volScalarField& CRc_Pe = CLModel.CRc_Pe();
     
     massAndSpeciesTransferModel& mSTa(mSTaPtr());
     

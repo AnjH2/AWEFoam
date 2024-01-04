@@ -65,8 +65,21 @@ protected:
     // Protected data
 	const dictionary concentrationLossModelDict_;
 	List<word> species2;
-	PtrList <volScalarField> CR_Ne_;
-	PtrList <volScalarField> CR_Pe_;
+	PtrList <volScalarField> CR_;
+	volScalarField CRa_Ne_;
+	volScalarField CRa_Pe_;
+	volScalarField CRc_Ne_;
+	volScalarField CRc_Pe_;
+	List<word> a_Ne_;
+	List<word> a_Pe_;
+	List<word> c_Ne_;
+	List<word> c_Pe_;
+	List<scalar> ab_Ne_;
+	List<scalar> ab_Pe_;
+	List<scalar> cb_Ne_;
+	List<scalar> cb_Pe_;
+	const volScalarField VOne_;
+	 
 
 public:
 
@@ -108,13 +121,21 @@ public:
 
 
     // Member Functions
-    	const PtrList <volScalarField> CR_Ne() const 
+    	const volScalarField CRa_Ne() const 
     	{
-    		return CR_Ne_;
+    		return CRa_Ne_;
     	}
-    	const PtrList <volScalarField> CR_Pe() const 
+    	const volScalarField CRc_Ne() const 
     	{
-    		return CR_Pe_;
+    		return CRc_Ne_;
+    	}
+    	const volScalarField CRa_Pe() const 
+    	{
+    		return CRa_Pe_;
+    	}
+    	const volScalarField CRc_Pe() const 
+    	{
+    		return CRc_Pe_;
     	}
         //- Update the concentrationLoss
         virtual void correct(const PtrList <volScalarField>& C2_s_)=0;

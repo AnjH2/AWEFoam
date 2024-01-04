@@ -67,22 +67,42 @@ Foam::concentrationLossModels::localReference::localReference
         (
             "speciesProperties"
         ).C2()
-        )
+        ),
+    nb_(concentrationLossModelDict_.get<bool>("stoichiometricCoefficient"))
     
 {
-forAll(species2,i)
-	{
-	n_Ne_.set
-    	(
-        	i,
-        	new dimensionedScalar("n_Ne_"+species2[i], dimless,dict)
-        );
-        n_Pe_.set
-    	(
-        	i,
-        	new dimensionedScalar("n_Pe_"+species2[i], dimless,dict)
-        );
+if (nb_) {
+	forAll(species2,i) {
+		n_Ne_[i]=
+		(
+			mesh.lookupObject<reactionProperties>
+        		(
+            			"reactionProperties"
+        		).psi()[i]
+        	);
+        	n_Pe_[i]=
+		(
+			mesh.lookupObject<reactionProperties>
+        		(
+            			"reactionProperties"
+        		).psi()[i+4]
+        	);
         }
+} else {
+	forAll(species2,i)
+	{
+		n_Ne_.set
+    		(
+        		i,
+        		new dimensionedScalar("n_Ne_"+species2[i], dimless,dict)
+        	);
+        	n_Pe_.set
+    		(
+        		i,
+        		new dimensionedScalar("n_Pe_"+species2[i], dimless,dict)
+        	);
+        }
+}
 }
 
 
@@ -96,12 +116,26 @@ Foam::concentrationLossModels::localReference::~localReference()
 
 void Foam::concentrationLossModels::localReference::correct(const PtrList <volScalarField>& C2_s_)
 {
+	
+	CRa_Ne_=VOne_;
+	CRa_Pe_=VOne_;
+	CRc_Ne_=VOne_;
+	CRc_Pe_=VOne_;
 	forAll(species2,i)
 	{
-	CR_Ne_[i]=Foam::pow(C2_s_[i]/C2_[i],n_Ne_[i]);
-	CR_Ne_[i].correctBoundaryConditions();
-	CR_Pe_[i]=Foam::pow(C2_s_[i]/C2_[i],n_Pe_[i]);
-	CR_Pe_[i].correctBoundaryConditions();
+		CR_[i]=C2_s_[i]/C2_[i];
+		if (ab_Ne_[i]==1) {
+			CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		}
+		if (ab_Pe_[i]==1) {
+			CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		}
+		if (cb_Ne_[i]==1) {
+			CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		}
+		if (cb_Pe_[i]==1) {
+			CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		}
 	}
 }
 
