@@ -19,15 +19,15 @@ for(label i=0; i<C2.size(); i++)
         
         );
 
-	sTp.correct(i,mSTa.Psi_BV(),theta);	//calculates concentation of speceies i on the surfaces of the electrodes
+	sTp.correct(i,theta);	//calculates concentation of speceies i on the surfaces of the electrodes
 	if(i<=1)
 	{
 
-		mSTa.correct_Psi_m(i,sTp.C2_s()); //calculate species transfer based on transfer model
+		mSTa.correct_Psi_m(i,sTp.C2_s(),theta); //calculate species transfer based on transfer model
 		//mSTa.Psi_m()[i].correctBoundaryConditions();
 		C2Eqn += mSTa.Psi_m()[i];
 	} else if (i==2 and mSTa.waterVapour()){
-		mSTa.correct_Psi_m(i,sTp.C2_s());
+		mSTa.correct_Psi_m(i,sTp.C2_s(),theta);
 		
 		C2Eqn += mSTa.Psi_m()[i];
 		//C2Eqn += (mSTa.Psi_m()[0]+mSTa.Psi_m()[1])/(1-mSTa.p_water()/mixture.p_num())-(mSTa.Psi_m()[0]+mSTa.Psi_m()[1]);

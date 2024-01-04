@@ -182,6 +182,7 @@ public:
             return alpha1_*rhod_+ alpha2_*rhoc_;// 
         }
         
+        
 
         //- Return the mixture density for patch
         virtual tmp<scalarField> rho(const label patchi) const

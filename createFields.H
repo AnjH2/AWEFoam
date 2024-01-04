@@ -334,9 +334,20 @@ volScalarField TT
 #include "createMRF.H"
 #include "createFvOptions.H"
 
+// massAndSpeciesTransferModel
+autoPtr<massAndSpeciesTransferModel> mSTaPtr
+(
+    massAndSpeciesTransferModel::New
+    (
+        transportProperties,
+        mesh,
+        mixture
+    )
+);
+
 Info<< "Reading speciesTransport\n" << endl;
 // speciesTransport
-speciesTransport sTp(mesh,transportProperties);
+speciesTransport sTp(mesh,transportProperties,mSTaPtr);
 
 // surface coverage
 autoPtr<coverageModel> thetaModelPtr
@@ -357,13 +368,3 @@ autoPtr<concentrationLossModel> CLModelPtr
     )
 );
 
-// massAndSpeciesTransferModel
-autoPtr<massAndSpeciesTransferModel> mSTaPtr
-(
-    massAndSpeciesTransferModel::New
-    (
-        transportProperties,
-        mesh,
-        mixture
-    )
-);

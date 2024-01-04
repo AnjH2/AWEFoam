@@ -131,6 +131,7 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
         ),    */
         
     Psi_m_(species2.size()),
+    Psi_m_Wall_(species2.size()),
     waterVapour_(dict.get<bool>("waterVapour")),
     m_KOH_(dict.get<scalar>("m_KOH")), //molality of KOH in water [mol/kg]
     p_water_
@@ -145,7 +146,14 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
     	),
     	mesh,
     	dimPressure
-    )
+    ),
+    C_sat_(species2.size()),
+    	C1_(
+		mesh.lookupObject<speciesProperties>
+        	(
+            		"speciesProperties"
+        	).C1()
+	)
  
 {
 forAll(species2,i)
@@ -158,6 +166,23 @@ forAll(species2,i)
         		IOobject
         		(
         			"Psi_m_"+species2[i],
+        			mesh.time().timeName(),
+                		mesh,
+                		IOobject::NO_READ,
+                		IOobject::AUTO_WRITE
+            		),
+            		mesh,
+            		dimensionSet(1,-3,-1,0,0,0,0)
+        	)
+        );
+        Psi_m_Wall_.set
+    	(
+        	i,
+        	new volScalarField
+        	(
+        		IOobject
+        		(
+        			"Psi_m_Wall_"+species2[i],
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
@@ -182,6 +207,23 @@ forAll(species2,i)
             		),
             		mesh,
             		dimensionSet(0,-3,-1,0,1,0,0)
+        	)
+        );
+        C_sat_.set
+    	(
+        	i,
+        	new volScalarField
+        	(
+        		IOobject
+        		(
+        			"C_sat_"+species2[i],
+        			mesh.time().timeName(),
+                		mesh,
+                		IOobject::NO_READ,
+                		IOobject::AUTO_WRITE
+            		),
+            		mesh,
+            		dimensionedScalar("CSAT"+species2[i],dimensionSet(0,-3,0,0,1,0,0),One)
         	)
         );
 	}

@@ -84,15 +84,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
         (
             "speciesProperties"
         ).C2()
-        ),
-    theta_
-    (
-        mesh.lookupObject<volScalarField>
-        (
-            "theta"
-        )
-    ),
-        
+        ),        
     k_H_(
 	mesh.lookupObject<reactionProperties>
         (
@@ -105,7 +97,8 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
             "speciesProperties"
         ).MW()
         )
-{}
+{
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -116,18 +109,23 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::~mixedSaturation()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_Psi_m(const int i, const PtrList<volScalarField>& C2_s)
+void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_Psi_m(const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta)
 {
 	if (i<=1){
+		C_sat_[i]=k_H_[i]*(mixture_.p_num());
+		C_sat_[i].correctBoundaryConditions();
+		Psi_m_Wall_[i]=(Pe_+Ne_)*min(max(c_AB_*K_AB_*as_[i]*theta*MW_[i]*(C2_s[i]-C_sat_[i]),Psi_m_[i]*0),Psi_BV_[i]*MW_[i]);
+		Psi_m_Wall_[i].correctBoundaryConditions();
 		Psi_m_[i]=(Pe_+Ne_)*(
-			max(c_AB_*K_AB_*as_[i]*theta_*MW_[i]*(C2_s[i]-k_H_[i]*(mixture_.p_num()))+3*K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()))
-				,Psi_m_[i]*0)+
-			min(K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-k_H_[i]*(mixture_.p_num()))
-				,Psi_m_[i]*0)
+			Psi_m_Wall_[i]+
+			K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*(C2_[i]-C_sat_[i])
 		);
-		
+		Psi_m_[i].correctBoundaryConditions();
+		Psi_m_[i]=(Pe_+Ne_)*max(Psi_m_[i], min(1/(T_.mesh().time().deltaT())*alpha_*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_)*(C1_[i]*MW_[i])*(1/(C1_[0]+C1_[1]+C1_[2])),Psi_m_[i]*0));
 	} else if (i==2 and waterVapour_) {
 		Psi_m_[i]=((Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(Psi_m_[0]/MW_[0]+Psi_m_[1]/MW_[1]))*MW_[2];
+		Psi_m_[i].correctBoundaryConditions();
+		Psi_m_[i]=(Pe_+Ne_)*max(Psi_m_[i],min( 1/(T_.mesh().time().deltaT())*alpha_*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_)*(C1_[i]*MW_[i])*(1/(C1_[0]+C1_[1]+C1_[2])),Psi_m_[i]*0));
 		
 	} else {
 		Psi_m_[i]=Psi_m_[0]*0;

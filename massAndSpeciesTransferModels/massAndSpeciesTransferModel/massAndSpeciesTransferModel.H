@@ -85,10 +85,13 @@ protected:
         //const dimensionedScalar& p_num_;
         //Mass transfer model.
         PtrList <volScalarField> Psi_m_;
+        PtrList <volScalarField> Psi_m_Wall_;
         //water vapourModel
         const bool waterVapour_;
         const scalar m_KOH_;
         volScalarField	p_water_;
+       	PtrList <volScalarField> C_sat_;
+       	PtrList <volScalarField> C1_;
         
         
 
@@ -143,6 +146,10 @@ public:
         {
             return Psi_m_;
         }
+        const PtrList <volScalarField>& Psi_m_Wall() const
+        {
+            return Psi_m_Wall_;
+        }
         const volScalarField& p_water() const
         {
         	return p_water_;
@@ -159,7 +166,7 @@ public:
 	void correct_waterPartialPressure();
         
         //- Update the massAndSpeciesTransfer
-        virtual void correct_Psi_m(const int i,const PtrList<volScalarField>& C2_s) = 0;
+        virtual void correct_Psi_m(const int i,const PtrList<volScalarField>& C2_s, const volScalarField& theta) = 0;
         
 };
 

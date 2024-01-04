@@ -38,6 +38,7 @@ SourceFiles
 
 #include "volFields.H"
 #include "physicoChemicalConstants.H"
+#include "massAndSpeciesTransferModel.H"
 //#include "IOdictionary.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -56,6 +57,7 @@ class speciesTransport
 protected:
 
     // Protected data
+    	const massAndSpeciesTransferModel& mSTaPtr_;
 	dictionary	speciesTransportCoeffs_;
 	List<word> species2;
 	PtrList <volScalarField> C2_s_;
@@ -75,6 +77,7 @@ protected:
 	const volVectorField& U_;
 	const PtrList <dimensionedScalar>& as_;
 	const PtrList <dimensionedScalar>& D_pore_;
+	const PtrList <dimensionedScalar>& MW_;
 	
 	
 
@@ -92,7 +95,8 @@ public:
         speciesTransport
         (
     		const fvMesh& mesh,
-    		const dictionary& dict
+    		const dictionary& dict,
+    		const massAndSpeciesTransferModel& mSTaPtr
         );
 
 
@@ -106,7 +110,7 @@ public:
             return C2_s_;
         }
     
-	void correct(const int i, const PtrList <volScalarField>& Psi_BV_,const volScalarField& theta_);
+	void correct(const int i, const volScalarField& theta_);
 }; 
 
 

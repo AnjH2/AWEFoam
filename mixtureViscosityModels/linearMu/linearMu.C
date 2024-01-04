@@ -180,6 +180,7 @@ Foam::mixtureViscosityModels::linearMu::mu(const volScalarField& muc, const volS
 }
 
 void Foam::mixtureViscosityModels::linearMu::mud_m_correct(){
+
 mud_m_=mud_m_*0;
 forAll(species1,i)
 	{
@@ -187,7 +188,7 @@ forAll(species1,i)
 	forAll(species1,j)
 		{
 		phi1_[i*3+j]=pow(1+pow(mud_[i]/mud_[j],0.5)*pow(MW_[j]/MW_[i],0.25),2)
-            			/(4/pow(2,0.5)*pow(1+MW_[i]/MW_[j],0.5));
+            			*(1/pow(8,0.5)*pow(1+MW_[i]/MW_[j],-0.5));
 
         	a_=a_+phi1_[i*3+j]*x_(j);
 		}

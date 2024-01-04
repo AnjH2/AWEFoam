@@ -61,7 +61,6 @@ class mixedSaturation
 	const dimensionedScalar	K_DB_;
 	const dimensionedScalar	R_DB_;
 	const PtrList<volScalarField>& C2_;
-	const volScalarField& theta_;
 	const PtrList <volScalarField>& k_H_;
 	const PtrList <dimensionedScalar>& MW_;
 	
@@ -88,7 +87,7 @@ public:
 
     // Member Functions
         //- Update coverage
-        virtual void correct_Psi_m( const int i, const PtrList<volScalarField>& C2_s);
+        virtual void correct_Psi_m( const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta);
 };
 
 

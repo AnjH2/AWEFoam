@@ -85,7 +85,7 @@ public:
 
     // Member Functions
         //- Update coverage
-        virtual void correct_Psi_m( const int i, const PtrList<volScalarField>& C2_s);
+        virtual void correct_Psi_m( const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta);
 };
 
 

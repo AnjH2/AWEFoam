@@ -172,8 +172,9 @@ int main(int argc, char *argv[])
             for (int j=0; j<=speciesCorrections; j++)
             {
             #include "CiEqn.H"
+            mixture.correct();
             }
-
+	    
         }
 	if (runTime.writeTime())
 	{

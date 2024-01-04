@@ -30,16 +30,17 @@ License
 #include "../porousProperties/porousProperties.H"
 #include "../speciesProperties/speciesProperties.H"
 #include "../incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.H"
-#include "../massAndSpeciesTransferModels/massAndSpeciesTransferModel/massAndSpeciesTransferModel.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::speciesTransport::speciesTransport
 (
     const fvMesh& mesh,
-    const dictionary& dict
+    const dictionary& dict,
+    const massAndSpeciesTransferModel& mSTaPtr
 )
 :
+	mSTaPtr_(mSTaPtr),
     	speciesTransportCoeffs_(dict.optionalSubDict("speciesTransport")),
     	species2({"H2","O2","H2O","OH"}),
     	C2_s_(species2.size()),
@@ -139,7 +140,13 @@ Foam::speciesTransport::speciesTransport
         	(
             		"porousProperties"
         	).D_pore()
-	)
+	),
+    	MW_(
+		mesh.lookupObject<speciesProperties>
+        	(
+            		"speciesProperties"
+        	).MW()
+        )
 
 {
 forAll(species2,i)
@@ -230,7 +237,7 @@ forAll(species2,i)
         );
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-void Foam::speciesTransport::correct(const int i, const PtrList <volScalarField>& Psi_BV_,const volScalarField& theta_)
+void Foam::speciesTransport::correct(const int i, const volScalarField& theta_)
 {
 
 	Re_p_=max((mag(U_)+dimensionedScalar("USMALL",U_.dimensions(),SMALL))*D_pore_[0]/nuc_,ReSMALLF_);//this have to be done smarter!!
@@ -238,7 +245,7 @@ void Foam::speciesTransport::correct(const int i, const PtrList <volScalarField>
 		Sc_[i]=(nuc_)/D2_[i];
 		SH_[i]=sh_[0]*pow(Re_p_,sh_[1])*pow(Sc_[i],sh_[2]);
 		k_as_[i]=SH_[i]*(D2_[i])/(D_pore_[0]);
-		C2_s_[i]=Psi_BV_[i]/(k_as_[i]*as_[0]*(1-theta_))+C2_[i];
+		C2_s_[i]=(mSTaPtr_.Psi_BV()[i]-mSTaPtr_.Psi_m_Wall()[i]/MW_[i])/(k_as_[i]*as_[0]*(1-theta_))+C2_[i];
 		C2_s_[i].correctBoundaryConditions();
 }
 

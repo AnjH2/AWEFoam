@@ -90,7 +90,7 @@ Foam::massAndSpeciesTransferModels::bulkSaturation::~bulkSaturation()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::massAndSpeciesTransferModels::bulkSaturation::correct_Psi_m(const int i, const PtrList<volScalarField>& C2_s)
+void Foam::massAndSpeciesTransferModels::bulkSaturation::correct_Psi_m(const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta)
 {
 	if (i<=1){
 		Psi_m_[i]=(Pe_+Ne_)*(
