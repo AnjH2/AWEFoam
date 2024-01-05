@@ -27,6 +27,7 @@ License
 
 #include "fixedReferenceValue.H"
 #include "addToRunTimeSelectionTable.H"
+#include "../../reactionProperties/reactionProperties.H"
 //#include "../../speciesMixture/speciesMixture.H"
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -52,98 +53,48 @@ Foam::concentrationLossModels::fixedReferenceValue::fixedReferenceValue
     C2_Ref_(species2.size()),
     n_Ne_(species2.size()),
     n_Pe_(species2.size()),
-    C2_s_H2_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C2_s_H2"
-    			//(
-    			//)
-    		)
-  	),
-    C2_s_O2_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C2_s_O2"
-    			//(
-    			//)
-    		)
-  	),
-    C2_s_H2O_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C2_s_H2O"
-    			//(
-    			//)
-    		)
-  	),
-    C2_s_OH_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C2_s_OH"
-    			//(
-    			//)
-    		)
-  	)
-    /*C2_H2_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C_H2.electrolyte"
-    			//(
-    			//)
-    		)
-  	),
-        C2_O2_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C_O2.electrolyte"
-    			//(
-    			//)
-    		)
-  	),
-  	    C2_H2O_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C_H2O.electrolyte"
-    			//(
-    			//)
-    		)
-  	),
-  	    C2_OH_
-   	(
-    		mesh.lookupObject<volScalarField>
-   	 	(
-    			"C_OH.electrolyte"
-    			//(
-    			//)
-    		)
-  	)*/
-    //C2_(species2.size())
-    /*C2_(
-		mesh.lookupObject<speciesMixture>
-        	(
-        	    "speciesMixture"
-        	).C2()
-        )*/
+    nb_(concentrationLossModelDict_.get<bool>("stoichiometricCoefficient"))
 {
+if (nb_) {
+	forAll(species2,i) {
+		n_Ne_.set
+		(
+			i,
+			new dimensionedScalar (mag(
+					mesh.lookupObject<reactionProperties>
+        					(
+            							"reactionProperties"
+        					).psi()[i]
+        				))
+        	);
+		n_Pe_.set
+		(
+			i,
+			new dimensionedScalar (mag(
+					mesh.lookupObject<reactionProperties>
+        					(
+            							"reactionProperties"
+        					).psi()[i+4]
+        				))
+        	);
+        }
+} else {
+	forAll(species2,i)
+	{
+		n_Ne_.set
+    		(
+        		i,
+        		new dimensionedScalar("n_Ne_"+species2[i], dimless,dict)
+        	);
+        	n_Pe_.set
+    		(
+        		i,
+        		new dimensionedScalar("n_Pe_"+species2[i], dimless,dict)
+        	);
+        }
+}
 forAll(species2,i)
 	{
-	n_Ne_.set
-    	(
-        	i,
-        	new dimensionedScalar("n_Ne_"+species2[i], dimless,dict)
-        );
-        n_Pe_.set
-    	(
-        	i,
-        	new dimensionedScalar("n_Pe_"+species2[i], dimless,dict)
-        );
 	C2_Ref_.set
         	(
         	i,
@@ -163,12 +114,25 @@ Foam::concentrationLossModels::fixedReferenceValue::~fixedReferenceValue()
 
 void Foam::concentrationLossModels::fixedReferenceValue::correct(const PtrList <volScalarField>& C2_s_)
 {
+	CRa_Ne_=VOne_;
+	CRa_Pe_=VOne_;
+	CRc_Ne_=VOne_;
+	CRc_Pe_=VOne_;
 	forAll(species2,i)
 	{
-	CR_Ne_[i]=Foam::pow(C2_s_[i]/C2_Ref_[i],n_Ne_[i]);
-	CR_Ne_[i].correctBoundaryConditions();
-	CR_Pe_[i]=Foam::pow(C2_s_[i]/C2_Ref_[i],n_Pe_[i]);
-	CR_Pe_[i].correctBoundaryConditions();
+		CR_[i]=C2_s_[i]/C2_Ref_[i];
+		if (ab_Ne_[i]==1) {
+			CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		}
+		if (ab_Pe_[i]==1) {
+			CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		}
+		if (cb_Ne_[i]==1) {
+			CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		}
+		if (cb_Pe_[i]==1) {
+			CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		}
 	}
 }
 

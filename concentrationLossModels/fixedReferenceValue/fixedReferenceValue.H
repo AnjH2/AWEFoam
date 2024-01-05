@@ -59,10 +59,7 @@ class fixedReferenceValue
 	PtrList <dimensionedScalar> C2_Ref_;
 	PtrList <dimensionedScalar> n_Ne_;
 	PtrList <dimensionedScalar> n_Pe_;
-	const volScalarField& C2_s_H2_;
-	const volScalarField& C2_s_O2_;
-	const volScalarField& C2_s_H2O_;
-	const volScalarField& C2_s_OH_;
+	const bool nb_;
 public:
 
     //- Runtime type information
