@@ -73,19 +73,25 @@ Foam::concentrationLossModels::localReference::localReference
 {
 if (nb_) {
 	forAll(species2,i) {
-		n_Ne_[i]=
+		n_Ne_.set
 		(
-			mesh.lookupObject<reactionProperties>
-        		(
-            			"reactionProperties"
-        		).psi()[i]
+			i,
+			new dimensionedScalar (mag(
+					mesh.lookupObject<reactionProperties>
+        					(
+            							"reactionProperties"
+        					).psi()[i]
+        				))
         	);
-        	n_Pe_[i]=
+		n_Pe_.set
 		(
-			mesh.lookupObject<reactionProperties>
-        		(
-            			"reactionProperties"
-        		).psi()[i+4]
+			i,
+			new dimensionedScalar (mag(
+					mesh.lookupObject<reactionProperties>
+        					(
+            							"reactionProperties"
+        					).psi()[i+4]
+        				))
         	);
         }
 } else {
