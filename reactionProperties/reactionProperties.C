@@ -54,6 +54,17 @@ Foam::reactionProperties::reactionProperties
 	H_ref_(2),
 	T_H_ref_(2),
 	k_H_(2),
+	f0_(2),
+	f1_(2),
+	C2_OH_
+   	(
+    		mesh.lookupObject<volScalarField>
+   	 	(
+    			"C_OH.electrolyte"
+    			//(
+    			//)
+    		)
+  	),
     	psi_(species2.size()*electrodes.size()),
 	E0_ref_(electrodes.size()),
 	T0_E0_(electrodes.size()),
@@ -112,6 +123,16 @@ forAll(species2,i)
         			i,
         			new dimensionedScalar("T_H_ref_"+species2[i], dimensionSet ( 0, 0, 0, 1, 0, 0, 0),reactionCoeffs_)
         		);
+        		f0_.set
+    			(
+        			i,
+        			new dimensionedScalar("f0_"+species2[i], dimensionSet ( 0, 3, 0, 0, -1, 0, 0),reactionCoeffs_)
+        		);
+        		f1_.set
+    			(
+        			i,
+        			new dimensionedScalar("f1_"+species2[i], dimensionSet ( 0, 3, 0, -1, -1, 0, 0),reactionCoeffs_)
+        		);
 
         		k_H_.set
     			(
@@ -126,7 +147,7 @@ forAll(species2,i)
                 				IOobject::NO_READ,
                 				IOobject::AUTO_WRITE
             				),
-            			H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))
+            			H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))*exp((f0_[i]+f1_[i]*T_)*C2_OH_)
         			)
     			);
         		

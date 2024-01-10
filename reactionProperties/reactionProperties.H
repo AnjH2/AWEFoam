@@ -64,6 +64,9 @@ protected:
 	PtrList <dimensionedScalar> H_ref_;
 	PtrList <dimensionedScalar> T_H_ref_;
 	PtrList <volScalarField> k_H_;
+	PtrList <dimensionedScalar> f0_;
+	PtrList <dimensionedScalar> f1_;
+	const volScalarField& C2_OH_;
 	
 	PtrList <dimensionedScalar> psi_;
 	PtrList <dimensionedScalar> E0_ref_;

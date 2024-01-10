@@ -213,7 +213,7 @@ forAll(species2,i)
                 			mesh.time().timeName(),
                 			mesh,
                 			IOobject::NO_READ,
-                			IOobject::NO_WRITE
+                			IOobject::AUTO_WRITE
             			),
             			mesh,
             			dimless
@@ -243,8 +243,11 @@ void Foam::speciesTransport::correct(const int i, const volScalarField& theta_)
 	Re_p_=max((mag(U_)+dimensionedScalar("USMALL",U_.dimensions(),SMALL))*D_pore_[0]/nuc_,ReSMALLF_);//this have to be done smarter!!
 	Re_p_.correctBoundaryConditions();
 		Sc_[i]=(nuc_)/D2_[i];
-		SH_[i]=sh_[0]*pow(Re_p_,sh_[1])*pow(Sc_[i],sh_[2]);
+		Sc_[i].correctBoundaryConditions();
+		SH_[i]=max(sh_[0]*pow(Re_p_,sh_[1])*pow(Sc_[i],sh_[2]),dimensionedScalar(dimless,1));
+		SH_[i].correctBoundaryConditions();
 		k_as_[i]=SH_[i]*(D2_[i])/(D_pore_[0]);
+		k_as_[i].correctBoundaryConditions();
 		C2_s_[i]=(mSTaPtr_.Psi_BV()[i]-mSTaPtr_.Psi_m_Wall()[i]/MW_[i])/(k_as_[i]*as_[0]*(1-theta_))+C2_[i];
 		C2_s_[i].correctBoundaryConditions();
 }
