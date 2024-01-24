@@ -32,7 +32,7 @@ for(label i=0; i<C2.size(); i++)
 		//mSTa.correct_Psi_m(i,sTp.C2_s(),theta); //calculate species transfer based on transfer model
 		
 		//mSTa.Psi_m()[i].correctBoundaryConditions();
-		C2Eqn += mDotc + mDotv;//mSTa.Psi_m()[i];
+		C2Eqn -= mDotc + mDotv;//mSTa.Psi_m()[i];
 	} else if (i==2 and mSTa.waterVapour()){
 	
 		mSTa.correct_mDot_wall(i,sTp.C2_s(),theta);
@@ -44,11 +44,11 @@ for(label i=0; i<C2.size(); i++)
 		//mSTa.correct_Psi_m(i,sTp.C2_s(),theta);
 		C2Eqn -= mDotc + mDotv;//mSTa.Psi_m()[i];
 		//C2Eqn += (mSTa.Psi_m()[0]+mSTa.Psi_m()[1])/(1-mSTa.p_water()/mixture.p_num())-(mSTa.Psi_m()[0]+mSTa.Psi_m()[1]);
-	}/* else if (i==3){
+	} else if (i==3){
 		//C2Eqn +=fvc::laplacian(speciesP.D2_eff()[i]*F*z[i]*C2[i]/(R*T),Ue)
 		C2Eqn -=fvm::div((fvc::interpolate(speciesP.D2_eff()[i]*F*z[i]*MW[i]/(R*T)))*fvc::snGrad(Ue)*mesh.magSf(),C2[i], "div(const*snGrad(Ue),C2[i])");
 	
-	}*/
+	}
         C2Eqn.relax();
 
         solve(C2Eqn);

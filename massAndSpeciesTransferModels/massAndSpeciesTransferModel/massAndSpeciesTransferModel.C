@@ -309,9 +309,9 @@ Foam::massAndSpeciesTransferModel::vDotAlphal() const
        		*(1.0/mixture_.rhoc() - 1.0/rho1i)
        		)
     	);
-     
-    	sumVDotAlpha[0] = sumVDotAlpha[0]+alphalCoeff*this->mDotAlphal(i)[0];
-    	sumVDotAlpha[1] = sumVDotAlpha[1]+alphalCoeff*this->mDotAlphal(i)[1];
+     	Pair<tmp<volScalarField>> mDotAlphal= this->mDotAlphal(i);
+    	sumVDotAlpha[0] = sumVDotAlpha[0]+alphalCoeff*mDotAlphal[0];
+    	sumVDotAlpha[1] = sumVDotAlpha[1]+alphalCoeff*mDotAlphal[1];
     	
     }
 
@@ -331,9 +331,9 @@ Foam::massAndSpeciesTransferModel::vDot() const
     	
     	volScalarField pCoeff(1.0/mixture_.rhoc() - 1.0/rho1i);
     	
-    	//Pair<tmp<volScalarField>> mDot = this->mDot(i);
-    	sumVDot[0] = sumVDot[0] + pCoeff*this->mDot(i)[0];
-    	sumVDot[1] = sumVDot[1] + pCoeff*this->mDot(i)[1];
+    	Pair<tmp<volScalarField>> mDot = this->mDot(i);
+    	sumVDot[0] = sumVDot[0] + pCoeff*mDot[0];
+    	sumVDot[1] = sumVDot[1] + pCoeff*mDot[1];
     	
     }
     return sumVDot;
