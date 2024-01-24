@@ -1,58 +1,48 @@
 {
     word alphaScheme("div(phi,alpha)");
     word alpharScheme("div(phirb,alpha)");
+    
+    Pair<tmp<volScalarField>> vDotAlphal =
+        mSTa.vDotAlphal();
+    const volScalarField& vDotcAlphal = vDotAlphal[0]();
+    const volScalarField& vDotvAlphal = vDotAlphal[1]();
+    const volScalarField vDotvmcAlphal(vDotcAlphal - vDotvAlphal);
+    
+    tmp<surfaceScalarField> talphaPhi;
 
     if (MULESCorr)
     {
         fvScalarMatrix alpha1Eqn
         (
-            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)//epsilon1*
+            fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
           + fv::gaussConvectionScheme<scalar>
             (
                 mesh,
                 phi,
                 upwind<scalar>(mesh, phi)
-            ).fvmDiv(phi, alpha1) 
-          
+            ).fvmDiv(phi, alpha1)
+          - fvm::Sp(divU, alpha1)
+         ==
+            fvm::Sp(vDotvmcAlphal, alpha1)
+          + vDotvAlphal
         );
-	alpha1Eqn += Psi_gas;
-	
-        solve(alpha1Eqn);
+
+        alpha1Eqn.solve();
+
         Info<< "Phase-1 volume fraction = "
             << alpha1.weightedAverage(mesh.Vsc()).value()
             << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
             << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
             << endl;
 
-        tmp<surfaceScalarField> talphaPhiUD(alpha1Eqn.flux());
-        alphaPhi = talphaPhiUD();
-
-        if (alphaApplyPrevCorr && talphaPhiCorr0.valid())
-        {
-            Info<< "Applying the previous iteration correction flux" << endl;
-
-            MULES::correct
-            (
-                geometricOneField(),
-                alpha1,
-                alphaPhi,
-                talphaPhiCorr0.ref(),
-                Psi_gas,
-                zeroField(),
-                UniformField<scalar>(mixture.alphaMax()),
-                zeroField()
-            );
-
-            alphaPhi += talphaPhiCorr0();
-        }
-
-        // Cache the upwind-flux
-        talphaPhiCorr0 = talphaPhiUD;
+        talphaPhi = alpha1Eqn.flux();
     }
+    
+    volScalarField alpha10("alpha10", alpha1);
 
     for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
     {
-        tmp<surfaceScalarField> talphaPhiUn
+        tmp<surfaceScalarField> talphaPhiCorr
         (
             fvc::flux
             (
@@ -70,62 +60,64 @@
 
         if (MULESCorr)
         {
-            tmp<surfaceScalarField> talphaPhiCorr(talphaPhiUn() - alphaPhi);
-            volScalarField alpha10("alpha10", alpha1);
+            talphaPhiCorr.ref() -= talphaPhi();
+
+            volScalarField alpha100("alpha100", alpha10);
+            alpha10 = alpha1;
 
             MULES::correct
             (
                 geometricOneField(),
                 alpha1,
-                talphaPhiUn(),
+                talphaPhi(),
                 talphaPhiCorr.ref(),
-                Psi_gas,
-                zeroField(),
-                UniformField<scalar>(mixture.alphaMax()),
+                vDotvmcAlphal,
+                (
+                    divU*(alpha10 - alpha100)
+                  - vDotvmcAlphal*alpha10
+                )(),
+                oneField(),
                 zeroField()
             );
 
             // Under-relax the correction for all but the 1st corrector
             if (aCorr == 0)
             {
-                alphaPhi += talphaPhiCorr();
+                talphaPhi.ref() += talphaPhiCorr();
             }
             else
             {
                 alpha1 = 0.5*alpha1 + 0.5*alpha10;
-                alphaPhi += 0.5*talphaPhiCorr();
+                talphaPhi.ref() += 0.5*talphaPhiCorr();
             }
         }
         else
         {
-            alphaPhi = talphaPhiUn;
-
             MULES::explicitSolve
             (
                 geometricOneField(),
                 alpha1,
                 phi,
-                alphaPhi,
-                Psi_gas,
-                zeroField(),
-                UniformField<scalar>(mixture.alphaMax()),
+                talphaPhiCorr.ref(),
+                vDotvmcAlphal,
+                (divU*alpha1 + vDotvAlphal)(),
+                oneField(),
                 zeroField()
             );
+
+            talphaPhi = talphaPhiCorr;
         }
+
+        alpha2 = 1.0 - alpha1;
     }
+    rhoPhi = talphaPhi()*(fvc::interpolate(mixture.rhod()) - mixture.rhoc()) + phi*mixture.rhoc();
 
-    if (alphaApplyPrevCorr && MULESCorr)
-    {
-        talphaPhiCorr0 = alphaPhi - talphaPhiCorr0;
-    }
+    // Cache alphaPhi
+    alphaPhi10 = talphaPhi();
 
-    alpha2 = 1.0 - alpha1;
-
-    Info<< "Phase-1 volume fraction = "
-        << alpha1.weightedAverage(mesh.Vsc()).value()
+    Info<< "Liquid phase volume fraction = "
+        << alpha1.weightedAverage(mesh.V()).value()
         << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
         << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
         << endl;
-        
-
 }

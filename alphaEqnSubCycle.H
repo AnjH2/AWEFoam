@@ -10,34 +10,28 @@
         mesh,
         dimensionedScalar(phi.dimensions(), Zero)
     );
-
-    //Psi_alpha=-1*(Psi_si[0] + Psi_si[1])/mixture.rhod();
-        Psi_liquid==-1*(
-        mSTa.Psi_m()[0]/(rho2) 
-      + mSTa.Psi_m()[1]/(rho2)
-      + mSTa.Psi_m()[2]/(rho2)
-      	);
-
-   Psi_gas==-1*(
-       mSTa.Psi_m()[0]/(MW[0]*(mixture.p_num())/(R*T)) 
-      + mSTa.Psi_m()[1]/(MW[1]*(mixture.p_num())/(R*T))
-      + mSTa.Psi_m()[2]/(MW[2]*(mixture.p_num())/(R*T))
-      	);
+    
     surfaceScalarField phir(fvc::flux(UdmModel.Udm()));
 
+
+    volScalarField divU
+    (
+	fvc::div(phi)
+    );
+    
     if (nAlphaSubCycles > 1)
     {
         dimensionedScalar totalDeltaT = runTime.deltaT();
-        surfaceScalarField alphaPhiSum
+        surfaceScalarField rhoPhiSum
         (
             IOobject
             (
-                "alphaPhiSum",
+                "rhoPhiSum",
                 runTime.timeName(),
                 mesh
             ),
             mesh,
-            dimensionedScalar(phi.dimensions(), Zero)
+            dimensionedScalar(rhoPhi.dimensions(), Zero)
         );
 
         for
@@ -47,10 +41,10 @@
         )
         {
             #include "alphaEqn.H"
-            alphaPhiSum += (runTime.deltaT()/totalDeltaT)*alphaPhi;
+            rhoPhiSum += (runTime.deltaT()/totalDeltaT)*rhoPhi;
         }
 
-        alphaPhi = alphaPhiSum;
+        rhoPhi = rhoPhiSum;
     }
     else
     {
@@ -60,18 +54,16 @@
     // Apply the diffusion term separately to allow implicit solution
     // and boundedness of the explicit advection
     {
-       /* fvScalarMatrix alpha1Eqn
+        /*fvScalarMatrix alpha1Eqn
         (
-            (fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1))//epsilon1,
-          - fvm::laplacian(turbulence->nut()*pow(epsilon1,poroM.tau()), alpha1)
-          
+            fvm::ddt(alpha1) - fvc::ddt(alpha1)
+          - fvm::laplacian(turbulence->nut(), alpha1)
         );
-	//alpha1Eqn += Psi_gas;
-	
+
         alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));
-	
-        alphaPhi += alpha1Eqn.flux();*/
-        alpha2 = 1.0 - alpha1;
+	*/
+        alphaPhi = alphaPhi10;
+        //alpha2 = 1.0 - alpha1;
 
         Info<< "Phase-1 volume fraction = "
             << alpha1.weightedAverage(mesh.Vsc()).value()
@@ -79,7 +71,8 @@
             << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
             << endl;
     }
-
-    //rhoPhi = alphaPhi*(fvc::interpolate(rho1) - rho2) + phi*rho2;
+    
+    rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2) + phi*rho2;
     rho = mixture.rho();
+    
 }

@@ -44,7 +44,6 @@
 		(
 		(-react.alphaT()[3]*F)/(R*T)
 		);
-
 //****************************************** for the electrolyte
 		volScalarField I1e_Ne
 		(

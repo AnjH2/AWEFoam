@@ -181,6 +181,10 @@ public:
         {
             return D2_;
         }
+        void correct_DOH(volScalarField kappa)
+        {
+        	D2_[3]=kappa*Foam::constant::physicoChemical::R*T_/(C2_[3]*pow(Foam::constant::physicoChemical::F*z_[3],2));
+        }
 	void correct_D2_eff(volScalarField alphad_)
         {
         	forAll(species2,i)

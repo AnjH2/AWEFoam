@@ -74,6 +74,7 @@ protected:
 	//variables related to butlerVolmer species transfer 
 	const PtrList <dimensionedScalar>& z_;
 	const PtrList <dimensionedScalar>& psi_;
+	const PtrList <dimensionedScalar>& MW_;
 	const volScalarField& Pe_;
         const volScalarField& Ne_; 
         const volScalarField& J_;
@@ -84,8 +85,7 @@ protected:
         const dimensionedScalar& t_OH_;
         //const dimensionedScalar& p_num_;
         //Mass transfer model.
-        PtrList <volScalarField> Psi_m_;
-        PtrList <volScalarField> Psi_m_Wall_;
+        PtrList <volScalarField> mDot_Wall_;
         //water vapourModel
         const bool waterVapour_;
         const scalar m_KOH_;
@@ -142,13 +142,9 @@ public:
         {
             return Psi_BV_;
         }
-        const PtrList <volScalarField>& Psi_m() const
+        const PtrList <volScalarField>& mDot_Wall() const
         {
-            return Psi_m_;
-        }
-        const PtrList <volScalarField>& Psi_m_Wall() const
-        {
-            return Psi_m_Wall_;
+            return mDot_Wall_;
         }
         const volScalarField& p_water() const
         {
@@ -166,7 +162,33 @@ public:
 	void correct_waterPartialPressure();
         
         //- Update the massAndSpeciesTransfer
-        virtual void correct_Psi_m(const int i,const PtrList<volScalarField>& C2_s, const volScalarField& theta) = 0;
+        virtual void correct_mDot_wall(const int i,const PtrList<volScalarField>& C2_s, const volScalarField& theta) = 0;
+        
+                //- Return the mass condensation and vaporisation rates as a
+        //  coefficient to multiply (1 - alphal) for the condensation rate
+        //  and a coefficient to multiply  alphal for the vaporisation rate
+        //  of each species
+        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) const = 0;
+
+        //- Return the mass condensation and vaporisation rates as coefficients
+        virtual Pair<tmp<volScalarField>> mDot(const int i) const = 0;
+
+
+        //- Return the volumetric condensation and vaporisation rates as a
+        //  coefficient to multiply (1 - alphal) for the condensation rate
+        //  and a coefficient to multiply  alphal for the vaporisation rate
+        //  of each species
+        virtual Pair<tmp<volScalarField>> vDotAlphal() const;
+
+        //- Return the volumetric condensation and vaporisation rates as
+        //  coefficients of each species
+        virtual Pair<tmp<volScalarField>> vDot() const;
+
+        //- Correct the phaseChange model
+        virtual void correct() = 0;
+
+        //- Read the transportProperties dictionary and update
+        //virtual bool read();
         
 };
 

@@ -62,7 +62,7 @@ class mixedSaturation
 	const dimensionedScalar	R_DB_;
 	const PtrList<volScalarField>& C2_;
 	const PtrList <volScalarField>& k_H_;
-	const PtrList <dimensionedScalar>& MW_;
+	
 	
 public:
 
@@ -86,8 +86,24 @@ public:
 
 
     // Member Functions
-        //- Update coverage
-        virtual void correct_Psi_m( const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta);
+        //- Update coverage        
+        virtual void correct_mDot_wall( const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta);
+        
+        //- Return the mass condensation and vaporisation rates as a
+        //  coefficient to multiply (1 - alphal) for the condensation rate
+        //  and a coefficient to multiply  alphal for the vaporisation rate
+        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) const;
+
+        //- Return the mass condensation and vaporisation rates as coefficients
+        virtual Pair<tmp<volScalarField>> mDot(const int i) const;
+
+
+        //- Correct the constant phaseChange model
+        virtual void correct();
+
+        //- Read the transportProperties dictionary and update
+        //virtual bool read();
+        
 };
 
 

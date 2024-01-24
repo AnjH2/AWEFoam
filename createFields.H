@@ -27,6 +27,7 @@ IOdictionary fvSolution
 
 const scalar speciesCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("speciesCorrections");
 const scalar potentialCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("potentialCorrections");
+const scalar outerChemicalCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("outerChemicalCorrections");
 //scalar nT=transportProperties.get<scalar>("n_Temp");
 Info<< "Reading field p_rgh\n" << endl;
 volScalarField p_rgh
@@ -174,7 +175,21 @@ mesh.setFluxRequired(alpha1.name());
 // MULES Correction
 tmp<surfaceScalarField> talphaPhiCorr0;
 
+IOobject alphaPhi10Header
+(
+    IOobject::groupName("alphaPhi0", alpha1.group()),
+    runTime.timeName(),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+);
 
+// MULES flux from previous time-step
+surfaceScalarField alphaPhi10
+(
+    alphaPhi10Header,
+    phi*fvc::interpolate(alpha1)
+);
 
 volScalarField Psi_gas
 (

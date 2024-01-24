@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
 
     volScalarField& alpha2(mixture.alpha2());
     const dimensionedScalar& rho2 = mixture.rhoc();
+    const volScalarField& rho1 = mixture.rhod();
     PtrList <volScalarField>& C2 = speciesP.C2();
     PtrList <volScalarField>& C1 = speciesP.C1();
     const PtrList <dimensionedScalar>& MW = speciesP.MW();
@@ -140,6 +141,7 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+        
             #include "alphaControls.H"
             UdmModel.correct();
             //thetaModel.correct();
@@ -151,32 +153,34 @@ int main(int argc, char *argv[])
             mixture.correct();
             //mixture.correct_D1();
             mixture.correct_nu();
-            speciesP.correct_D2_eff(1-alpha2);
             #include "UEqn.H"
 
             // --- Pressure corrector loop
             while (pimple.correct())
             {
-		
                 #include "pEqn.H"
             }
             if (pimple.turbCorr())
             {
                 turbulence->correct();
             }
-            CLModel.correct(sTp.C2_s());
-
-            for (int j=0; j<=potentialCorrections; j++)
+            for (int k=0; k<=outerChemicalCorrections; k++)
             {
-            #include "potentialEqn.H"
-            }
+            	speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
+            	speciesP.correct_D2_eff(1-alpha2);
+            	CLModel.correct(sTp.C2_s());
+            	
+            	for (int j=0; j<=potentialCorrections; j++)
+            	{
+            		#include "potentialEqn.H"
+            	}
 
-            for (int j=0; j<=speciesCorrections; j++)
-            {
-            #include "CiEqn.H"
-            mixture.correct();
-            }
-	    
+            	for (int j=0; j<=speciesCorrections; j++)
+            	{
+            		#include "CiEqn.H"
+            		mixture.correct();
+            	}
+	    }
         }
 	if (runTime.writeTime())
 	{

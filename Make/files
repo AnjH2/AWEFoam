@@ -4,6 +4,6 @@ reactionProperties/reactionProperties.C
 speciesTransport/speciesTransport.C
 speciesProperties/speciesProperties.C
 compressibleTurbulenceModels.C
-ourDriftFluxFoam.C
+hisDriftFluxFoam.C	
 
-EXE = $(FOAM_USER_APPBIN)/ourDriftFluxFoam
+EXE = $(FOAM_USER_APPBIN)/hisDriftFluxFoam
