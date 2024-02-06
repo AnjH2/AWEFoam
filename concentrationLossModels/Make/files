@@ -2,4 +2,4 @@ concentrationLossModel/concentrationLossModel.C
 localReference/localReference.C
 fixedReferenceValue/fixedReferenceValue.C
 
-LIB = $(FOAM_USER_LIBBIN)/libOurDriftFluxConcentrationLossModels
+LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxConcentrationLossModels

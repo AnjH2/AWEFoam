@@ -29,9 +29,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "fvc.H"
 #include "../../reactionProperties/reactionProperties.H"
-#include "../../porousProperties/porousProperties.H"
 #include "../../speciesProperties/speciesProperties.H"
-#include "../../speciesTransport/speciesTransport.H"
 #include "../../incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.H"
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

@@ -30,8 +30,6 @@ License
 #include "../../reactionProperties/reactionProperties.H"
 #include "../../porousProperties/porousProperties.H"
 #include "../../speciesProperties/speciesProperties.H"
-#include "../../speciesTransport/speciesTransport.H"
-#include "../../incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.H"
 //#include "../../speciesMixture/speciesMixture.H"
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

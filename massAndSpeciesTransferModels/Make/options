@@ -17,11 +17,5 @@ LIB_LIBS = \
     -lsampling \
     -lcompressibleTransportModels \
     -lincompressibleTransportModels \
-    -ltwoPhaseMixture \
-    -lOurDriftFluxTransportModels \
-    -lOurDriftFluxRelativeVelocityModels \
-    -lOurDriftFluxCoverageModels \
-    -lOurDriftFluxConcentrationLossModels \
     -lturbulenceModels \
-    -lcompressibleTurbulenceModels \
-    -lthermoTools 
+    -lcompressibleTurbulenceModels 

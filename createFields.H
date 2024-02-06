@@ -25,9 +25,9 @@ IOdictionary fvSolution
 
 //scalar to define number of iterations each variables will be solved
 
-const scalar speciesCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("speciesCorrections");
-const scalar potentialCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("potentialCorrections");
-const scalar outerChemicalCorrections=fvSolution.subDict("OurDriftFlux").get<scalar>("outerChemicalCorrections");
+const scalar speciesCorrections=fvSolution.subDict("HisDriftFlux").get<scalar>("speciesCorrections");
+const scalar potentialCorrections=fvSolution.subDict("HisDriftFlux").get<scalar>("potentialCorrections");
+const scalar outerChemicalCorrections=fvSolution.subDict("HisDriftFlux").get<scalar>("outerChemicalCorrections");
 //scalar nT=transportProperties.get<scalar>("n_Temp");
 Info<< "Reading field p_rgh\n" << endl;
 volScalarField p_rgh

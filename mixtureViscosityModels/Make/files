@@ -4,4 +4,4 @@ Beckermann/Beckermann.C
 Ishii/Ishii.C
 linearMu/linearMu.C
 
-LIB = $(FOAM_USER_LIBBIN)/libOurDriftFluxTransportModels
+LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxTransportModels

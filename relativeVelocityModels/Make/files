@@ -4,4 +4,4 @@ pSimple/pSimple.C
 general/general.C
 distorted/distorted.C
 
-LIB = $(FOAM_USER_LIBBIN)/libOurDriftFluxRelativeVelocityModels
+LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxRelativeVelocityModels

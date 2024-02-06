@@ -11,7 +11,7 @@ for(label i=0; i<C2.size(); i++)
 	fvScalarMatrix C2Eqn
 	(
         	fvm::ddt(MW[i]*alpha2*poroM.eps(),C2[i])
-        	+fvm::div(fvc::interpolate(alpha2)*(phi)*MW[i],C2[i])
+        	+fvm::div(fvc::interpolate(alpha2)*(phi-fvc::interpolate(alpha1*rho1/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::interpolate(alpha2*rho2/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::interpolate(alpha2)*fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
         	//- fvc::laplacian(turbulence->nut()*pow(epsilon1,poroM.tau())*MW[i]*C2[i],alpha1)

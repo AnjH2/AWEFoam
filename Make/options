@@ -30,11 +30,11 @@ EXE_LIBS = \
     -lcompressibleTransportModels \
     -lincompressibleTransportModels \
     -ltwoPhaseMixture \
-    -lOurDriftFluxTransportModels \
-    -lOurDriftFluxRelativeVelocityModels \
-    -lOurDriftFluxCoverageModels \
-    -lOurDriftFluxConcentrationLossModels \
-    -lOurDriftFluxMassAndSpeciesTransferModels \
+    -lHisDriftFluxTransportModels \
+    -lHisDriftFluxRelativeVelocityModels \
+    -lHisDriftFluxCoverageModels \
+    -lHisDriftFluxConcentrationLossModels \
+    -lHisDriftFluxMassAndSpeciesTransferModels \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
     -lthermoTools \
