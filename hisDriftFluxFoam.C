@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     const PtrList <dimensionedScalar>& as = poroM.as();
     const volScalarField& Ne = poroM.Ne();
     const volScalarField& Pe = poroM.Pe();
-    //const volScalarField& Mem = poroM.Mem();
+    const volScalarField& Mem = poroM.Mem();
     
     const dimensionedScalar& F=Foam::constant::physicoChemical::F;
     const dimensionedScalar& R=Foam::constant::physicoChemical::R;
@@ -141,7 +141,6 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-        
             #include "alphaControls.H"
             UdmModel.correct();
             //thetaModel.correct();

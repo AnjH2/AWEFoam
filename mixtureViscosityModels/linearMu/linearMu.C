@@ -132,7 +132,7 @@ forAll(species1,i)
         				U.mesh().time().timeName(),
                 			U.mesh(),
                 			IOobject::NO_READ,
-                			IOobject::NO_WRITE
+                			IOobject::AUTO_WRITE
             			),
             			mud_ref_[i]*pow(T_/T_muref_[i],n_mu_[i])
         		)
@@ -194,7 +194,7 @@ forAll(species1,i)
 		}
 	mud_m_=mud_m_+(x_(i)*mud_[i])/a_;
 	}
-
+mud_m_=max(mud_m_,min(mud_[0],min(mud_[1],mud_[2])));
 }
 
 

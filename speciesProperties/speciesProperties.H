@@ -189,7 +189,7 @@ public:
         {
         	forAll(species2,i)
         		{
-        			D2_eff_[i]=Foam::pow(epsilon_,tau_)*Foam::pow(1-alphad_,tau_)*D2_[i];
+        			D2_eff_[i]=Foam::pow(epsilon_,tau_)*Foam::pow(1-min(alphad_,0.99),tau_)*D2_[i];
         		}
 
         }

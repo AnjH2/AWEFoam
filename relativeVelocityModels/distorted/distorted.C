@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "pSimple.H"
+#include "distorted.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -34,45 +34,45 @@ namespace Foam
 {
 namespace relativeVelocityModels
 {
-    defineTypeNameAndDebug(pSimple, 0);
-    addToRunTimeSelectionTable(relativeVelocityModel, pSimple, dictionary);
+    defineTypeNameAndDebug(distorted, 0);
+    addToRunTimeSelectionTable(relativeVelocityModel, distorted, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::relativeVelocityModels::pSimple::pSimple
+Foam::relativeVelocityModels::distorted::distorted
 (
     const dictionary& dict,
     const incompressibleTwoPhaseInteractingMixture& mixture
 )
 :
     relativeVelocityModel(dict, mixture),
-    a_("a", dimless, dict),
-    V0_("V0", dimVelocity, dict),
-    residualAlpha_("residualAlpha", dimless, dict),
-    	eps_(
-	        alphad_.mesh().lookupObject<volScalarField>
-        	(
-            		"eps"
-        	)
-	)
+    g_("g",dimAcceleration,dict),
+    sigma_("SurfaceTension", dimForce/dimLength, dict)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::relativeVelocityModels::pSimple::~pSimple()
+Foam::relativeVelocityModels::distorted::~distorted()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::relativeVelocityModels::pSimple::correct()
+void Foam::relativeVelocityModels::distorted::correct()
 {
-
-    Udm_ = eps_*(rhod_/rho())*V0_*pow(scalar(10), -a_*max(alphad_, scalar(0)));
+    Udm_ = (Pe_+Ne_)*pow(2,0.5)*pow(-(sigma_*mag(g_)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75)*-(g_/mag(g_));
+    /*
+    Udm_.component(0) = pow(2,0.5)*pow((sigma_*g_.component(0)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
+    Info<<Udm_.component(0)<<endl;
+    Udm_.component(1) = pow(2,0.5)*pow((sigma_*g_.component(1)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
+    Info<<Udm_.component(1)<<endl;
+    Udm_.component(2) = pow(2,0.5)*pow((sigma_*g_.component(2)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
+    Info<<Udm_.component(2)<<endl;
+    Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
 }
 
 

@@ -95,7 +95,25 @@ Foam::relativeVelocityModel::relativeVelocityModel
         alphac_.mesh(),
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
-    )
+    ),
+        Pe_(
+	        alphad_.mesh().lookupObject<volScalarField>
+        	(
+            		"Pe"
+        	)
+	),
+	Ne_(
+	        alphad_.mesh().lookupObject<volScalarField>
+        	(
+            		"Ne"
+        	)
+	),
+	Mem_(
+	        alphad_.mesh().lookupObject<volScalarField>
+        	(
+            		"Mem"
+        	)
+	)
 {}
 
 

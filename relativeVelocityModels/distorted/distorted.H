@@ -24,95 +24,70 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixedSaturation
+    Foam::distorted
 
 Description
-    mixedSaturation loss model, used in the butlerVolmer model
+    distorted relative velocity model
 
 SourceFiles
-    mixedSaturation.C
+    distorted.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef mixedSaturation_H
-#define mixedSaturation_H
+#ifndef distorted_H
+#define distorted_H
 
-#include "volFields.H"
-#include "massAndSpeciesTransferModel.H"
+#include "relativeVelocityModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace massAndSpeciesTransferModels
+namespace relativeVelocityModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class linear Declaration
+                         Class distorted Declaration
 \*---------------------------------------------------------------------------*/
 
-class mixedSaturation
+class distorted
 :
-    public massAndSpeciesTransferModel
+    public relativeVelocityModel
 {
     // Private data
-	const dimensionedScalar	K_AB_;
-	const dimensionedScalar	c_AB_;
-	const dimensionedScalar	K_DB_;
-	const dimensionedScalar	R_DB_;
-	const PtrList<volScalarField>& C2_;
-	const PtrList <volScalarField>& k_H_;
-	
-	
+
+	dimensionedVector g_;
+	dimensionedScalar sigma_;
 public:
 
     //- Runtime type information
-    TypeName("mixedSaturation");
+    TypeName("distorted");
 
 
     // Constructors
 
         //- Construct from components
-        mixedSaturation
+        distorted
         (
             const dictionary& dict,
-            const fvMesh& mesh,
             const incompressibleTwoPhaseInteractingMixture& mixture
         );
 
 
     //- Destructor
-    ~mixedSaturation();
+    ~distorted();
 
 
     // Member Functions
-        //- Update coverage        
-        virtual void correct_mDot_wall( const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta);
-        
-        //- Return the mass condensation and vaporisation rates as a
-        //  coefficient to multiply (1 - alphal) for the condensation rate
-        //  and a coefficient to multiply  alphal for the vaporisation rate
-        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) const;
 
-        //- Return the mass condensation and vaporisation rates as coefficients
-        virtual Pair<tmp<volScalarField>> mDot(const int i) const;
-
-	//- Source for T equarion
-        virtual tmp<fvScalarMatrix> ciSource(const int i, bool phase) const;
-	
-	
-        //- Correct the constant phaseChange model
+        //- Update the diffusion velocity
         virtual void correct();
-
-        //- Read the transportProperties dictionary and update
-        //virtual bool read();
-        
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace massAndSpeciesTransfers
+} // End namespace relativeVelocityModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

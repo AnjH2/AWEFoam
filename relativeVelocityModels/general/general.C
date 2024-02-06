@@ -67,7 +67,7 @@ Foam::relativeVelocityModels::general::~general()
 void Foam::relativeVelocityModels::general::correct()
 {
     Udm_ =
-        (rhoc_/rho())
+        (rhod_/rho())
        *V0_
        *(
             exp(-a_*max(alphad_ - residualAlpha_, scalar(0)))

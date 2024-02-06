@@ -274,23 +274,27 @@ void Foam::massAndSpeciesTransferModel::correct_Psi_BV(int i)
 
 		if(z_[i].value() == 0) //not charged species C_[i]
 		{
-			Psi_BV_[i]=-epsilon_*((psi_[i]*Ne_+psi_[i+4]*Pe_)/2)*(J_)/Foam::constant::physicoChemical::F;
+			Psi_BV_[i]=-((psi_[i]*Ne_+psi_[i+4]*Pe_)/2)*(J_)/Foam::constant::physicoChemical::F;
 		}
 		else //charged species C_[i]
 		{
-			Psi_BV_[i]=-epsilon_*(t_OH_/z_[i].value()+(psi_[i]*Ne_+psi_[i+4]*Pe_)/2)*(J_)/Foam::constant::physicoChemical::F;
+			Psi_BV_[i]=-(t_OH_/z_[i].value()+(psi_[i]*Ne_+psi_[i+4]*Pe_)/2)*(J_)/Foam::constant::physicoChemical::F;
 		}
 	
 }
 //calculates the partial pressure of water in a salt mixture
 void Foam::massAndSpeciesTransferModel::correct_waterPartialPressure()
 {
-	dimensionedScalar	Td_("T",dimensionSet(0,0,0,1,0,0,0),1);
-	dimensionedScalar	Pd_("P",dimPressure,1e5);
-	p_water_=pow(10,-0.01508*m_KOH_-0.00167788*pow(m_KOH_,2)+2.25887e-5*pow(m_KOH_,3)+
-	(1-0.0012062*m_KOH_+5.6024e-4*pow(m_KOH_,2)-7.8228e-6*pow(m_KOH_,3))*
-	(35.4462-3343.93/T_*Td_-10.9*log10(T_/Td_)+0.0041645*T_/Td_))*Pd_;
-	p_water_.correctBoundaryConditions();
+	if (waterVapour_) {
+		dimensionedScalar	Td_("T",dimensionSet(0,0,0,1,0,0,0),1);
+		dimensionedScalar	Pd_("P",dimPressure,1e5);
+		p_water_=pow(10,-0.01508*m_KOH_-0.00167788*pow(m_KOH_,2)+2.25887e-5*pow(m_KOH_,3)+
+		(1-0.0012062*m_KOH_+5.6024e-4*pow(m_KOH_,2)-7.8228e-6*pow(m_KOH_,3))*
+		(35.4462-3343.93/T_*Td_-10.9*log10(T_/Td_)+0.0041645*T_/Td_))*Pd_;
+		p_water_.correctBoundaryConditions();
+	} else {
+		p_water_=dimensionedScalar(dimPressure,0);
+	}
 }
 
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
@@ -300,19 +304,22 @@ Foam::massAndSpeciesTransferModel::vDotAlphal() const
     Pair<tmp<volScalarField>> sumVDotAlpha(this->mDotAlphal(0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDotAlphal(0)[0]*dimensionedScalar(dimless/dimDensity,Zero));
 
     forAll(species1,i){
-	const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
+	if (i<=1 or waterVapour_){
+		const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
 	
-    	volScalarField alphalCoeff
-    	(
-        	-1*(
-        	1.0/rho1i - mixture_.alpha1()
-       		*(1.0/mixture_.rhoc() - 1.0/rho1i)
-       		)
-    	);
-     	Pair<tmp<volScalarField>> mDotAlphal= this->mDotAlphal(i);
-    	sumVDotAlpha[0] = sumVDotAlpha[0]+alphalCoeff*mDotAlphal[0];
-    	sumVDotAlpha[1] = sumVDotAlpha[1]+alphalCoeff*mDotAlphal[1];
-    	
+    		volScalarField alphalCoeff
+    		(
+        		
+        		-(
+        			1.0/mixture_.rhoc() - mixture_.alpha2()
+       				*(1.0/mixture_.rhoc() - 1.0/rho1i)
+       			)
+       			
+    		);
+     		Pair<tmp<volScalarField>> mDotAlphal= this->mDotAlphal(i);
+    		sumVDotAlpha[0] = sumVDotAlpha[0]+alphalCoeff*mDotAlphal[0];
+    		sumVDotAlpha[1] = sumVDotAlpha[1]+alphalCoeff*mDotAlphal[1];
+    	}
     }
 
     return sumVDotAlpha;
@@ -326,15 +333,15 @@ Foam::massAndSpeciesTransferModel::vDot() const
     Pair<tmp<volScalarField>> sumVDot(this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
     
     forAll(species1,i){
-    
-    	const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
+    	if (i<=1 or waterVapour_){
+    		const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
     	
-    	volScalarField pCoeff(1.0/mixture_.rhoc() - 1.0/rho1i);
+    		volScalarField pCoeff(1.0/mixture_.rhoc() - 1.0/rho1i);
     	
-    	Pair<tmp<volScalarField>> mDot = this->mDot(i);
-    	sumVDot[0] = sumVDot[0] + pCoeff*mDot[0];
-    	sumVDot[1] = sumVDot[1] + pCoeff*mDot[1];
-    	
+    		Pair<tmp<volScalarField>> mDot = this->mDot(i);
+    		sumVDot[0] = sumVDot[0] + pCoeff*mDot[0];
+    		sumVDot[1] = sumVDot[1] + pCoeff*mDot[1];
+    	}
     }
     return sumVDot;
 }

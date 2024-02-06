@@ -1,7 +1,6 @@
 {
     word alphaScheme("div(phi,alpha)");
     word alpharScheme("div(phirb,alpha)");
-    
     Pair<tmp<volScalarField>> vDotAlphal =
         mSTa.vDotAlphal();
     const volScalarField& vDotcAlphal = vDotAlphal[0]();
@@ -9,12 +8,11 @@
     const volScalarField vDotvmcAlphal(vDotcAlphal - vDotvAlphal);
     
     tmp<surfaceScalarField> talphaPhi;
-
     if (MULESCorr)
     {
         fvScalarMatrix alpha1Eqn
         (
-            fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
           + fv::gaussConvectionScheme<scalar>
             (
                 mesh,

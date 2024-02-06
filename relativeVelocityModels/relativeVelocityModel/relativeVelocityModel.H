@@ -89,6 +89,11 @@ protected:
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
 
+	const volScalarField& Pe_;
+	
+	const volScalarField& Ne_;
+	
+	const volScalarField& Mem_;
 
 public:
 
