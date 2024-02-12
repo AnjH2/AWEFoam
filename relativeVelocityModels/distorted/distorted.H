@@ -56,7 +56,7 @@ class distorted
 {
     // Private data
 
-	dimensionedVector g_;
+	const meshObjects::gravity& g_;
 	dimensionedScalar sigma_;
 public:
 

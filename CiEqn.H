@@ -11,7 +11,7 @@ for(label i=0; i<C2.size(); i++)
 	fvScalarMatrix C2Eqn
 	(
         	fvm::ddt(MW[i]*alpha2*poroM.eps(),C2[i])
-        	+fvm::div(fvc::interpolate(alpha2)*(phi-fvc::interpolate(alpha1*rho1/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
+        	+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::flux(UdmModel.Ucm()))*MW[i],C2[i])
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::interpolate(alpha2*rho2/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::interpolate(alpha2)*fvc::flux(UdmModel.Udm()))*MW[i],C2[i])
         	//- fvc::laplacian(turbulence->nut()*pow(epsilon1,poroM.tau())*MW[i]*C2[i],alpha1)
@@ -65,7 +65,7 @@ for(label i=0; i<C1.size(); i++)
 	fvScalarMatrix C1Eqn
 	(
         fvm::ddt(MW[i]*alpha1*epsilon1,C1[i])
-        +fvm::div(fvc::interpolate(alpha1)*(phi+fvc::interpolate(alpha2*rho2/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")//V3
+        +fvm::div(fvc::interpolate(alpha1)*(phi+fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")//V3
         //V3+fvm::div(fvc::interpolate(alpha1)*(phi-fvc::interpolate(alpha1*rho1/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")  
         //+fvm::div(fvc::interpolate(alpha1)*(phi-fvc::interpolate(alpha1*rho1/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")  
         //+fvm::div(fvc::interpolate(alpha1)*(phi-fvc::interpolate(alpha1)*fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")  

@@ -5,22 +5,22 @@
 //******************************************* constants used in eqation
 		volScalarField C1Ne
 		(
-		Ne*as[0]*react.i0()[0]*epsilon1*alpha2*(1-theta)*(CRa_Ne) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
 
 		volScalarField C1Pe
 		(
-		Pe*as[1]*react.i0()[1]*epsilon1*alpha2*(1-theta)*(CRa_Pe) //Foam::pow(((react.Psi()[3]/as[1])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Pe*as[1]*react.i0()[1]*(1-theta)*(CRa_Pe) //Foam::pow(((react.Psi()[3]/as[1])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
 
 		volScalarField C2Ne
 		(
-		Ne*as[0]*react.i0()[0]*epsilon1*alpha2*(1-theta)*(CRc_Ne) //Foam::pow(((react.Psi()[2]/as[0])/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
+		Ne*as[0]*react.i0()[0]*(1-theta)*(CRc_Ne) //Foam::pow(((react.Psi()[2]/as[0])/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
 		);
 
 		volScalarField C2Pe
 		(
-		Pe*as[1]*react.i0()[1]*epsilon1*alpha2*(1-theta)*(CRc_Pe) //(((react.Psi()[2]/as[1])/(mixture.D2_eff()[2])+C2[2])/C2[2])
+		Pe*as[1]*react.i0()[1]*(1-theta)*(CRc_Pe) //(((react.Psi()[2]/as[1])/(mixture.D2_eff()[2])+C2[2])/C2[2])
 		);
 		//opdated 1511-2022 fixed error
 		//opdated 0307-2023 removed H2 and O2 fraction, added concentration gradient to the surface of the electrodes.
@@ -146,7 +146,7 @@
             	eta=(UNe-Ue-react.E0()[0])*Ne+(UPe-Ue-react.E0()[1])*Pe;
             	eta.correctBoundaryConditions();
         	J=
-        	Pe*as[1]*react.i0()[1]*epsilon1*alpha2*(1-theta)*(CRa_Pe*exp((react.alphaT()[2]*F*eta)/(R*T))-(CRc_Pe)*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
-        	Ne*as[0]*react.i0()[0]*(1-theta)*epsilon1*alpha2*(CRa_Ne*exp((react.alphaT()[0]*F*eta)/(R*T))-CRc_Ne*exp((-react.alphaT()[1]*F*eta)/(R*T)))
+        	Pe*as[1]*react.i0()[1]*(1-theta)*(CRa_Pe*exp((react.alphaT()[2]*F*eta)/(R*T))-(CRc_Pe)*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
+        	Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne*exp((react.alphaT()[0]*F*eta)/(R*T))-CRc_Ne*exp((-react.alphaT()[1]*F*eta)/(R*T)))
     		;
 		J.correctBoundaryConditions();

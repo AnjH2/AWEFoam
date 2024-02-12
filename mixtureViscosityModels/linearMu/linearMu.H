@@ -112,7 +112,10 @@ public:
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
         tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
-
+	const PtrList<volScalarField>& mud()
+	{
+		return mud_;
+	}
 	void mud_m_correct();
 
         //- Read transportProperties dictionary

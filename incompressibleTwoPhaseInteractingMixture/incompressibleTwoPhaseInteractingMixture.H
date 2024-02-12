@@ -168,6 +168,16 @@ public:
         {
             return mu_;
         }
+        
+             const PtrList<volScalarField>& mud()
+        {
+            return muModel_->mud();
+        }
+	
+	virtual tmp<volScalarField> muc() const
+	{
+		return rhoc_*nucModel_->nu();
+	} 
 
         //- Return the dynamic mixture viscosity for patch
         virtual tmp<scalarField> mu(const label patchi) const

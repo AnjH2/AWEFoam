@@ -151,11 +151,14 @@ public:
             return Udm_;
         }
         //- Return the relative velocity of the continues phase
-	//tmp<volVectorField> Ucm() const;
+	tmp<volVectorField> Ucm() const;
+	
+	//- Return the relative velocity of the dispersed phase, volumesentric
+	tmp<volVectorField> Udj() const;
 
 
         //- Return the stress tensor due to the phase transport
-        tmp<volSymmTensorField> tauDm() const;
+        tmp<volTensorField> tauDm() const;
 
         //- Update the diffusion velocity
         virtual void correct() = 0;

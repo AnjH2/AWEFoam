@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "distorted.H"
+#include "viscousRegime.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -34,37 +34,65 @@ namespace Foam
 {
 namespace relativeVelocityModels
 {
-    defineTypeNameAndDebug(distorted, 0);
-    addToRunTimeSelectionTable(relativeVelocityModel, distorted, dictionary);
+    defineTypeNameAndDebug(viscousRegime, 0);
+    addToRunTimeSelectionTable(relativeVelocityModel, viscousRegime, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::relativeVelocityModels::distorted::distorted
+Foam::relativeVelocityModels::viscousRegime::viscousRegime
 (
     const dictionary& dict,
     const incompressibleTwoPhaseInteractingMixture& mixture
 )
 :
     relativeVelocityModel(dict, mixture),
+    mixture_(mixture),
     g_(meshObjects::gravity::New(mixture.U().time())),
-    sigma_("SurfaceTension", dimForce/dimLength, dict)
+    sigma_("SurfaceTension", dimForce/dimLength, dict),
+    rd_
+	(
+		"R_DB",
+		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
+		dict
+	),
+    rhoc_(mixture.rhoc()),
+    rhod_(mixture.rhod())
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::relativeVelocityModels::distorted::~distorted()
+Foam::relativeVelocityModels::viscousRegime::~viscousRegime()
 {}
 
 
+// * * * * * * * * * * * * * * Private Functions  * * * * * * * * * * * * * * //
+
+volScalarField Foam::relativeVelocityModels::viscousRegime::rd()
+{
+
+	return rd_*pow(rhoc_*mag(g_)*(rhoc_-rhod_)/pow(mixture_.muc(),2),1.0/3.0);
+}
+
+volScalarField Foam::relativeVelocityModels::viscousRegime::psi()
+{
+	return 0.55*pow(pow(1+0.08*pow(rd(),3.0),4.0/7.0)-1,0.75);
+}
+
+volScalarField Foam::relativeVelocityModels::viscousRegime::f()
+{
+	return pow(alphac_,0.5)*mixture_.muc()/mixture_.mu();
+}
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::relativeVelocityModels::distorted::correct()
+void Foam::relativeVelocityModels::viscousRegime::correct()
 {
-    Udm_ = (Pe_+Ne_)*pow(2,0.5)*pow(-(sigma_*mag(g_)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75)*-(g_/mag(g_));
+    Udm_ = (rhoc_/rho())*(Pe_+Ne_)*10.8*pow(mixture_.muc()*mag(g_)*(rhoc_-rhod_)/(pow(rhoc_,2.0)),1.0/3.0)*g_/mag(g_)
+    			*(pow(alphac_,1.5)*f())/rd()
+    			*(pow(psi(),4.0/3.0)*(1+psi()))/(1+psi()*pow(f(),6.0/7.0));
     /*
     Udm_.component(0) = pow(2,0.5)*pow((sigma_*g_.component(0)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
     Info<<Udm_.component(0)<<endl;

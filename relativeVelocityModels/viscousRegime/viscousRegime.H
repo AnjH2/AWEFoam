@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014 OpenFOAM Foundation
+    Copyright (C) 2014-2015 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,112 +24,82 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixtureViscosityModels::Ishii
+    Foam::viscousRegime
 
 Description
-     Viscosity correction model for generic newtonian flow.
+    viscousRegime relative velocity model
 
 SourceFiles
-    Ishii.C
+    viscousRegime.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Ishii_H
-#define Ishii_H
+#ifndef viscousRegime_H
+#define viscousRegime_H
 
-#include "mixtureViscosityModel.H"
-#include "dimensionedScalar.H"
-#include "volFields.H"
+#include "relativeVelocityModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-class incompressibleTwoPhaseInteractingMixture;
-
-namespace mixtureViscosityModels
+namespace relativeVelocityModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class Ishii Declaration
+                         Class viscousRegime Declaration
 \*---------------------------------------------------------------------------*/
 
-class Ishii
+class viscousRegime
 :
-    public mixtureViscosityModel
+    public relativeVelocityModel
 {
-protected:
-
-    // Protected data
-
-        //- Dictionary
-        dictionary IshiiCoeffsSub1_;
-        dictionary IshiiCoeffsSub2_;
-        //- Maximum viscosity
-        //dimensionedScalar muMax_;
-
-
-	PtrList <dimensionedScalar> mud_ref_;
-	PtrList <dimensionedScalar> T_muref_;
-	PtrList <dimensionedScalar> n_mu_;
-	PtrList <volScalarField> mud_;
-	volScalarField a_;
-	volScalarField mud_m_;
-	dimensionedScalar alpha_crit_;
-	        
-	        
-        //- Ishii phase fraction
-        const volScalarField& alpha_;
-        //const volScalarField& rhod_;
-
-
+    // Private data
+	const incompressibleTwoPhaseInteractingMixture& mixture_;
+	//const dimensionedVector g_;
+	const meshObjects::gravity& g_;
+	const dimensionedScalar sigma_;
+	const dimensionedScalar rd_;
+	const dimensionedScalar& rhoc_;
+	const volScalarField& rhod_;
+	
+    // Private functions??
+    
+    volScalarField rd();
+    volScalarField psi();
+    volScalarField f();
 public:
 
     //- Runtime type information
-    TypeName("Ishii");
+    TypeName("viscousRegime");
 
 
     // Constructors
 
         //- Construct from components
-        Ishii
+        viscousRegime
         (
-            const word& name,
-            const dictionary& viscosityPropertiesSub1,
-            const dictionary& viscosityPropertiesSub2,
-            const volVectorField& U,
-            const surfaceScalarField& phi,
-            const word modelName=typeName
+            const dictionary& dict,
+            const incompressibleTwoPhaseInteractingMixture& mixture
         );
 
 
     //- Destructor
-    ~Ishii()
-    {}
+    ~viscousRegime();
 
 
     // Member Functions
 
-        //- Return the mixture viscosity
-        //  given the viscosity of the continuous phase
-        tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
-        	const PtrList<volScalarField>& mud()
-	{
-		return mud_;
-	}
-        
-        //correcting viscosity of mixture.
-	void mud_m_correct();
 	
-        //- Read transportProperties dictionary
-        bool read(const dictionary& viscosityPropertiesSub1);
+	
+        //- Update the diffusion velocity
+        virtual void correct();
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace mixtureViscosityModels
+} // End namespace relativeVelocityModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

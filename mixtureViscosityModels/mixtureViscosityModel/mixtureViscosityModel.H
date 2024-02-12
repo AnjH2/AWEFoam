@@ -159,6 +159,8 @@ public:
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
         virtual tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const = 0;
+        
+        virtual const PtrList<volScalarField>& mud() = 0;
 
 	//correting mud_m 
 	virtual void mud_m_correct() = 0;
