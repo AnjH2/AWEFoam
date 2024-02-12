@@ -120,7 +120,7 @@ public:
 	}
         
         //correcting viscosity of mixture.
-	void mud_m_correct();
+	void mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num);
 	
         //- Read transportProperties dictionary
         bool read(const dictionary& viscosityPropertiesSub1);

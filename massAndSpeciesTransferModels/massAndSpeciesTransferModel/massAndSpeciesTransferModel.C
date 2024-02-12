@@ -152,13 +152,7 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
     	mesh,
     	dimPressure
     ),
-    C_sat_(species2.size()),
-    	C1_(
-		mesh.lookupObject<speciesProperties>
-        	(
-            		"speciesProperties"
-        	).C1()
-	)
+    C_sat_(species2.size())
  
 {
 forAll(species2,i)

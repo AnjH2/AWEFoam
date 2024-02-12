@@ -87,7 +87,35 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
     		U.mesh(),
     		dimensionedScalar("mu_m__",dimDynamicViscosity,1)
 	),
-	phi1_(species1.size()*species1.size())
+	phi1_(species1.size()*species1.size()),
+	  	   Pe_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"Pe"
+    			//(
+    			//)
+    		)
+  	),
+  	  	   Ne_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"Ne"
+    			//(
+    			//)
+    		)
+  	),
+  	  	   Mem_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"Mem"
+    			//(
+    			//)
+    		)
+  	)
+
 	
 {
 

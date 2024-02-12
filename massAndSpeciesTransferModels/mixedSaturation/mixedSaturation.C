@@ -124,9 +124,6 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i) con
     if (i<= 1){
     	const dimensionedScalar C0(dimensionSet(0,-3,0,0,1,0,0), Zero);
     	
-    	//const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
-
-//(Pe_+Ne_)*max(Psi_m_[i], min(1/(T_.mesh().time().deltaT())*alpha_*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_)*(C1_[i]*MW_[i])*(1/(C1_[0]+C1_[1]+C1_[2])),Psi_m_[i]*0));
     	return Pair<tmp<volScalarField>>
     	(
         	mDot_Wall_[i]*0,

@@ -220,15 +220,12 @@ public:
         }
 
         //- Correct the laminar viscosity
-        virtual void correct()
+        virtual void correct(const volScalarField& p_water)
         {
-            muModel_->mud_m_correct();
+            muModel_->mud_m_correct(p_water,p_num_);
             mu_ = muModel_->mu(rhoc_*nucModel_->nu(), rhod_);
         }
-        /*virtual void correct_D1()
-        {
-        	D1_eff_=pow(epsilon_,tau_)*pow(alpha1_,(tau_-1))*D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
-        }*/
+
         virtual void correct_rhod(const volScalarField& p_water)
         {
         	rhod_=Pe_*(p_num_)/(Foam::constant::physicoChemical::R*T_)*((p_num_-p_water)*(MW_[1])+p_water*MW_[2])/p_num_

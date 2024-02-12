@@ -141,15 +141,15 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+        	
             #include "alphaControls.H"
             UdmModel.correct();
             //thetaModel.correct();
             thetaModel.correct();
             #include "alphaEqnSubCycle.H"
-            
 	    //mixture.correct_rhoc();
 	    mixture.correct_rhod(mSTa.p_water());
-            mixture.correct();
+            mixture.correct(mSTa.p_water());
             //mixture.correct_D1();
             mixture.correct_nu();
             #include "UEqn.H"
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
             	for (int j=0; j<=speciesCorrections; j++)
             	{
             		#include "CiEqn.H"
-            		mixture.correct();
+            		//mixture.correct();
             	}
 	    }
         }

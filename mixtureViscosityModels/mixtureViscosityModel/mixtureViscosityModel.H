@@ -81,7 +81,9 @@ protected:
         volScalarField mu_m;
         PtrList <volScalarField> phi1_;
         
-
+        const volScalarField& Pe_;
+        const volScalarField& Ne_;
+        const volScalarField& Mem_;
 
     // Private Member Functions
 
@@ -153,9 +155,9 @@ public:
         {
             return viscosityPropertiesSub1_;
         }
-	tmp<volScalarField> x_(const int i){
+	/*tmp<volScalarField> x_(const int i){
 		return C1_[i]/(C1_[0]+C1_[1]+C1_[2]);
-	}
+	}*/
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
         virtual tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const = 0;
@@ -163,7 +165,7 @@ public:
         virtual const PtrList<volScalarField>& mud() = 0;
 
 	//correting mud_m 
-	virtual void mud_m_correct() = 0;
+	virtual void mud_m_correct(const volScalarField& p_water, const dimensionedScalar& p_num) = 0;
 	
         //- Read transportProperties dictionary
         virtual bool read(const dictionary& viscosityPropertiesSub1) = 0;

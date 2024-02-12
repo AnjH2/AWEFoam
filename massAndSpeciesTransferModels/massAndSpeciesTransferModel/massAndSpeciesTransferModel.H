@@ -91,7 +91,6 @@ protected:
         const scalar m_KOH_;
         volScalarField	p_water_;
        	PtrList <volScalarField> C_sat_;
-       	PtrList <volScalarField> C1_;
         
         
 
