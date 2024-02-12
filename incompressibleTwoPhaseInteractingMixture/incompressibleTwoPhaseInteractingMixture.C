@@ -109,7 +109,7 @@ incompressibleTwoPhaseInteractingMixture
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        p_num_/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1]+C1_[2]*MW_[2])*(1/(C1_[0]+C1_[1]+C1_[2]))
+        p_num_/(Foam::constant::physicoChemical::R*T_)*(MW_[2])
     ),
     rhoc_("rho", dimDensity, nucModel_->viscosityProperties()),
     
@@ -157,6 +157,33 @@ incompressibleTwoPhaseInteractingMixture
     			//(
     			//)
     		)
+  	),
+  	   Pe_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"Pe"
+    			//(
+    			//)
+    		)
+  	),
+  	  	   Ne_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"Ne"
+    			//(
+    			//)
+    		)
+  	),
+  	  	   Mem_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"Mem"
+    			//(
+    			//)
+    		)
   	)
 {
 
@@ -200,10 +227,6 @@ bool Foam::incompressibleTwoPhaseInteractingMixture::read()
 
     return false;
 }
-/*void Foam::incompressibleTwoPhaseInteractingMixture::correct()
-{
-	mu_ = muModel_->mu(rhoc_*nucModel_->nu());
-	D1_eff_=D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
-}*/
+
 
 // ************************************************************************* //

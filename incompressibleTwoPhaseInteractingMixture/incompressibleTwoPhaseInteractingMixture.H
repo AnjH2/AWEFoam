@@ -91,6 +91,10 @@ protected:
         volScalarField nu_;
         
         const volScalarField& prgh_;
+        
+        const volScalarField& Pe_;
+        const volScalarField& Ne_;
+        const volScalarField& Mem_;
 
 
 public:
@@ -225,9 +229,11 @@ public:
         {
         	D1_eff_=pow(epsilon_,tau_)*pow(alpha1_,(tau_-1))*D1_ref_*(1+DeltaX1(C1_[1]/(C1_[0]+C1_[1])))/(1+DeltaX1(dummy_));
         }*/
-        virtual void correct_rhod()
+        virtual void correct_rhod(const volScalarField& p_water)
         {
-        	rhod_=(p_num_)/(Foam::constant::physicoChemical::R*T_)*(C1_[0]*MW_[0]+C1_[1]*MW_[1]+C1_[2]*MW_[2])*(1/(C1_[0]+C1_[1]+C1_[2]));
+        	rhod_=Pe_*(p_num_)/(Foam::constant::physicoChemical::R*T_)*((p_num_-p_water)*(MW_[1])+p_water*MW_[2])/p_num_
+			+ Ne_*(p_num_)/(Foam::constant::physicoChemical::R*T_)*((p_num_-p_water)*(MW_[0])+p_water*MW_[2])/p_num_
+			+ Mem_*(p_num_)/(Foam::constant::physicoChemical::R*T_)*MW_[2];
         }
         virtual void correct_nu()
         {

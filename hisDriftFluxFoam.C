@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
             #include "alphaEqnSubCycle.H"
             
 	    //mixture.correct_rhoc();
-	    mixture.correct_rhod();
+	    mixture.correct_rhod(mSTa.p_water());
             mixture.correct();
             //mixture.correct_D1();
             mixture.correct_nu();
