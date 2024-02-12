@@ -65,7 +65,6 @@ protected:
 	dictionary dict_;
 	List<word> species2;
 	List<word> species1;
-	const PtrList <volScalarField>& C1_;
 	const volScalarField&	T_;
 	const PtrList <dimensionedScalar>& MW_;
 

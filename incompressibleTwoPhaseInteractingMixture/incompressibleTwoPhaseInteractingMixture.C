@@ -53,12 +53,6 @@ incompressibleTwoPhaseInteractingMixture
     dict_(dict),
     species2({"H2","O2","H2O","OH"}),
     species1({"H2","O2","H2O"}),
-	C1_(
-		U.mesh().lookupObject<speciesProperties>
-        	(
-            		"speciesProperties"
-        	).C1()
-	),
 	T_(
 	        U.mesh().lookupObject<volScalarField>
         	(

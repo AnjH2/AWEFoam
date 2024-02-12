@@ -56,12 +56,6 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
     viscosityPropertiesSub2_(viscosityPropertiesSub2),
     U_(U),
     phi_(phi),
-    C1_(
-		U_.mesh().lookupObject<speciesProperties>
-        	(
-            		"speciesProperties"
-        	).C1()
-	),
     MW_(
 		U_.mesh().lookupObject<speciesProperties>
         	(

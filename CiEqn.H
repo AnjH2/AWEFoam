@@ -56,33 +56,6 @@ for(label i=0; i<C2.size(); i++)
 	//Info<<"test3"<<endl;
 }
 
-for(label i=0; i<C1.size(); i++)
-{
-
-	if (i<=1 or mSTa.waterVapour()){
-
-	//defining species_i transport equation
-	fvScalarMatrix C1Eqn
-	(
-        fvm::ddt(MW[i]*alpha1*epsilon1,C1[i])
-        +fvm::div(fvc::interpolate(alpha1)*(phi+fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")//V3
-        //V3+fvm::div(fvc::interpolate(alpha1)*(phi-fvc::interpolate(alpha1*rho1/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")  
-        //+fvm::div(fvc::interpolate(alpha1)*(phi-fvc::interpolate(alpha1*rho1/rho)*fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")  
-        //+fvm::div(fvc::interpolate(alpha1)*(phi-fvc::interpolate(alpha1)*fvc::flux(UdmModel.Udm()))*MW[i],C1[i],"div(alphaPhi,"+C1[i].name()+")")  
-        //- fvc::laplacian(turbulence->nut()*pow(epsilon1,poroM.tau())*MW[i]*C1[i],alpha1)  
-        );
-        //relax equation and solves.
-        
-        Pair<tmp<volScalarField>> mDot = mSTa.mDot(i);
-    	const volScalarField& mDotc = mDot[0]();
-    	const volScalarField& mDotv = mDot[1]();
-        
-        C1Eqn += mDotc + mDotv;//mSTa.Psi_m()[i];
-        //C1Eqn += mSTa.ciSource(i, false);
-        C1Eqn.relax();
-        solve(C1Eqn);
-        }
-}
 
 
 

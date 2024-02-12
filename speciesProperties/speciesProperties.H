@@ -72,7 +72,6 @@ protected:
 	PtrList <volScalarField> D2_eff_;
 	//PtrList <volScalarField> D1_eff_;
 	
-	PtrList <volScalarField> C1_;
 	//
 	//start defining mixture coefficients
 	//charge -constant
@@ -163,15 +162,6 @@ public:
             return C2_;
         }
         
-        //- Return the species distribution of phase 1
-        const PtrList <volScalarField>& C1() const
-        {
-            return C1_;
-        }
-        PtrList <volScalarField>& C1()
-        {
-            return C1_;
-        }
         
         const PtrList <volScalarField>& D2_eff() const
         {

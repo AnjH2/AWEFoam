@@ -61,7 +61,6 @@ Foam::speciesProperties::speciesProperties
 	C2_(species2.size()),
 	D2_(species2.size()),
 	D2_eff_(species2.size()),
-	C1_(species1.size()),
 	//Mobility
 	u_OH_("u_OH",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
 	u_K_("u_K",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
@@ -193,29 +192,7 @@ MW_.set
         MW_.size()-1,
         new dimensionedScalar("MW_K", dimensionSet ( 1, 0, 0, 0, -1, 0, 0),dict)
         );
-Info<< "*** Starting preparation of species 1***"<< nl << endl;
 
-forAll(species1,i)
-	{
-	Info<< "*** Reading speciesProperties for phase1."
-        	<< species1[i] << "***" << nl << endl;
-    		C1_.set
-    		(
-        		i,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-                			"C_"+species1[i]+"."+phase1NamE_,
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::MUST_READ,
-                			IOobject::AUTO_WRITE
-            			),
-            			mesh
-        		)
-    		);
-	}
 
 }
 

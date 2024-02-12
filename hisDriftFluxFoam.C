@@ -92,7 +92,6 @@ int main(int argc, char *argv[])
     const dimensionedScalar& rho2 = mixture.rhoc();
     const volScalarField& rho1 = mixture.rhod();
     PtrList <volScalarField>& C2 = speciesP.C2();
-    PtrList <volScalarField>& C1 = speciesP.C1();
     const PtrList <dimensionedScalar>& MW = speciesP.MW();
     const PtrList <dimensionedScalar>& z = speciesP.z();
     const volScalarField& T = speciesP.T();
