@@ -179,7 +179,7 @@ forAll(species2,i)
                 			mesh.time().timeName(),
                 			mesh,
                 			IOobject::NO_READ,
-                			IOobject::AUTO_WRITE
+                			IOobject::NO_WRITE
             			),
             			Foam::pow(epsilon_,tau_)*D2_[i]
         		)

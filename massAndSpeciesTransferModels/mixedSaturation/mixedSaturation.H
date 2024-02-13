@@ -98,7 +98,7 @@ public:
         virtual Pair<tmp<volScalarField>> mDot(const int i) const;
 
 	//- Source for T equarion
-        virtual tmp<fvScalarMatrix> ciSource(const int i, bool phase) const;
+        virtual tmp<fvScalarMatrix> ciSource(const int i) const;
 	
 	
         //- Correct the constant phaseChange model

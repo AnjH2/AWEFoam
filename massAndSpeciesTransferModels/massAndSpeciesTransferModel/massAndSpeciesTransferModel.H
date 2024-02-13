@@ -173,7 +173,7 @@ public:
         virtual Pair<tmp<volScalarField>> mDot(const int i) const = 0;
 
 	//- Source for T equarion
-        virtual tmp<fvScalarMatrix> ciSource(const int i, bool phase) const = 0;
+        virtual tmp<fvScalarMatrix> ciSource(const int i) const = 0;
         
         //- Return the volumetric condensation and vaporisation rates as a
         //  coefficient to multiply (1 - alphal) for the condensation rate

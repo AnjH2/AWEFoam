@@ -86,7 +86,7 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
                 	U.mesh().time().timeName(),
                 	U.mesh(),
                 	IOobject::NO_READ,
-                	IOobject::AUTO_WRITE
+                	IOobject::NO_WRITE
             	),
             	U.mesh(),
             	dimensionedScalar(dimDynamicViscosity,0)

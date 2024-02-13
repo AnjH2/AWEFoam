@@ -101,7 +101,7 @@ incompressibleTwoPhaseInteractingMixture
             U.time().timeName(),
             U.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         p_num_/(Foam::constant::physicoChemical::R*T_)*(MW_[2])
     ),
@@ -138,7 +138,7 @@ incompressibleTwoPhaseInteractingMixture
             U.time().timeName(),
             U.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mu_/rho()
     ),

@@ -187,7 +187,16 @@ int main(int argc, char *argv[])
         	IPe = poroM.sigma_s_eff()*fvc::grad(UPe);
 
         	Ie = -(calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(alpha2,1.5))*fvc::grad(Ue));
-        	
+        volVectorField Udj
+    	(
+        	"Udj",  UdmModel.Udj()
+    	);
+    	volVectorField Ucm
+    	(
+        	"Ucm",  UdmModel.Ucm()
+    	);
+        	Udj.write();
+        	Ucm.write();
         }
         runTime.write();
 

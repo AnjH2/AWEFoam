@@ -127,7 +127,7 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         (Pe_+Ne_+Mem_*1e-6)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
     )

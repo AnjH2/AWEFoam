@@ -147,7 +147,7 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
     	),
     	mesh,
     	dimPressure
@@ -202,7 +202,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
-                		IOobject::AUTO_WRITE
+                		IOobject::NO_WRITE
             		),
             		mesh,
             		dimensionedScalar("CSAT"+species2[i],dimensionSet(0,-3,0,0,1,0,0),One)

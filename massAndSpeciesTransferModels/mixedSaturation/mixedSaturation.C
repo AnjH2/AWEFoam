@@ -214,15 +214,16 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i) const
 }
 
 Foam::tmp<Foam::fvScalarMatrix>
-Foam::massAndSpeciesTransferModels::mixedSaturation::ciSource(const int i, bool phase) const
+Foam::massAndSpeciesTransferModels::mixedSaturation::ciSource(const int i) const
 {
+	
 	
     tmp<fvScalarMatrix> tCiSource
     (
         new fvScalarMatrix
         (
             C2_[i],
-            dimensionSet( 0, 0, -1, 0, 1, 0,0)
+            dimensionSet( 1, 0, -1, 0, 0, 0,0)
         )
     );
 
@@ -239,24 +240,15 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::ciSource(const int i, bool 
     (
         min(max(mixture_.alpha2(), scalar(0)), scalar(1))
     );
-	Info<<"ab"<<phase<<endl;
+    
     const volScalarField Vcoeff
     (
-        (Pe_+Ne_)*limitedAlpha2*(K_DB_/R_DB_*alpha_*epsilon_*MW_[i]*pos(C2_[i] - C_sat_[i])+mDot_Wall_[i])
+        (Pe_+Ne_)*limitedAlpha2*(K_DB_/R_DB_*alpha_*epsilon_*MW_[i]*pos(C2_[i] - C_sat_[i]))
     );
-    const volScalarField Ccoeff
-    (
-        (Pe_+Ne_)*K_DB_/R_DB_*alpha_*epsilon_*MW_[i]*limitedAlpha1*pos(C_sat_[i] - C2_[i])
-    );
-    Info<<"ac"<<phase<<endl;
-    if (phase) {
+    
     	ciSource =
-        	fvm::Sp(Vcoeff, C2_[i]) - Vcoeff*C_sat_[i]
-      		+ fvm::Sp(Ccoeff, C2_[i]) - Ccoeff*C_sat_[i];
-	} else{
-	        fvc::Sp(Vcoeff, C2_[i]) - Vcoeff*C_sat_[i]
-      		+ fvc::Sp(Ccoeff, C2_[i]) - Ccoeff*C_sat_[i];
-	}
+        	fvm::Sp(Vcoeff, C2_[i]) - Vcoeff*C_sat_[i]+mDot_Wall_[i];
+
     return tCiSource;
 }
 
