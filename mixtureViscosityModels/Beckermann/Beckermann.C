@@ -179,10 +179,12 @@ forAll(species1,i)
 Foam::tmp<Foam::volScalarField>
 Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& muc, const volScalarField& rhod) const
 {
+
     return pow(pow(1-alpha_,kr_)/(muc/rhoc_)+pow(alpha_,kr_)/(mud_m_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
 }
 
 void Foam::mixtureViscosityModels::Beckermann::mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num){
+
 mud_m_=mud_m_*0;
 forAll(species1,i)
 	{
@@ -201,9 +203,9 @@ forAll(species1,i)
         		}
 		}
 		if (i==0) {
-			mud_m_=mud_m_+(Ne_*(p_num-p_water)*mud_[i])/a_;
+			mud_m_=mud_m_+(Ne_*(p_num-p_water)/p_num*mud_[i])/a_;
 		} else if(i==1) {
-			mud_m_=mud_m_+(Pe_*(p_num-p_water)*mud_[i])/a_;
+			mud_m_=mud_m_+(Pe_*(p_num-p_water)/p_num*mud_[i])/a_;
 		} else { 
 			mud_m_=mud_m_+((Mem_+(Pe_+Ne_)*p_water/p_num)*mud_[i])/a_;
 		}

@@ -5,8 +5,8 @@
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        fvc::flux(HbyA)
-      + MRF.zeroFilter(fvc::interpolate(rho*rAU)*fvc::ddtCorr(U, phi))
+        (fvc::interpolate(HbyA) & mesh.Sf())
+      + fvc::interpolate(rho*rAU)*fvc::ddtCorr(U, phi)
     );
     adjustPhi(phiHbyA, U, p_rgh);
 
@@ -26,13 +26,14 @@
     const volScalarField& vDotc = vDot[0]();
     const volScalarField& vDotv = vDot[1]();
 
-    while (pimple.correctNonOrthogonal())
+    /*while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix p_rghEqn
         (
-            fvm::laplacian(rAUf, p_rgh) + vDotv + vDotc
+            fvc::div(phiHbyA)
+          - fvm::laplacian(rAUf, p_rgh)
           ==
-          fvc::div(phiHbyA)
+            (vDotc+vDotv)
         );
 
         p_rghEqn.setReference(pRefCell, pRefValue);
@@ -41,8 +42,32 @@
 
         if (pimple.finalNonOrthogonalIter())
         {
+            phi = phiHbyA + p_rghEqn.flux();
+
+            U = HbyA + rAU*fvc::reconstruct((phig + p_rghEqn.flux())/rAUf);
+            U.correctBoundaryConditions();
+            fvOptions.correct(U);
+        }
+    }*/
+    
+        while (pimple.correctNonOrthogonal())
+    {
+        fvScalarMatrix p_rghEqn
+        (
+            fvm::laplacian(rAUf, p_rgh) + (vDotc+vDotv) 
+            == 
+            fvc::div(phiHbyA) + fvc::div(fvc::flux(alpha2*UdmModel.Ucm()+alpha1*UdmModel.Udm()))
+            			
+        );
+
+        p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+
+        p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
+
+        if (pimple.finalNonOrthogonalIter())
+        {
             phi = phiHbyA - p_rghEqn.flux();
-            
+
             p_rgh.relax();
 
             U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
@@ -50,8 +75,7 @@
             fvOptions.correct(U);
         }
     }
-	
-    #include "continuityErrs.H"
+	#include "continuityErrs.H"
     p = p_rgh + rho*gh;
 
     if (p_rgh.needReference())

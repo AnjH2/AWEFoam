@@ -132,7 +132,7 @@ forAll(species1,i)
         				U.mesh().time().timeName(),
                 			U.mesh(),
                 			IOobject::NO_READ,
-                			IOobject::AUTO_WRITE
+                			IOobject::NO_WRITE
             			),
             			mud_ref_[i]*pow(T_/T_muref_[i],n_mu_[i])
         		)

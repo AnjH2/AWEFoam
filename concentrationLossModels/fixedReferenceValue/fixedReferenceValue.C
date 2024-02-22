@@ -114,10 +114,10 @@ Foam::concentrationLossModels::fixedReferenceValue::~fixedReferenceValue()
 
 void Foam::concentrationLossModels::fixedReferenceValue::correct(const PtrList <volScalarField>& C2_s_)
 {
-	CRa_Ne_=VOne_;
-	CRa_Pe_=VOne_;
-	CRc_Ne_=VOne_;
-	CRc_Pe_=VOne_;
+	CRa_Ne_=1;
+	CRa_Pe_=1;
+	CRc_Ne_=1;
+	CRc_Pe_=1;
 	forAll(species2,i)
 	{
 		CR_[i]=C2_s_[i]/C2_Ref_[i];

@@ -133,12 +133,19 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i) con
     	);
     }
     else if (i==2 and waterVapour_) {
-    	//Pair<tmp<volScalarField>> mDotAlphaH2 = this->mDotAlphal(0);
-    	//Pair<tmp<volScalarField>> mDotAlphaO2 = this->mDotAlphal(1);
+    	volScalarField mDotE
+    	(
+        	"mDotE_"+species2[i], ((this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1]))*MW_[2]
+    	);
+    	volScalarField mDotC
+    	(
+        	"mDotC_"+species2[i],  mDot_Wall_[i]*0
+    	);
+    	
     	return Pair<tmp<volScalarField>>
     	(
-        	mDot_Wall_[i]*0,
-       		((this->mDotAlphal(0)[1]/MW_[0]+this->mDotAlphal(1)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(this->mDotAlphal(0)[1]/MW_[0]+this->mDotAlphal(1)[1]/MW_[1]))*MW_[2]
+        	tmp<volScalarField>(new volScalarField(mDotC)),
+        	tmp<volScalarField>(new volScalarField(mDotE))
     	);
     } else {
     
@@ -175,7 +182,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i) const
 
     	volScalarField mDotE
     	(
-        	"mDotE_"+species2[i], mDot_Wall_[i]+((Pe_+Ne_)*K_DB_/R_DB_*alpha_*epsilon_*MW_[i]*max(C2_[i] - C_sat_[i], C0))*limitedAlpha2//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
+        	"mDotE_"+species2[i], (mDot_Wall_[i]+((Pe_+Ne_)*K_DB_/R_DB_*alpha_*epsilon_*MW_[i]*max(C2_[i] - C_sat_[i], C0)))*limitedAlpha2//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
     	);
     	volScalarField mDotC
     	(
@@ -194,13 +201,23 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i) const
         	tmp<volScalarField>(new volScalarField(-mDotE))
     	);
     } else if (i==2 and waterVapour_) {
-    	//Pair<tmp<volScalarField>> mDotH2 = this->mDot(0);
-    	//Pair<tmp<volScalarField>> mDotO2 = this->mDot(1);
-    	
+    	volScalarField mDotE
+    	(
+        	"mDotE_"+species2[i], (-1*(this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-((-1)*this->mDot(0)[1]/MW_[0]+(-1)*this->mDot(1)[1]/MW_[1]))*MW_[2]
+    	);
+    	volScalarField mDotC
+    	(
+        	"mDotC_"+species2[i],  mDot_Wall_[i]*0
+    	);
+    	if (alpha_.mesh().time().outputTime())
+    	{
+        	mDotC.write();
+        	mDotE.write();
+    	}
     	return Pair<tmp<volScalarField>>
     	(
-        	mDot_Wall_[i]*0,
-       		((this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1]))*MW_[2]
+        	tmp<volScalarField>(new volScalarField(mDotC)),
+        	tmp<volScalarField>(new volScalarField(-mDotE))
     	);
     } else {
     
@@ -247,7 +264,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::ciSource(const int i) const
     );
     
     	ciSource =
-        	fvm::Sp(Vcoeff, C2_[i]) - Vcoeff*C_sat_[i]+mDot_Wall_[i];
+        	fvm::Sp(Vcoeff, C2_[i]) - Vcoeff*C_sat_[i]+mDot_Wall_[i]*limitedAlpha2;
 
     return tCiSource;
 }

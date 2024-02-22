@@ -78,7 +78,7 @@ protected:
 	List<scalar> ab_Pe_;
 	List<scalar> cb_Ne_;
 	List<scalar> cb_Pe_;
-	const volScalarField VOne_;
+	//const volScalarField VOne_;
 	 
 
 public:

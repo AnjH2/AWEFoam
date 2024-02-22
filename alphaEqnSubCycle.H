@@ -1,4 +1,5 @@
 {
+
     surfaceScalarField alphaPhi
     (
         IOobject
@@ -12,6 +13,7 @@
     );
     
     surfaceScalarField phir(fvc::flux(UdmModel.Udm()));
+    surfaceScalarField phiL(fvc::flux(UdmModel.Ucm()));
 
 
     volScalarField divU
@@ -53,7 +55,7 @@
 
     // Apply the diffusion term separately to allow implicit solution
     // and boundedness of the explicit advection
-    {
+    /*{
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1)
@@ -62,7 +64,8 @@
 
         alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));
 	
-        alphaPhi = alphaPhi10;
+        alphaPhi += alpha1Eqn.flux();
+        alphaPhi10 += alpha1Eqn.flux();
         alpha2 = 1.0 - alpha1;
 
         Info<< "Phase-1 volume fraction = "
@@ -70,9 +73,10 @@
             << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
             << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
             << endl;
-    }
+    }*/
     
-    rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2) + phi*rho2;
+    //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2) + phi*rho2; //original
+    rhoPhi = fvc::interpolate(alpha1*mixture.rhod())*(phi+phir)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2;
     rho = mixture.rho();
     
 }

@@ -184,6 +184,8 @@ public:
         //- Return the volumetric condensation and vaporisation rates as
         //  coefficients of each species
         virtual Pair<tmp<volScalarField>> vDot() const;
+        
+        virtual Pair<tmp<volScalarField>> vDot_rhoC1() const;
 
         //- Correct the phaseChange model
         virtual void correct() = 0;

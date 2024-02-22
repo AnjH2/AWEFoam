@@ -299,14 +299,15 @@ Foam::massAndSpeciesTransferModel::vDotAlphal() const
 
     forAll(species1,i){
 	if (i<=1 or waterVapour_){
-		const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
+		//const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
 	
     		volScalarField alphalCoeff
     		(
         		
         		-(
-        			1.0/mixture_.rhoc() - mixture_.alpha2()
-       				*(1.0/mixture_.rhoc() - 1.0/rho1i)
+        			1.0/mixture_.rhod() + mixture_.alpha1()
+       				*(1.0/mixture_.rhoc() - 1.0/mixture_.rhod())
+       				//*(1/mixture_.rho())
        			)
        			
     		);
@@ -326,15 +327,47 @@ Foam::massAndSpeciesTransferModel::vDot() const
 
     Pair<tmp<volScalarField>> sumVDot(this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
     
+        	volScalarField limitedAlpha1
+    	(
+        	min(max(mixture_.alpha1(), scalar(0)), scalar(1))
+    	);
+    	
+    	volScalarField limitedAlpha2
+    	(
+        	min(max(mixture_.alpha2(), scalar(0)), scalar(1))
+    	);
+    
     forAll(species1,i){
     	if (i<=1 or waterVapour_){
-    		const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
+    		//const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
     	
-    		volScalarField pCoeff(1.0/mixture_.rhoc() - 1.0/rho1i);
+    		volScalarField pCoeff(1.0/mixture_.rhoc() - 1.0/mixture_.rhod());
     	
-    		Pair<tmp<volScalarField>> mDot = this->mDot(i);
-    		sumVDot[0] = sumVDot[0] + pCoeff*mDot[0];
-    		sumVDot[1] = sumVDot[1] + pCoeff*mDot[1];
+    		//volScalarField pCoeff(-1.0/mixture_.rho());
+    	
+    		Pair<tmp<volScalarField>> mDotAlphal = this->mDotAlphal(i);
+    		sumVDot[0] = sumVDot[0] + limitedAlpha1*pCoeff*mDotAlphal[0];
+    		sumVDot[1] = sumVDot[1] + limitedAlpha2*pCoeff*mDotAlphal[1];
+    	}
+    }
+    return sumVDot;
+}
+
+Foam::Pair<Foam::tmp<Foam::volScalarField>>
+Foam::massAndSpeciesTransferModel::vDot_rhoC1() const
+{
+
+    Pair<tmp<volScalarField>> sumVDot(this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
+    
+    forAll(species1,i){
+    	if (i<=1 or waterVapour_){
+    		//const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
+    	
+    		volScalarField pCoeff(- 1.0/mixture_.rhod());
+    	
+    		Pair<tmp<volScalarField>> mDotAlphal = this->mDotAlphal(i);
+    		sumVDot[0] = sumVDot[0] + pCoeff*mDotAlphal[0];
+    		sumVDot[1] = sumVDot[1] + pCoeff*mDotAlphal[1];
     	}
     }
     return sumVDot;
