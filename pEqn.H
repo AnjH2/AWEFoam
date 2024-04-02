@@ -5,9 +5,10 @@
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        (fvc::interpolate(HbyA) & mesh.Sf())
-      + fvc::interpolate(rho*rAU)*fvc::ddtCorr(U, phi)
+        fvc::flux(HbyA)
+      + MRF.zeroFilter(fvc::interpolate(rho*rAU)*fvc::ddtCorr(U, phi))
     );
+    MRF.makeRelative(phiHbyA);
     adjustPhi(phiHbyA, U, p_rgh);
 
     surfaceScalarField phig
@@ -20,7 +21,7 @@
     phiHbyA += phig;
 
     // Update the pressure BCs to ensure flux consistency
-    constrainPressure(p_rgh, U, phiHbyA, rAUf);
+    constrainPressure(p_rgh, U, phiHbyA, rAUf, MRF);
 
     Pair<tmp<volScalarField>> vDot = mSTa.vDot();
     const volScalarField& vDotc = vDot[0]();
@@ -33,7 +34,7 @@
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
           ==
-            (vDotc+vDotv)
+            (vDotc+vDotv) - fvc::div(fvc::flux(alpha2*UdmModel.Ucm()+alpha1*UdmModel.Udm()))
         );
 
         p_rghEqn.setReference(pRefCell, pRefValue);
@@ -56,7 +57,11 @@
         (
             fvm::laplacian(rAUf, p_rgh) + (vDotc+vDotv) 
             == 
-            fvc::div(phiHbyA) + fvc::div(fvc::flux(alpha2*UdmModel.Ucm()+alpha1*UdmModel.Udm()))
+            fvc::div(phiHbyA) +// fvc::div(fvc::flux(alpha2*UdmModel.Ucm()+alpha1*UdmModel.Udm()))
+            fvc::div(fvc::flux(phir,alpha1,"div(phirb,alpha)"))
+            +fvc::div(fvc::flux(phiL,alpha2,"div(phirb,alpha)"))
+            - fvc::laplacian(alpha1*UdmModel.Ddm(), alpha1)
+            - fvc::laplacian(alpha2*UdmModel.Dcm(), alpha2)
             			
         );
 

@@ -114,6 +114,55 @@ surfaceScalarField rhoPhi
     fvc::interpolate(rho)*phi
 );
 
+surfaceScalarField phiDdm
+(
+    IOobject
+    (
+        "phiDdm",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    phi
+);
+surfaceScalarField phiDcm
+(
+    IOobject
+    (
+        "phiDcm",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    phi
+);    
+    
+volScalarField V1_
+(
+	IOobject
+	(
+		"V1",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::NO_WRITE
+	),
+	mesh
+);
+volScalarField V2_
+(
+	IOobject
+	(
+		"V2",
+		runTime.timeName(),
+		mesh,
+		IOobject::NO_READ,
+		IOobject::NO_WRITE
+	),
+	mesh
+);
 
 
 // Relative Velocity
@@ -125,7 +174,8 @@ autoPtr<relativeVelocityModel> UdmModelPtr
         mixture
     )
 );
-
+surfaceScalarField phir(fvc::flux(UdmModelPtr->Udm()));
+surfaceScalarField phiL(fvc::flux(UdmModelPtr->Ucm()));
 
 // Construct compressible turbulence model
 autoPtr
@@ -191,33 +241,7 @@ surfaceScalarField alphaPhi10
     phi*fvc::interpolate(alpha1)
 );
 
-volScalarField Psi_gas
-(
-	IOobject
-	(
-	    	"Psi_gas",
-            	mesh.time().timeName(),
-       	    	mesh,
-            	IOobject::NO_READ,
-            	IOobject::AUTO_WRITE
-	),
-	mesh,
-	dimensionSet(0,0,-1,0,0,0,0)
-);
 
-volScalarField Psi_liquid
-(
-	IOobject
-	(
-	    	"Psi_liquid",
-            	mesh.time().timeName(),
-       	    	mesh,
-            	IOobject::NO_READ,
-            	IOobject::AUTO_WRITE
-	),
-	mesh,
-	dimensionSet(0,0,-1,0,0,0,0)
-);
 
 
 //********** Potential related Fields **********//
@@ -332,19 +356,7 @@ volVectorField Ie
 	fvc::grad(UPe)*poroM.sigma_s_eff()
 );
 
-volScalarField TT
-(
-	IOobject
-	(
-		"TT",
-		runTime.timeName(),
-		mesh,
-		IOobject::NO_READ,
-		IOobject::NO_WRITE
-	),
-	mesh,
-	dimensionedScalar("TT",dimensionSet(0,0,0,0,0,0,0),0)
-);
+
 
 #include "createMRF.H"
 #include "createFvOptions.H"

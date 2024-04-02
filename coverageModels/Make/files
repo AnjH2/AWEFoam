@@ -2,6 +2,7 @@ coverageModel/coverageModel.C
 linearCoverage/linearCoverage.C
 zeroCoverage/zeroCoverage.C
 vogt/vogt.C
+linearVogt/linearVogt.C
 bubbleNeuclation/bubbleNeuclation.C
 bubbleNeuclationLinear/bubbleNeuclationLinear.C
 

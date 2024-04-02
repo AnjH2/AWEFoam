@@ -91,6 +91,7 @@ protected:
         const scalar m_KOH_;
         volScalarField	p_water_;
        	PtrList <volScalarField> C_sat_;
+       	const volScalarField& V2_;
         
         
 
@@ -170,7 +171,7 @@ public:
         virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) const = 0;
 
         //- Return the mass condensation and vaporisation rates as coefficients
-        virtual Pair<tmp<volScalarField>> mDot(const int i) const = 0;
+        virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write) const = 0;
 
 	//- Source for T equarion
         virtual tmp<fvScalarMatrix> ciSource(const int i) const = 0;

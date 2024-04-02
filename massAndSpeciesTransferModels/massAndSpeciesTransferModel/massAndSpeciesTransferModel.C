@@ -152,7 +152,14 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
     	mesh,
     	dimPressure
     ),
-    C_sat_(species2.size())
+    C_sat_(species2.size()),
+    V2_
+    (
+        mesh.lookupObject<volScalarField>
+        (
+            "V2"
+        )
+    )
  
 {
 forAll(species2,i)
@@ -325,7 +332,7 @@ Foam::Pair<Foam::tmp<Foam::volScalarField>>
 Foam::massAndSpeciesTransferModel::vDot() const
 {
 
-    Pair<tmp<volScalarField>> sumVDot(this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
+    Pair<tmp<volScalarField>> sumVDot(this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
     
         	volScalarField limitedAlpha1
     	(
@@ -357,7 +364,7 @@ Foam::Pair<Foam::tmp<Foam::volScalarField>>
 Foam::massAndSpeciesTransferModel::vDot_rhoC1() const
 {
 
-    Pair<tmp<volScalarField>> sumVDot(this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
+    Pair<tmp<volScalarField>> sumVDot(this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
     
     forAll(species1,i){
     	if (i<=1 or waterVapour_){

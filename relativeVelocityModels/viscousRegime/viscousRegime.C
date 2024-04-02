@@ -73,6 +73,7 @@ Foam::relativeVelocityModels::viscousRegime::~viscousRegime()
 
 volScalarField Foam::relativeVelocityModels::viscousRegime::rd()
 {
+
 	return rd_*pow(rhoc_*mag(g_)*(rhoc_-rhod_)/pow(mixture_.muc(),2),1.0/3.0);
 }
 
@@ -83,7 +84,6 @@ volScalarField Foam::relativeVelocityModels::viscousRegime::psi()
 
 volScalarField Foam::relativeVelocityModels::viscousRegime::f()
 {
-
 	return pow(alphac_,0.5)*mixture_.muc()/mixture_.mu();
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //

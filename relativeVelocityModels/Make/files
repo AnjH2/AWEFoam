@@ -5,5 +5,6 @@ general/general.C
 distorted/distorted.C
 viscousRegime/viscousRegime.C
 simpleIshii/simpleIshii.C
+simpleIshiiTEST/simpleIshiiTEST.C
 
 LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxRelativeVelocityModels

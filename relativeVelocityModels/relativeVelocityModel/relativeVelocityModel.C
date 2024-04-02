@@ -96,6 +96,20 @@ Foam::relativeVelocityModel::relativeVelocityModel
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
     ),
+    Ddm_
+    (
+        IOobject
+        (
+            "Ddm",
+            alphac_.time().timeName(),
+            alphac_.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        alphac_.mesh(),
+        dimensionedScalar(dimVelocity*dimLength, Zero),
+        UdmPatchFieldTypes()
+    ),
         Pe_(
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
@@ -179,6 +193,21 @@ Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Ucm() const
         (
             "Ucm",
             -betad*Udm_/betac
+        )
+    );
+    
+}
+// Calculate the relative velocity of the continuous phase w.r.t the mean
+Foam::tmp<Foam::volScalarField> Foam::relativeVelocityModel::Dcm() const
+{
+    volScalarField betac(alphac_*rhoc_);
+    volScalarField betad(alphad_*rhod_);
+    return tmp<volScalarField>
+    (
+        new volScalarField
+        (
+            "Dcm",
+            -betad*Ddm_/betac
         )
     );
     

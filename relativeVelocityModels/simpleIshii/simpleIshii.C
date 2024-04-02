@@ -65,7 +65,9 @@ Foam::relativeVelocityModels::simpleIshii::~simpleIshii()
 void Foam::relativeVelocityModels::simpleIshii::correct()
 {
 
-    Udm_ = (Pe_+Ne_)*(rhoc_/rho())*V0_*pow(1-max(alphad_, scalar(0)),n_);
+    Udm_ = (Pe_+Ne_)*
+    (rhoc_/rho())*V0_*pow(1-max(alphad_, scalar(0)),n_);
+    Udm_.correctBoundaryConditions();
 }
 
 

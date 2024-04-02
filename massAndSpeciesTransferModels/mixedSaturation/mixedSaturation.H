@@ -62,7 +62,7 @@ class mixedSaturation
 	const dimensionedScalar	R_DB_;
 	const PtrList<volScalarField>& C2_;
 	const PtrList <volScalarField>& k_H_;
-	
+	const volScalarField& V1_;
 	
 public:
 
@@ -95,7 +95,7 @@ public:
         virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) const;
 
         //- Return the mass condensation and vaporisation rates as coefficients
-        virtual Pair<tmp<volScalarField>> mDot(const int i) const;
+        virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write) const;
 
 	//- Source for T equarion
         virtual tmp<fvScalarMatrix> ciSource(const int i) const;

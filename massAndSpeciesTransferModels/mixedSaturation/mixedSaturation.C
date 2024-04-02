@@ -88,6 +88,12 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
         (
             "reactionProperties"
         ).k_H()
+        ),
+    V1_(
+	mesh.lookupObject<volScalarField>
+        (
+            	"V1"
+        )
         )
 {
 }
@@ -129,13 +135,13 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i) con
         	mDot_Wall_[i]*0,
         	
         	
-       		-(mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*max(C2_[i] - C_sat_[i], C0))
+       		-V2_*(mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*alpha_*MW_[i]*max(C2_[i] - C_sat_[i], C0))
     	);
     }
     else if (i==2 and waterVapour_) {
     	volScalarField mDotE
     	(
-        	"mDotE_"+species2[i], ((this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1]))*MW_[2]
+        	"mDotE_"+species2[i], ((this->mDot(0,0)[1]/MW_[0]+this->mDot(1,0)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(this->mDot(0,0)[1]/MW_[0]+this->mDot(1,0)[1]/MW_[1]))*MW_[2]
     	);
     	volScalarField mDotC
     	(
@@ -161,7 +167,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i) con
 
 
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
-Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i) const
+Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i, const bool Write) const
 {
 
     if (i<=1) {
@@ -182,16 +188,15 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i) const
 
     	volScalarField mDotE
     	(
-        	"mDotE_"+species2[i], (mDot_Wall_[i]+((Pe_+Ne_)*K_DB_/R_DB_*alpha_*epsilon_*MW_[i]*max(C2_[i] - C_sat_[i], C0)))*limitedAlpha2//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
+        	"mDotE_"+species2[i], V2_*(mDot_Wall_[i]+((Pe_+Ne_)*K_DB_/R_DB_*alpha_*epsilon_*MW_[i]*max(C2_[i] - C_sat_[i], C0)))*limitedAlpha2//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
     	);
     	volScalarField mDotC
     	(
         	"mDotC_"+species2[i],  mDot_Wall_[i]*0
     	);
 
-    	if (limitedAlpha1.mesh().time().outputTime())
+    	if (limitedAlpha1.mesh().time().outputTime() and Write)
     	{
-        	mDotC.write();
         	mDotE.write();
     	}
 
@@ -203,15 +208,14 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i) const
     } else if (i==2 and waterVapour_) {
     	volScalarField mDotE
     	(
-        	"mDotE_"+species2[i], (-1*(this->mDot(0)[1]/MW_[0]+this->mDot(1)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-((-1)*this->mDot(0)[1]/MW_[0]+(-1)*this->mDot(1)[1]/MW_[1]))*MW_[2]
+        	"mDotE_"+species2[i], (-1*(this->mDot(0,0)[1]/MW_[0]+this->mDot(1,0)[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-((-1)*this->mDot(0,0)[1]/MW_[0]+(-1)*this->mDot(1,0)[1]/MW_[1]))*MW_[2]
     	);
     	volScalarField mDotC
     	(
         	"mDotC_"+species2[i],  mDot_Wall_[i]*0
     	);
-    	if (alpha_.mesh().time().outputTime())
+    	if (mDotE.mesh().time().outputTime() and Write)
     	{
-        	mDotC.write();
         	mDotE.write();
     	}
     	return Pair<tmp<volScalarField>>
