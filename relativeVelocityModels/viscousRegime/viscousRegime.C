@@ -73,7 +73,6 @@ Foam::relativeVelocityModels::viscousRegime::~viscousRegime()
 
 volScalarField Foam::relativeVelocityModels::viscousRegime::rd()
 {
-
 	return rd_*pow(rhoc_*mag(g_)*(rhoc_-rhod_)/pow(mixture_.muc(),2),1.0/3.0);
 }
 
@@ -84,13 +83,14 @@ volScalarField Foam::relativeVelocityModels::viscousRegime::psi()
 
 volScalarField Foam::relativeVelocityModels::viscousRegime::f()
 {
+
 	return pow(alphac_,0.5)*mixture_.muc()/mixture_.mu();
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 void Foam::relativeVelocityModels::viscousRegime::correct()
 {
-    Udm_ = (rhoc_/rho())*(Pe_+Ne_)*10.8*pow(mixture_.muc()*mag(g_)*(rhoc_-rhod_)/(pow(rhoc_,2.0)),1.0/3.0)*g_/mag(g_)
+    Udm_ = (Pe_+Ne_)*(rhoc_/rho())*(Pe_+Ne_)*10.8*pow(mixture_.muc()*mag(g_)*(rhoc_-rhod_)/(pow(rhoc_,2.0)),1.0/3.0)*g_/mag(g_)
     			*(pow(alphac_,1.5)*f())/rd()
     			*(pow(psi(),4.0/3.0)*(1+psi()))/(1+psi()*pow(f(),6.0/7.0));
     /*

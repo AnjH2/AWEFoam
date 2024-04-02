@@ -133,10 +133,12 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNo.H"
         #include "setDeltaT.H"
-
+	
         ++runTime;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
+        // --- initialising mixture velocity
+        mixture.correct(mSTa.p_water());
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
