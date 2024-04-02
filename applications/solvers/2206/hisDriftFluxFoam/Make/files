@@ -1,0 +1,9 @@
+incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.C
+porousProperties/porousProperties.C
+reactionProperties/reactionProperties.C
+speciesTransport/speciesTransport.C
+speciesProperties/speciesProperties.C
+compressibleTurbulenceModels.C
+hisDriftFluxFoam.C	
+
+EXE = $(FOAM_USER_APPBIN)/hisDriftFluxFoam
