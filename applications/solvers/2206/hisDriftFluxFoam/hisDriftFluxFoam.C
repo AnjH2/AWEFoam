@@ -169,11 +169,11 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
-            Info << "a"<<endl;
+            
             speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
-            Info << "b"<<endl;
+            
             speciesP.correct_D2_eff(1-alpha2);
-            Info << "c"<<endl;
+            
             for (int k=0; k<=outerChemicalCorrections; k++)
             {
             
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
             	//speciesP.correct_D2_eff(1-alpha2);
             	
             	CLModel.correct(sTp.C2_s());
-            	Info << "d"<<endl;
+            	
             	for (int j=0; j<=potentialCorrections; j++)
             	{
             	

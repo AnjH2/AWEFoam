@@ -154,7 +154,7 @@ regions
     	
     	fieldValues
     	(
-    		volScalarFieldValue tau 0.97
+    		volScalarFieldValue eps 0.97
     	);
     }
     boxToCell
@@ -163,7 +163,7 @@ regions
     	
     	fieldValues
     	(
-    		volScalarFieldValue tau 0.5
+    		volScalarFieldValue eps 0.5
     	);
     }
         boxToCell
@@ -172,7 +172,7 @@ regions
     	
     	fieldValues
     	(
-    		volScalarFieldValue tau 0.97
+    		volScalarFieldValue eps 0.97
     	);
     }
 
