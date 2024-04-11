@@ -60,8 +60,8 @@
             fvc::div(phiHbyA) +// fvc::div(fvc::flux(alpha2*UdmModel.Ucm()+alpha1*UdmModel.Udm()))
             fvc::div(fvc::flux(phir,alpha1,"div(phirb,alpha)"))
             +fvc::div(fvc::flux(phiL,alpha2,"div(phirb,alpha)"))
-            - fvc::laplacian(alpha1*UdmModel.Ddm(), alpha1)
-            - fvc::laplacian(alpha2*UdmModel.Dcm(), alpha2)
+            //- fvc::laplacian(alpha1*UdmModel.Ddm(), alpha1)
+            //- fvc::laplacian(alpha2*UdmModel.Dcm(), alpha2)
             			
         );
 

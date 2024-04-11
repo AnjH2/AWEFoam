@@ -112,7 +112,33 @@ Foam::porousProperties::porousProperties
         ),
         mesh
     ),
-   
+       PeC_
+    (
+    	IOobject
+        (
+            "PeC",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,Zero)
+    ),
+    
+    NeC_
+    (
+    	IOobject
+        (
+            "NeC",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,Zero)
+    ),
         sigma_s_ref_
 	(
 		"sigma_s_ref",
@@ -129,7 +155,7 @@ Foam::porousProperties::porousProperties
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        (Pe_+Ne_+Mem_*1e-6)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
+        (Pe_+Ne_+VSMALL)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
     )
 {
 forAll(electrodes,i)

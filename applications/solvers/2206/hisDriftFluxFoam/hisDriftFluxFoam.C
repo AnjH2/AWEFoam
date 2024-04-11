@@ -140,15 +140,18 @@ int main(int argc, char *argv[])
         
         
         // --- initialising mixture velocity
+        
         mixture.correct(mSTa.p_water());
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-        	
             #include "alphaControls.H"
+            
             UdmModel.correct();
+            
             //thetaModel.correct();
             thetaModel.correct();
+            
             #include "alphaEqnSubCycle.H"
 	    //mixture.correct_rhoc();
 	    mixture.correct_rhod(mSTa.p_water());
@@ -166,14 +169,23 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
+            Info << "a"<<endl;
+            speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
+            Info << "b"<<endl;
+            speciesP.correct_D2_eff(1-alpha2);
+            Info << "c"<<endl;
             for (int k=0; k<=outerChemicalCorrections; k++)
             {
-            	speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
-            	speciesP.correct_D2_eff(1-alpha2);
-            	CLModel.correct(sTp.C2_s());
+            
+            	//speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
             	
+            	//speciesP.correct_D2_eff(1-alpha2);
+            	
+            	CLModel.correct(sTp.C2_s());
+            	Info << "d"<<endl;
             	for (int j=0; j<=potentialCorrections; j++)
             	{
+            	
             		#include "potentialEqn.H"
             	}
 
@@ -188,9 +200,12 @@ int main(int argc, char *argv[])
 	{
 		
         	INe = poroM.sigma_s_eff()*fvc::grad(UNe);
+        	INe.correctBoundaryConditions();
         	IPe = poroM.sigma_s_eff()*fvc::grad(UPe);
 
-        	Ie = -(calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(alpha2,1.5))*fvc::grad(Ue));
+        	Ie = 	(Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T)*fvc::grad(Ue)
+        		-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2*fvc::grad(C2[3]);
+        		//-1*mag(z[3])*F*mSTa.Psi_BV()[3]*dimensionedVector(dimless,vector (1,1,1));	// electrochemcial source term ***********; //unit does not work
         volVectorField Udj
     	(
         	"Udj",  UdmModel.Udj()

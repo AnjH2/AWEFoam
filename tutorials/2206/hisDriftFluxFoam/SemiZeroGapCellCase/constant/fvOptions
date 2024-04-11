@@ -1,0 +1,130 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      porosityProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+tcPe		2e-3;//flow channel size, at the positive electrode
+tPe		1.8e-3; //Positive electrode thickness
+tDi		0.85e-3; //Diaframe thickness
+tNe		1.8e-3; //Negative electrode thickness
+tcNe		2e-3;//flow channel size, at the Negative electrode
+
+cellLength	30.0e-3;
+cellDepth	30e-3;
+
+t1 #eval #{ $tPe+$tcPe #};
+t2 #eval #{ $t1+$tDi #};
+t3 #eval #{ $t2+$tNe #};
+t4 #eval #{ $t3+$tcNe #};
+
+KPe	763000000.0;//7.63e8;
+betaPe	0;
+KD	8.85e14;//1.25e15;//1e18
+betaD	0;
+porosity1
+{
+    type            explicitPorositySource;
+
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone;
+
+        cellZone        positiveElectode;
+
+        type            DarcyForchheimer;
+
+        d   ($KPe $KPe $KPe);
+    	f   ($betaPe $betaPe $betaPe);
+
+    	coordinateSystem
+    	{
+        	origin  (0 0 0);
+        	e1      ($cellLength $tcPe 0);
+        	e2      (0 $t1 $cellDepth);
+    	}
+    }
+}
+
+porosity2
+{
+    type            explicitPorositySource;
+
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone;
+
+        cellZone        diaphram;
+
+        type            DarcyForchheimer;
+
+        d   ($KD $KD $KD);
+    	f   ($betaD $betaD $betaD);
+
+    	coordinateSystem
+    	{
+        	origin  (0 0 0);
+        	e1      (0 $t1 0);
+        	e2      ($cellLength $t2 $cellDepth);
+    	}
+    }
+}
+porosity3
+{
+    type            explicitPorositySource;
+
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone;
+
+        cellZone        negativeElectode;
+
+        type            DarcyForchheimer;
+
+        d   ($KPe $KPe $KPe);
+    	f   ($betaPe $betaPe $betaPe);
+
+    	coordinateSystem
+    	{
+        	origin  (0 0 0);
+        	e1      (0 $t2 0);
+        	e2      ($cellLength $t3 $cellDepth);
+    	}
+    }
+}
+porosity4
+{
+    type            explicitPorositySource;
+
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone;
+
+        cellZone        flowChannel;
+
+        type            DarcyForchheimer;
+
+        d   (1 1 1);
+    	f   (0 0 0);
+
+    	coordinateSystem
+    	{
+        	origin  (0 0 0);
+        	e1      ($cellLength 0 0);
+        	e2      (0 $t4 $cellDepth);
+    	}
+    }
+}
+
+
+// ************************************************************************* //

@@ -82,6 +82,8 @@ protected:
         
         const volScalarField& Pe_;
         const volScalarField& Ne_;
+        const volScalarField& PeC_;
+        const volScalarField& NeC_;
         const volScalarField& Mem_;
 
     // Private Member Functions

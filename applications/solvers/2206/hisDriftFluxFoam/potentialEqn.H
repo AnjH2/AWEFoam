@@ -3,6 +3,7 @@
 		//index refers to the given species.
 		//[0]->H2; [2]->H2O; [1]->O2; [3]->OH
 //******************************************* constants used in eqation
+	
 		volScalarField C1Ne
 		(
 		Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
@@ -45,6 +46,7 @@
 		(-react.alphaT()[3]*F)/(R*T)
 		);
 //****************************************** for the electrolyte
+		
 		volScalarField I1e_Ne
 		(
 		C1Ne*exp(C3Ne*(UNe-Ue.oldTime()-react.E0()[0]))
@@ -63,6 +65,7 @@
 		);
 
 //******************************************** for the electrodes
+		
 		volScalarField I1_Ne
 		(
 		C1Ne*exp(C3Ne*(UNe.oldTime()-Ue-react.E0()[0]))
@@ -82,6 +85,7 @@
 
 	
 //*************************************** for the electrolyte
+		
 		fvScalarMatrix	Je_Ne
 		(
 		I1e_Ne*(1+C3Ne*Ue.oldTime())-fvm::Sp(I1e_Ne*C3Ne,Ue)
@@ -94,6 +98,7 @@
 		);
 
 //****************************************** for the electrodes
+		
 		fvScalarMatrix	J_Ne
 		(
 		I1_Ne*(1+C3Ne*UNe.oldTime())-fvm::Sp(I1_Ne*C3Ne,UNe)
@@ -114,7 +119,7 @@
         	);*/
 		fvScalarMatrix UeEqn
         	(
-        	fvm::laplacian((Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T), Ue)//+fvc::laplacian(z[3]*F*speciesP.D2_eff()[3],C2[3])	
+        	fvm::laplacian((Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T), Ue)+fvc::laplacian(-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2,C2[3])	
         	==-1*(Je_Pe+Je_Ne)
         	);
 		
@@ -132,7 +137,6 @@
         	//UNeEqn.relax();
         	//UeEqn.relax();
         	//UPeEqn.relax();
-		
         	//solve eqations.
         	{
             	UNeEqn.solve();

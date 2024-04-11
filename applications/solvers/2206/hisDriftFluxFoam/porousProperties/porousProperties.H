@@ -57,7 +57,8 @@ class porousProperties
 protected:
 
     // Protected data
-    	List<word> electrodes;	
+    	List<word> electrodes;
+    	List<word> channels;	
     	PtrList <dimensionedScalar> as_;//electrode surface area.
     	PtrList <dimensionedScalar> D_pore_;//poreDiameter
 	const volScalarField epsilon_;
@@ -70,7 +71,10 @@ protected:
 	const volScalarField Pe_;
 	const volScalarField Ne_;
 	const volScalarField Mem_;
-
+	
+	//free flow regions
+	const volScalarField PeC_;
+	const volScalarField NeC_;
 	
 	const dimensionedScalar sigma_s_ref_;
 	const volScalarField sigma_s_eff_;
@@ -129,7 +133,15 @@ public:
         {
             return D_pore_;
         }
-
+	const volScalarField& PeC() const
+        {
+            return PeC_;
+        }
+        
+        const volScalarField& NeC() const
+        {
+            return NeC_;
+        }
 
 
         

@@ -49,7 +49,7 @@ for(label i=0; i<C2.size(); i++)
 		
 		//C2Eqn -= mSTa.ciSource(i,true);
 		//C2Eqn += (mSTa.Psi_m()[0]+mSTa.Psi_m()[1])/(1-mSTa.p_water()/mixture.p_num())-(mSTa.Psi_m()[0]+mSTa.Psi_m()[1]);
-	} else if (i==3){
+	} if (i<=3){
 		//C2Eqn +=fvc::laplacian(speciesP.D2_eff()[i]*F*z[i]*C2[i]/(R*T),Ue)
 		C2Eqn -=fvm::div((fvc::interpolate(poroM.eps()*speciesP.D2_eff()[i]*F*z[i]*MW[i]/(R*T)))*fvc::snGrad(Ue)*mesh.magSf(),C2[i], "div(const*snGrad(Ue),C2[i])");//added poroM.eps()*!!! 06-03-2024
 	

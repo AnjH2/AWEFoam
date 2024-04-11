@@ -178,6 +178,24 @@ incompressibleTwoPhaseInteractingMixture
     			//(
     			//)
     		)
+  	),
+  	  	   PeC_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"PeC"
+    			//(
+    			//)
+    		)
+  	),
+  	  	   NeC_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"NeC"
+    			//(
+    			//)
+    		)
   	)
 {
 

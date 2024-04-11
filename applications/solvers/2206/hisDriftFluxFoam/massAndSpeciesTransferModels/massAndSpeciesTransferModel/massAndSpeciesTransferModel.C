@@ -286,16 +286,21 @@ void Foam::massAndSpeciesTransferModel::correct_Psi_BV(int i)
 //calculates the partial pressure of water in a salt mixture
 void Foam::massAndSpeciesTransferModel::correct_waterPartialPressure()
 {
+	Info<< "a00" << endl;
 	if (waterVapour_) {
+	Info<< "a01" << endl;
 		dimensionedScalar	Td_("T",dimensionSet(0,0,0,1,0,0,0),1);
 		dimensionedScalar	Pd_("P",dimPressure,1e5);
 		p_water_=pow(10,-0.01508*m_KOH_-0.00167788*pow(m_KOH_,2)+2.25887e-5*pow(m_KOH_,3)+
 		(1-0.0012062*m_KOH_+5.6024e-4*pow(m_KOH_,2)-7.8228e-6*pow(m_KOH_,3))*
 		(35.4462-3343.93/T_*Td_-10.9*log10(T_/Td_)+0.0041645*T_/Td_))*Pd_;
 		p_water_.correctBoundaryConditions();
+		Info<< "a02" << endl;
 	} else {
+	Info<< "a03" << endl;
 		p_water_=dimensionedScalar(dimPressure,0);
 	}
+	Info<< "a04" << endl;
 }
 
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
