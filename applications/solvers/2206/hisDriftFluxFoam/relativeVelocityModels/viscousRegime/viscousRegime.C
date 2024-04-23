@@ -103,7 +103,8 @@ volScalarField Foam::relativeVelocityModels::viscousRegime::f()
 
 void Foam::relativeVelocityModels::viscousRegime::correct()
 {
-    Udm_ = (Pe_+Ne_)*(rhoc_/rho())*(Pe_+Ne_)*10.8*pow(mixture_.muc()*mag(g_)*(rhoc_-rhod_)/(pow(rhoc_,2.0)),1.0/3.0)*g_/mag(g_)
+	
+    Udm_ = (Pe_+Ne_)*(rhoc_/rho())*(Pe_+Ne_)*10.8*pow(mixture_.muc()*mag(g_)*(rhoc_-rhod_)/(pow(rhoc_,2.0)),1.0/3.0)*(-1*g_)/mag(g_)
     			*(pow(alphac_,1.5)*f())/rd()
     			*(pow(psi(),4.0/3.0)*(1+psi()))/(1+psi()*pow(f(),6.0/7.0));
     /*
