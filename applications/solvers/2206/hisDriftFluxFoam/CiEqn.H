@@ -19,7 +19,7 @@ for(label i=0; i<C2.size(); i++)
         	fvm::ddt(MW[i]*alpha2*epsilon1,C2[i])
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::flux(UdmModel.Ucm()))*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::flux(UdmModel.Ucm()))*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
-        	+fvm::div(alpha2Phi*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
+        	+fvm::div(fvc::interpolate(poroM.eps())*alpha2Phi*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
         	==
         	-fvm::laplacian(-poroM.eps()*mixture.rho()*alpha2*speciesP.D2_eff()[i]*MW[i]/rho2,C2[i])
         	//+fvm::div(fvc::interpolate(alpha2*UdmModel.Dcm()*MW[i])*fvc::snGrad(alpha2)*mesh.magSf(),C2[i], "div(const*snGrad(alpha2),C2[i])")
