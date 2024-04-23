@@ -124,7 +124,9 @@ incompressibleTwoPhaseInteractingMixture
         (
             "mu",
             U_.time().timeName(),
-            U_.db()
+            U_.db(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
         ),
         U_.mesh(),
         dimensionedScalar(dimensionSet(1, -1, -1, 0, 0), Zero),
@@ -138,7 +140,7 @@ incompressibleTwoPhaseInteractingMixture
             U.time().timeName(),
             U.mesh(),
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mu_/rho()
     ),

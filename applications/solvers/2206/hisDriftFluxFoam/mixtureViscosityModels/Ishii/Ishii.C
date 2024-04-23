@@ -168,7 +168,7 @@ forAll(species1,i)
         	);
 		}
 	}
-	mud_m_=(Mem_/2+Ne_)*mud_[0]+(Mem_/2+Pe_)*mud_[1];
+	mud_m_=(Mem_/2+(NeC_+Ne_))*mud_[0]+(Mem_/2+(PeC_+Pe_))*mud_[1];
 
 }
 
@@ -193,17 +193,17 @@ forAll(species1,i)
             			*(1/pow(8,0.5)*pow(1+MW_[i]/MW_[j],-0.5));
 
         		if (j==0) {
-        			a_=a_+Ne_*phi1_[i*3+j]*(p_num-p_water)/p_num;
+        			a_=a_+(NeC_+Ne_)*phi1_[i*3+j]*(p_num-p_water)/p_num;
         		} else if(j==1) {
-        			a_=a_+Pe_*phi1_[i*3+j]*(p_num-p_water)/p_num;
+        			a_=a_+(PeC_+Pe_)*phi1_[i*3+j]*(p_num-p_water)/p_num;
         		} else { 
         			a_=a_+Mem_*phi1_[i*3+j]+(Pe_+Ne_)*phi1_[i*3+j]*p_water/p_num;
         		}
 		}
 		if (i==0) {
-			mud_m_=mud_m_+(Ne_*(p_num-p_water)*mud_[i])/a_;
+			mud_m_=mud_m_+((NeC_+Ne_)*(p_num-p_water)/p_num*mud_[i])/a_;
 		} else if(i==1) {
-			mud_m_=mud_m_+(Pe_*(p_num-p_water)*mud_[i])/a_;
+			mud_m_=mud_m_+((PeC_+Pe_)*(p_num-p_water)/p_num*mud_[i])/a_;
 		} else { 
 			mud_m_=mud_m_+((Mem_+(Pe_+Ne_)*p_water/p_num)*mud_[i])/a_;
 		}

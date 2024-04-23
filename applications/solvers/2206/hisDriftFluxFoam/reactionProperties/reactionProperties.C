@@ -145,7 +145,7 @@ forAll(species2,i)
                 				mesh.time().timeName(),
                 				mesh,
                 				IOobject::NO_READ,
-                				IOobject::AUTO_WRITE
+                				IOobject::NO_WRITE
             				),
             			H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))*exp((f0_[i]+f1_[i]*T_)*C2_OH_)
         			)

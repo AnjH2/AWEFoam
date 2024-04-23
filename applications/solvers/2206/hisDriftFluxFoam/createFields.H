@@ -87,6 +87,7 @@ reactionProperties react(mesh);
 volScalarField& alpha1(mixture.alpha1());
 
 // Mixture density
+
 volScalarField rho
 (
     IOobject
@@ -99,7 +100,6 @@ volScalarField rho
     ),
     mixture.rho()
 );
-
 // Mass flux
 surfaceScalarField rhoPhi
 (
@@ -114,30 +114,8 @@ surfaceScalarField rhoPhi
     fvc::interpolate(rho)*phi
 );
 
-surfaceScalarField phiDdm
-(
-    IOobject
-    (
-        "phiDdm",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    phi
-);
-surfaceScalarField phiDcm
-(
-    IOobject
-    (
-        "phiDcm",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    phi
-);    
+
+  
     
 volScalarField V1_
 (
@@ -146,10 +124,11 @@ volScalarField V1_
 		"V1",
 		runTime.timeName(),
 		mesh,
-		IOobject::NO_READ,
-		IOobject::NO_WRITE
-	),
-	mesh
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,One)
 );
 volScalarField V2_
 (
@@ -158,12 +137,23 @@ volScalarField V2_
 		"V2",
 		runTime.timeName(),
 		mesh,
-		IOobject::NO_READ,
-		IOobject::NO_WRITE
-	),
-	mesh
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,One)
 );
-
+    surfaceScalarField alphaPhi
+    (
+        IOobject
+        (
+            "alphaPhi",
+            runTime.timeName(),
+            mesh
+        ),
+        mesh,
+        dimensionedScalar(phi.dimensions(), Zero)
+    );
 
 // Relative Velocity
 autoPtr<relativeVelocityModel> UdmModelPtr
@@ -175,7 +165,6 @@ autoPtr<relativeVelocityModel> UdmModelPtr
     )
 );
 surfaceScalarField phir(fvc::flux(UdmModelPtr->Udm()));
-surfaceScalarField phiL(fvc::flux(UdmModelPtr->Ucm()));
 
 // Construct compressible turbulence model
 autoPtr

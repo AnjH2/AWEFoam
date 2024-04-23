@@ -62,6 +62,9 @@ class viscousRegime
 	const dimensionedScalar rd_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
+	dimensionedScalar D_;
+	const volScalarField& V1_;
+	const volScalarField& eps_;
 	
     // Private functions??
     

@@ -81,14 +81,14 @@ Foam::relativeVelocityModels::simpleIshiiTEST::~simpleIshiiTEST()
 void Foam::relativeVelocityModels::simpleIshiiTEST::correct()
 {
 
-    Udm_ = (Pe_+Ne_)*
+    Udm_ = (1-Mem_+VSMALL)*
     //(rhoc_/rho())*(V1_*V0_*pow(1-max(alphad_, scalar(0)),n_)+D_/alphad_*fvc::grad(alphad_));
     (rhoc_/rho())*(V1_*V0_*pow(1-max(alphad_, scalar(0)),n_));
     Udm_.correctBoundaryConditions();
     
     //Ddm_=(Pe_+Ne_)*(rhoc_/rho())*D_*mixture_.nu()/alphad_; old case <=1159
     //Ddm_=(Pe_+Ne_)*(rhoc_/rho())*D_/alphad_; 	case 1171 -> failed
-    Ddm_=(Pe_+Ne_)*(rhoc_/rho())*eps_*D_;
+    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*eps_*D_/alphad_;
     Ddm_.correctBoundaryConditions();
 }
 

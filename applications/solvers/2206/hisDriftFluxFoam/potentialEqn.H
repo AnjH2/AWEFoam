@@ -112,16 +112,16 @@
 
         	//define potential equation for electrolyte.
         	//region 2 3 4
-        	/*fvScalarMatrix UeEqn
+        	fvScalarMatrix UeEqn
         	(
         	fvm::laplacian(calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(alpha2,1.5)), Ue)//-z[3]*F*fvc::div(rhoPhi/fvc::interpolate(rho),C2[3])	
         	==-1*(Je_Pe+Je_Ne)
-        	);*/
-		fvScalarMatrix UeEqn
+        	);
+		/*fvScalarMatrix UeEqn
         	(
         	fvm::laplacian((Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T), Ue)+fvc::laplacian(-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2,C2[3])	
         	==-1*(Je_Pe+Je_Ne)
-        	);
+        	);*/
 		
 		
         	//define potential equation for negative electrode.

@@ -59,7 +59,20 @@ Foam::relativeVelocityModels::viscousRegime::viscousRegime
 		dict
 	),
     rhoc_(mixture.rhoc()),
-    rhod_(mixture.rhod())
+    rhod_(mixture.rhod()),
+    D_("D", dimVelocity*dimLength, dict),
+        V1_(
+	alphac_.mesh().lookupObject<volScalarField>
+        (
+            	"V1"
+        )
+        ),
+            eps_(
+	alphac_.mesh().lookupObject<volScalarField>
+        (
+            	"eps"
+        )
+        )
 {}
 
 
@@ -101,6 +114,9 @@ void Foam::relativeVelocityModels::viscousRegime::correct()
     Udm_.component(2) = pow(2,0.5)*pow((sigma_*g_.component(2)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
+    
+    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*eps_*D_/alphad_;
+    Ddm_.correctBoundaryConditions();
 }
 
 

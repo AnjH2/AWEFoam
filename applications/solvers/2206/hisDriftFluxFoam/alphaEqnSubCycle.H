@@ -1,19 +1,6 @@
 {
-
-    surfaceScalarField alphaPhi
-    (
-        IOobject
-        (
-            "alphaPhi",
-            runTime.timeName(),
-            mesh
-        ),
-        mesh,
-        dimensionedScalar(phi.dimensions(), Zero)
-    );
-    
     phir=fvc::flux(UdmModel.Udm());
-    phiL=fvc::flux(UdmModel.Ucm());
+    
 
 
     volScalarField divU
@@ -67,8 +54,8 @@
         alphaPhi += alpha1Eqn.flux();
         
         alpha2 = 1.0 - alpha1;
-        phiDdm= alpha1Eqn.flux()*fvc::interpolate(1/alpha1);
-        phiDcm= fvc::interpolate(-alpha1/(1-alpha1)*rho1/rho2)*phiDdm;
+        phir += alpha1Eqn.flux()*fvc::interpolate(1/alpha1);
+        
 	
 	
         Info<< "Phase-1 volume fraction = "
@@ -81,8 +68,9 @@
     //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2) + phi*rho2; //original
     //rhoPhi = fvc::interpolate(alpha1*mixture.rhod())*(phi+phir)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2; //V665
     //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2; //V722
-    surfaceScalarField alpha2Phi=fvc::interpolate(1-alpha1)*(fvc::interpolate(1/alpha1)*alphaPhi-phir-phiDdm+phiDcm+phiL);
-    rhoPhi = fvc::interpolate(rho1)*alphaPhi+alpha2Phi*rho2; //V754
+    //surfaceScalarField alpha2Phi=fvc::interpolate(1-alpha1)*(fvc::interpolate(1/alpha1)*alphaPhi-phir-phiDdm+phiDcm+phiL);
+    //rhoPhi = fvc::interpolate(rho1)*alphaPhi+fvc::interpolate(1-alpha1)*(fvc::interpolate(1/alpha1)*alphaPhi-phir-phiDdm+phiDcm+phiL)*rho2; //V754
+    rhoPhi = fvc::interpolate(mixture.rho())*(alphaPhi*fvc::interpolate(1/alpha1)-phir);
     rho = mixture.rho();
     
     //rhoPhi = fvc::interpolate(rho)*(fvc::interpolate(1/alpha1)*alphaPhi-phir);; //V755

@@ -77,7 +77,7 @@ protected:
         const surfaceScalarField& phi_;
         const PtrList <dimensionedScalar>& MW_;
         const volScalarField& T_;
-        volScalarField mu_m;
+        //volScalarField mu_m;
         PtrList <volScalarField> phi1_;
         
         const volScalarField& Pe_;

@@ -68,7 +68,7 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
             		"T"
         	)
 	),
-	mu_m
+	/*mu_m
 	(
     		IOobject
     		(
@@ -76,11 +76,11 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
         		U.mesh().time().timeName(),
         		U.mesh(),
         		IOobject::NO_READ,
-        		IOobject::NO_WRITE
+        		IOobject::AUTO_WRITE
     		),
     		U.mesh(),
     		dimensionedScalar("mu_m__",dimDynamicViscosity,1)
-	),
+	),*/
 	phi1_(species1.size()*species1.size()),
 	Pe_
        	(

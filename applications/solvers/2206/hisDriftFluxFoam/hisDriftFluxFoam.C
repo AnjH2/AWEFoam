@@ -154,10 +154,15 @@ int main(int argc, char *argv[])
             
             #include "alphaEqnSubCycle.H"
 	    //mixture.correct_rhoc();
+
 	    mixture.correct_rhod(mSTa.p_water());
+
             mixture.correct(mSTa.p_water());
+
             //mixture.correct_D1();
+
             mixture.correct_nu();
+
             #include "UEqn.H"
 
             // --- Pressure corrector loop
@@ -165,6 +170,7 @@ int main(int argc, char *argv[])
             {
                 #include "pEqn.H"
             }
+
             if (pimple.turbCorr())
             {
                 turbulence->correct();
@@ -206,17 +212,7 @@ int main(int argc, char *argv[])
         	Ie = 	(Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T)*fvc::grad(Ue)
         		-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2*fvc::grad(C2[3]);
         		//-1*mag(z[3])*F*mSTa.Psi_BV()[3]*dimensionedVector(dimless,vector (1,1,1));	// electrochemcial source term ***********; //unit does not work
-        volVectorField Udj
-    	(
-        	"Udj",  UdmModel.Udj()
-    	);
-    	volVectorField Ucm
-    	(
-        	"Ucm",  UdmModel.Ucm()
-    	);
-        	Udj.write();
-        	Ucm.write();
-        }
+	}
         runTime.write();
 
         runTime.printExecutionTime(Info);

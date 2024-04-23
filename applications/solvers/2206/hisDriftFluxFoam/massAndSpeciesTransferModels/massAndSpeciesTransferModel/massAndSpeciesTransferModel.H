@@ -77,6 +77,8 @@ protected:
 	const PtrList <dimensionedScalar>& MW_;
 	const volScalarField& Pe_;
         const volScalarField& Ne_; 
+        const volScalarField& PeC_;
+        const volScalarField& NeC_; 
         const volScalarField& J_;
         const volScalarField& T_;
         const volScalarField& alpha_;
