@@ -42,63 +42,23 @@ Foam::speciesTransport::speciesTransport
 :
 	mSTaPtr_(mSTaPtr),
     	speciesTransportCoeffs_(dict.optionalSubDict("speciesTransport")),
+    shModelW_
+    (
+        sherwoodModel::New
+        (
+            "wireModel",
+            mSTaPtr_.mixture(),
+            speciesTransportCoeffs_
+        )
+    ),
     	species2({"H2","O2","H2O","OH"}),
     	C2_s_(species2.size()),
-    	k_as_(species2.size()),
-    	Re_p_(
-            	IOobject
-            	(
-               		"Re_p_",
-                	mesh.time().timeName(),
-                	mesh,
-                	IOobject::NO_READ,
-                	IOobject::NO_WRITE
-            	),
-            	mesh,
-            	dimless
-        
-        ),
-        ReSMALLF_(
-            	IOobject
-            	(
-               		"ReSMALLF_",
-                	mesh.time().timeName(),
-                	mesh,
-                	IOobject::NO_READ,
-                	IOobject::NO_WRITE
-            	),
-            	mesh,
-            	dimensionedScalar(dimless,1)
-        
-        ),
-    	Sc_(species2.size()),
-    	SH_(species2.size()),
-	sh_(3),
-	D2_(
-		mesh.lookupObject<speciesProperties>
-        	(
-            		"speciesProperties"
-        	).D2()
-	),
 	C2_(
 		mesh.lookupObject<speciesProperties>
         	(
             		"speciesProperties"
         	).C2()
 	),
-	/*Psi_BV_(
-		mesh.lookupObject<massAndSpeciesTransferModel>
-        	(
-            		"transportProperties"
-        	).Psi_BV()
-	),*/
-	/*Psi_(
-		mesh.lookupObject<massAndSpeciesTransferModel>
-        	(
-            		"transportProperties"
-        	).Psi()
-	
-	),*/
 		Pe_(
 	        mesh.lookupObject<volScalarField>
         	(
@@ -117,30 +77,14 @@ Foam::speciesTransport::speciesTransport
             		"Mem"
         	)
 	),
-	nuc_(
-	        mesh.lookupObject<volScalarField>
-        	(
-            		"nuc"
-        	)
-	),
-	U_(
-	        mesh.lookupObject<volVectorField>
-        	(
-            		"U"
-        	)
-	),
+
 	as_(
 		mesh.lookupObject<porousProperties>
         	(
             		"porousProperties"
         	).as()
 	),
-	D_pore_(
-		mesh.lookupObject<porousProperties>
-        	(
-            		"porousProperties"
-        	).D_pore()
-	),
+
     	MW_(
 		mesh.lookupObject<speciesProperties>
         	(
@@ -168,88 +112,14 @@ forAll(species2,i)
             			dimensionSet(0,-3,0,0,1,0,0)
         		)
         	);
-        	k_as_.set
-        	(
-        	        i,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-               				"k_as_"+species2[i],
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::NO_READ,
-                			IOobject::NO_WRITE
-            			),
-            			mesh,
-            			dimensionSet(0,1,-1,0,0,0,0)
-        		)
-        	);
-        	Sc_.set
-        	(
-        	        i,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-               				"Sc_"+species2[i],
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::NO_READ,
-                			IOobject::NO_WRITE
-            			),
-            			mesh,
-            			dimless
-        		)
-        	);
-        	SH_.set
-        	(
-        	        i,
-        		new volScalarField
-        		(
-            			IOobject
-            			(
-               				"SH_"+species2[i],
-                			mesh.time().timeName(),
-                			mesh,
-                			IOobject::NO_READ,
-                			IOobject::NO_WRITE
-            			),
-            			mesh,
-            			dimless
-        		)
-        	);
-        }
-        sh_.set
-    	(
-        	0,
-        	new dimensionedScalar("sh_a", dimless,speciesTransportCoeffs_)
-        );
-        sh_.set
-    	(
-        	1,
-        	new dimensionedScalar("sh_b", dimless,speciesTransportCoeffs_)
-        );
-        sh_.set
-    	(
-        	2,
-        	new dimensionedScalar("sh_c", dimless,speciesTransportCoeffs_)
-        );
+	}
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 void Foam::speciesTransport::correct(const int i, const volScalarField& theta_)
 {
 
-	Re_p_=max((mag(U_)+dimensionedScalar("USMALL",U_.dimensions(),SMALL))*D_pore_[0]/nuc_,ReSMALLF_);//this have to be done smarter!!
-	Re_p_.correctBoundaryConditions();
-		Sc_[i]=(nuc_)/D2_[i];
-		Sc_[i].correctBoundaryConditions();
-		SH_[i]=max(sh_[0]*pow(Re_p_,sh_[1])*pow(Sc_[i],sh_[2]),dimensionedScalar(dimless,1));
-		SH_[i].correctBoundaryConditions();
-		k_as_[i]=SH_[i]*(D2_[i])/(D_pore_[0]);
-		k_as_[i].correctBoundaryConditions();
-		C2_s_[i]=(mSTaPtr_.Psi_BV()[i]-mSTaPtr_.mDot_Wall()[i]/MW_[i])/(k_as_[i]*as_[0]*(1-theta_))+C2_[i];
-		C2_s_[i].correctBoundaryConditions();
+		
+		C2_s_[i]=(mSTaPtr_.Psi_BV()[i]-mSTaPtr_.mDot_Wall()[i]/MW_[i])/(shModelW_->ki(i)*as_[0]*(1-theta_))+C2_[i];
 }
 
 

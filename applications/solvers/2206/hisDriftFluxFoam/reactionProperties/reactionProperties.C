@@ -27,6 +27,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "surfaceFields.H"
 #include "fvc.H"
+#include "../incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.H"
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

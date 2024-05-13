@@ -3,6 +3,7 @@ cd "${0%/*}" || exit    # Run from this directory
 #------------------------------------------------------------------------------
 
 wclean libso mixtureViscosityModels
+wclean libso sherwoodModels
 wclean libso relativeVelocityModels
 wclean libso coverageModels
 wclean libso concentrationLossModels

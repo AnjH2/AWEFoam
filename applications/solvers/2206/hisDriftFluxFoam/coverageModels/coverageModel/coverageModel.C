@@ -50,6 +50,7 @@ Foam::coverageModel::coverageModel
 )
 :
 	coverageModelDict_(dict),
+	transportPropertiesDict_(dict),
     	theta_
     	(
         	IOobject
@@ -62,7 +63,8 @@ Foam::coverageModel::coverageModel
         	),
         mesh,
         dimensionedScalar("theta__",dimless,Zero)
-   	)
+   	),
+   	p_num_("p_num",dimPressure,1)
 {}
 
 

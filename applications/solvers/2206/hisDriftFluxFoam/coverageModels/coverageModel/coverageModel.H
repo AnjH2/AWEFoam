@@ -64,7 +64,9 @@ protected:
 
     // Protected data
 	const dictionary coverageModelDict_;
+	const dictionary transportPropertiesDict_;
 	volScalarField	theta_;
+	dimensionedScalar p_num_;
 
 public:
 
@@ -112,6 +114,10 @@ public:
         const volScalarField& theta() const
         {
             return theta_;
+        }
+        
+        void uP_num(const dimensionedScalar p_num) {
+        	p_num_=p_num;
         }
 
         //- Update the coverage

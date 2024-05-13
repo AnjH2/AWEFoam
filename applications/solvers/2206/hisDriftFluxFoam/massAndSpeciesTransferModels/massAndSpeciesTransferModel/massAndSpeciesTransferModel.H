@@ -41,6 +41,8 @@ SourceFiles
 #include "runTimeSelectionTables.H"
 #include "physicoChemicalConstants.H"
 #include "incompressibleTwoPhaseInteractingMixture.H"
+#include "sherwoodModel.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -70,11 +72,14 @@ protected:
 	const dictionary massAndSpeciesTransferModelDict_;
 	List<word> species2;
 	List<word> species1;
+	List<word> speciesE;
+	
 	PtrList <volScalarField> Psi_BV_;
 	//variables related to butlerVolmer species transfer 
 	const PtrList <dimensionedScalar>& z_;
 	const PtrList <dimensionedScalar>& psi_;
 	const PtrList <dimensionedScalar>& MW_;
+	const PtrList <volScalarField>& D2_;
 	const volScalarField& Pe_;
         const volScalarField& Ne_; 
         const volScalarField& PeC_;
@@ -85,6 +90,7 @@ protected:
         const volScalarField& epsilon_;
         const PtrList <dimensionedScalar>& as_;
         const dimensionedScalar& t_OH_;
+        const volVectorField& U_;
         //const dimensionedScalar& p_num_;
         //Mass transfer model.
         PtrList <volScalarField> mDot_Wall_;
@@ -95,7 +101,9 @@ protected:
        	PtrList <volScalarField> C_sat_;
        	const volScalarField& V2_;
         
-        
+
+
+
 
 public:
 
@@ -140,6 +148,12 @@ public:
 
 
     // Member Functions
+    
+        
+        
+    	const incompressibleTwoPhaseInteractingMixture& mixture() const{
+    		return mixture_;
+    	}
 	const PtrList <volScalarField>& Psi_BV() const
         {
             return Psi_BV_;
@@ -170,28 +184,27 @@ public:
         //  coefficient to multiply (1 - alphal) for the condensation rate
         //  and a coefficient to multiply  alphal for the vaporisation rate
         //  of each species
-        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) const = 0;
+        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) = 0;
 
         //- Return the mass condensation and vaporisation rates as coefficients
-        virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write) const = 0;
+        virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write) = 0;
 
-	//- Source for T equarion
-        virtual tmp<fvScalarMatrix> ciSource(const int i) const = 0;
+
         
         //- Return the volumetric condensation and vaporisation rates as a
         //  coefficient to multiply (1 - alphal) for the condensation rate
         //  and a coefficient to multiply  alphal for the vaporisation rate
         //  of each species
-        virtual Pair<tmp<volScalarField>> vDotAlphal() const;
+        virtual Pair<tmp<volScalarField>> vDotAlphal();
 
         //- Return the volumetric condensation and vaporisation rates as
         //  coefficients of each species
-        virtual Pair<tmp<volScalarField>> vDot() const;
+        virtual Pair<tmp<volScalarField>> vDot();
         
-        virtual Pair<tmp<volScalarField>> vDot_rhoC1() const;
+        virtual Pair<tmp<volScalarField>> vDot_rhoC1();
 
         //- Correct the phaseChange model
-        virtual void correct() = 0;
+        virtual void correct(const int i) = 0;
 
         //- Read the transportProperties dictionary and update
         //virtual bool read();

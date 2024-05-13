@@ -39,6 +39,7 @@ SourceFiles
 #include "volFields.H"
 #include "physicoChemicalConstants.H"
 #include "massAndSpeciesTransferModel.H"
+
 //#include "IOdictionary.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -59,24 +60,14 @@ protected:
     // Protected data
     	const massAndSpeciesTransferModel& mSTaPtr_;
 	dictionary	speciesTransportCoeffs_;
+	autoPtr<sherwoodModel> shModelW_;
 	List<word> species2;
 	PtrList <volScalarField> C2_s_;
-	PtrList <volScalarField> k_as_; //can be tmp<>
-	volScalarField Re_p_; //can be tmp<>
-	volScalarField ReSMALLF_;
-	PtrList <volScalarField> Sc_; //can be tmp<>
-	PtrList <volScalarField> SH_; //can be tmp<>
-	PtrList <dimensionedScalar> sh_;
-	const PtrList <volScalarField>& D2_; //should not be affected by totursity
 	const PtrList <volScalarField>& C2_;
-	//const PtrList <volScalarField>& Psi_BV_; 
 	const volScalarField& Pe_;
 	const volScalarField& Ne_;
 	const volScalarField& Mem_;
-	const volScalarField& nuc_;
-	const volVectorField& U_;
 	const PtrList <dimensionedScalar>& as_;
-	const PtrList <dimensionedScalar>& D_pore_;
 	const PtrList <dimensionedScalar>& MW_;
 	
 	

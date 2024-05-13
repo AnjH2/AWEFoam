@@ -59,6 +59,7 @@ class linearCoverage
 
         //- volume fraction of gas -> read
         const volScalarField& alphad_;
+        const dimensionedScalar n_;
         
 public:
 

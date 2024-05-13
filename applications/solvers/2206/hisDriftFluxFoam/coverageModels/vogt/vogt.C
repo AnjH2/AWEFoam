@@ -29,6 +29,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "../../porousProperties/porousProperties.H"
 
+
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -61,13 +62,13 @@ Foam::coverageModels::vogt::vogt
     J_lim_
 	(
 		"J_lim",
-		dimensionSet (0,-2,0,0,0,1,0),//find true dimension!!!--------------
+		dimensionSet (0,-2,0,0,0,1,0),
 		dict
 	),
     J_scale_
 	(
 		"J_scale",
-		dimless,//find true dimension!!!--------------
+		dimless,
 		dict
 	),
     as_(
@@ -89,6 +90,13 @@ Foam::coverageModels::vogt::vogt
         (
             "Ne"
         )
+    ),
+    p_water_
+        (
+        mesh.lookupObject<volScalarField>
+        (
+            "p_water"
+        )
     )
     
 {}
@@ -104,7 +112,7 @@ Foam::coverageModels::vogt::~vogt()
 
 void Foam::coverageModels::vogt::correct()
 {
-    theta_ =(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*0.0001)*J_lim_),0.3));
+    theta_ =(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*p_num_/(p_num_-p_water_);
     theta_.correctBoundaryConditions();
 }
 

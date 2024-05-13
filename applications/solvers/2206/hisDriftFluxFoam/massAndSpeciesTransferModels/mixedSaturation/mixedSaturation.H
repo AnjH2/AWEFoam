@@ -40,6 +40,7 @@ SourceFiles
 #include "volFields.H"
 #include "massAndSpeciesTransferModel.H"
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -56,6 +57,8 @@ class mixedSaturation
     public massAndSpeciesTransferModel
 {
     // Private data
+    	autoPtr<sherwoodModel> shModelAB_;
+    	autoPtr<sherwoodModel> shModelDB_;
 	const dimensionedScalar	K_AB_;
 	const dimensionedScalar	c_AB_;
 	const dimensionedScalar	K_DB_;
@@ -86,23 +89,24 @@ public:
 
 
     // Member Functions
+        
+
+        
         //- Update coverage        
         virtual void correct_mDot_wall( const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta);
         
         //- Return the mass condensation and vaporisation rates as a
         //  coefficient to multiply (1 - alphal) for the condensation rate
         //  and a coefficient to multiply  alphal for the vaporisation rate
-        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i) const;
+        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i);
 
         //- Return the mass condensation and vaporisation rates as coefficients
-        virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write) const;
+        virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write);
 
-	//- Source for T equarion
-        virtual tmp<fvScalarMatrix> ciSource(const int i) const;
 	
 	
         //- Correct the constant phaseChange model
-        virtual void correct();
+        virtual void correct(const int i);
 
         //- Read the transportProperties dictionary and update
         //virtual bool read();

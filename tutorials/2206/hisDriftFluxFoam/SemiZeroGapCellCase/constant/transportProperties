@@ -93,6 +93,8 @@ coverageModel vogt;
 
 "(linearCoverage|vogt|linearVogt|bubbleNeuclation|bubbleNeuclationLinear|zeroCoverage)Coeffs"
 {
+
+
 	//vogt
 	J_lim		300000.0;   ///ffrom vogt
 	J_scale		1;
@@ -141,14 +143,62 @@ stoichiometricCoefficient true; //use stoichiometricCoefficient as exponent CR[i
 
 speciesTransport
 {
-	sh_a	1.1;
-	sh_b	0.43;
-	sh_c	0.33;
+	wireModel	general;
+	
+	"wireModel_generalCoeffs"
+	{
+		
+		a	1.1;
+		b	0.43;
+		c	0.33;
+		d	0.2e-3;
+		
+	}
+
 }
 
 massAndSpeciesTransferModel mixedSaturation;
 "(surfaceSaturation|mixedSaturation|bulkSaturation)Coeffs"
 {
+
+	AttachedBubbleGrowthModel	general;
+
+	waterVapour 	true;
+	m_KOH		7.65; //[mol/kg] 7.65-> 30wt%	
+	
+	"AttachedBubbleGrowthModel_constantSherwoodCoeffs"
+	{
+		
+		sh_H2	1;
+		sh_O2	1;
+		sh_H2O	0;
+		sh_H2O	0;
+		d	0.2e-3;
+		
+	}
+	"AttachedBubbleGrowthModel_generalCoeffs"
+	{
+		
+		a	1.1;
+		b	0.43;
+		c	0.33;
+		d	0.2e-3;
+		
+	}
+	DetachedBubbleGrowthModel	WhitakerR;
+	"DetachedBubbleGrowthModel_constantSherwoodCoeffs"
+	{
+		sh_H2	1;
+		sh_O2	1;
+		sh_H2O	0;
+		sh_OH	0;
+		d	0.4e-3;
+	}
+	"DetachedBubbleGrowthModel_WhitakerRCoeffs"
+	{
+
+		d	0.4e-3;
+	}
 	tau_c	0.01;
 	tau_b	0.1;
 	c_AB	4;//163; //angle=9deg
@@ -164,8 +214,7 @@ massAndSpeciesTransferModel mixedSaturation;
 	R_DB_H2	0.5e-3;
 	R_DB_O2	0.5e-3;*/
 	a	1;	//mixing constant (a*C-C_sat)
-	waterVapour 	true;
-	m_KOH		7.65; //[mol/kg] 7.65-> 30wt%
+
 }
 
 p_num		101325;

@@ -96,6 +96,17 @@ Foam::coverageModels::linearVogt::linearVogt
         (
             "alpha.gas"
         )
+    ),
+    n_
+    (
+    	dict.lookupOrDefault<dimensionedScalar>("n", dimensionedScalar("n", dimless, 1.0))
+    ),
+        p_water_
+        (
+        mesh.lookupObject<volScalarField>
+        (
+            "p_water"
+        )
     )
     
 {}
@@ -112,7 +123,7 @@ Foam::coverageModels::linearVogt::~linearVogt()
 void Foam::coverageModels::linearVogt::correct()
 {
 
-    theta_ =max(alphad_,J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*0.0001)*J_lim_),0.3));
+    theta_ =max(pow(alphad_,n_),(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*p_num_/(p_num_-p_water_));
     theta_.correctBoundaryConditions();
 }
 

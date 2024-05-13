@@ -55,6 +55,10 @@ Foam::coverageModels::linearCoverage::linearCoverage
         (
             "alpha.gas"
         )
+    ),
+    n_
+    (
+    	dict.lookupOrDefault<dimensionedScalar>("n", dimensionedScalar("n", dimless, 1.0))
     )
 {}
 
@@ -69,7 +73,7 @@ Foam::coverageModels::linearCoverage::~linearCoverage()
 
 void Foam::coverageModels::linearCoverage::correct()
 {
-    theta_ =alphad_;
+    theta_ =pow(alphad_,n_);
     theta_.correctBoundaryConditions();
 }
 

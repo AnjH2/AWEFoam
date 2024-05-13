@@ -67,6 +67,8 @@ class linearVogt
         const volScalarField& Ne_; 
         //- volume fraction of gas -> read
         const volScalarField& alphad_;
+        const dimensionedScalar n_;
+        const volScalarField& p_water_;
         
         
         

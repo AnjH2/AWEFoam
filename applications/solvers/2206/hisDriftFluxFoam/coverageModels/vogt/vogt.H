@@ -64,7 +64,8 @@ class vogt
         
         const PtrList <dimensionedScalar>& as_;
         const volScalarField& Pe_;
-        const volScalarField& Ne_; 
+        const volScalarField& Ne_;
+        const volScalarField& p_water_;
         
         
         

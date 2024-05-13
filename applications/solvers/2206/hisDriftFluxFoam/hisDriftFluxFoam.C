@@ -51,6 +51,7 @@ Description
 #include "concentrationLossModel.H"
 #include "speciesTransport.H"
 #include "massAndSpeciesTransferModel.H"
+#include "sherwoodModel.H"
 #include "turbulenceModel.H"
 #include "CompressibleTurbulenceModel.H"
 #include "pimpleControl.H"
@@ -149,7 +150,7 @@ int main(int argc, char *argv[])
             
             UdmModel.correct();
             
-            //thetaModel.correct();
+            thetaModel.uP_num(mixture.p_num());
             thetaModel.correct();
             
             #include "alphaEqnSubCycle.H"
@@ -179,6 +180,8 @@ int main(int argc, char *argv[])
             speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
             
             speciesP.correct_D2_eff(1-alpha2);
+            
+            react.correct(mSTa.p_water(),mixture.p_num());
             
             for (int k=0; k<=outerChemicalCorrections; k++)
             {

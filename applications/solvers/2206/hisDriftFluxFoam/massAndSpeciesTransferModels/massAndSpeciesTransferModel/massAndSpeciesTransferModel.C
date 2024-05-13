@@ -27,6 +27,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "massAndSpeciesTransferModel.H"
+#include "surfaceFields.H"
+#include "fvc.H"
 #include "../../reactionProperties/reactionProperties.H"
 #include "../../porousProperties/porousProperties.H"
 #include "../../speciesProperties/speciesProperties.H"
@@ -55,6 +57,8 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
 	massAndSpeciesTransferModelDict_(dict),
 	species2({"H2","O2","H2O","OH"}),
 	species1({"H2","O2","H2O"}),
+	speciesE({"H2","O2"}),
+	
 	Psi_BV_(species2.size()),
     z_(
 	mesh.lookupObject<speciesProperties>
@@ -68,12 +72,19 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
             "reactionProperties"
         ).psi()
         ),
-            MW_(
+    MW_(
 	mesh.lookupObject<speciesProperties>
         (
             "speciesProperties"
         ).MW()
         ),
+    D2_(
+    	mesh.lookupObject<speciesProperties>
+        	(
+            		"speciesProperties"
+        	).D2()
+        ),
+    
     Pe_
     (
         mesh.lookupObject<volScalarField>
@@ -143,6 +154,13 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
             "reactionProperties"
         ).t_OH()
         ),
+    U_
+    (
+        mesh.lookupObject<volVectorField>
+        (
+            "U"
+        )
+    ),
     /*p_num_(
 	mesh.lookupObject<incompressibleTwoPhaseInteractingMixture>
         (
@@ -284,6 +302,8 @@ Foam::massAndSpeciesTransferModel::~massAndSpeciesTransferModel()
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+
 void Foam::massAndSpeciesTransferModel::correct_Psi_BV(int i)
 {
 
@@ -318,7 +338,7 @@ void Foam::massAndSpeciesTransferModel::correct_waterPartialPressure()
 }
 
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
-Foam::massAndSpeciesTransferModel::vDotAlphal() const
+Foam::massAndSpeciesTransferModel::vDotAlphal() 
 {
 
     Pair<tmp<volScalarField>> sumVDotAlpha(this->mDotAlphal(0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDotAlphal(0)[0]*dimensionedScalar(dimless/dimDensity,Zero));
@@ -348,7 +368,7 @@ Foam::massAndSpeciesTransferModel::vDotAlphal() const
 
 
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
-Foam::massAndSpeciesTransferModel::vDot() const
+Foam::massAndSpeciesTransferModel::vDot() 
 {
 
     Pair<tmp<volScalarField>> sumVDot(this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;
@@ -380,7 +400,7 @@ Foam::massAndSpeciesTransferModel::vDot() const
 }
 
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
-Foam::massAndSpeciesTransferModel::vDot_rhoC1() const
+Foam::massAndSpeciesTransferModel::vDot_rhoC1() 
 {
 
     Pair<tmp<volScalarField>> sumVDot(this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero),this->mDot(0,0)[0]*dimensionedScalar(dimless/dimDensity,Zero));;

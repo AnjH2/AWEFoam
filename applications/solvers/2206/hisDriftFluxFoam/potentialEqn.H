@@ -94,20 +94,20 @@
 		fvScalarMatrix Je_Pe
 		(
 		I1e_Pe*(1+C3Pe*Ue.oldTime())-fvm::Sp(I1e_Pe*C3Pe,Ue)
-		+I2e_Pe*(-1+C4Pe*Ue.oldTime())+fvm::Sp(I2e_Pe*C4Pe,Ue)
+		+I2e_Pe*(-1-C4Pe*Ue.oldTime())+fvm::Sp(I2e_Pe*C4Pe,Ue)
 		);
 
 //****************************************** for the electrodes
 		
 		fvScalarMatrix	J_Ne
 		(
-		I1_Ne*(1+C3Ne*UNe.oldTime())-fvm::Sp(I1_Ne*C3Ne,UNe)
-		+I2_Ne*(-1-C4Ne*UNe.oldTime())+fvm::Sp(I2_Ne*C4Ne,UNe)
+		I1_Ne*(1-C3Ne*UNe.oldTime())+fvm::Sp(I1_Ne*C3Ne,UNe)
+		+I2_Ne*(-1+C4Ne*UNe.oldTime())+fvm::Sp(-I2_Ne*C4Ne,UNe)
 		);
 		fvScalarMatrix J_Pe
 		(
-		I1_Pe*(1+C3Pe*UPe.oldTime())-fvm::Sp(I1_Pe*C3Pe,UPe)
-		+I2_Pe*(-1-C4Pe*UPe.oldTime())+fvm::Sp(I2_Pe*C4Pe,UPe)
+		I1_Pe*(1-C3Pe*UPe.oldTime())+fvm::Sp(I1_Pe*C3Pe,UPe)
+		+I2_Pe*(-1+C4Pe*UPe.oldTime())+fvm::Sp(-I2_Pe*C4Pe,UPe)
 		);
 
         	//define potential equation for electrolyte.
@@ -150,7 +150,7 @@
             	eta=(UNe-Ue-react.E0()[0])*Ne+(UPe-Ue-react.E0()[1])*Pe;
             	eta.correctBoundaryConditions();
         	J=
-        	Pe*as[1]*react.i0()[1]*(1-theta)*(CRa_Pe*exp((react.alphaT()[2]*F*eta)/(R*T))-(CRc_Pe)*exp((-react.alphaT()[3]*F*eta)/(R*T)))+
-        	Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne*exp((react.alphaT()[0]*F*eta)/(R*T))-CRc_Ne*exp((-react.alphaT()[1]*F*eta)/(R*T)))
+        	Pe*as[1]*react.i0()[1]*(1-theta)*(CRa_Pe*exp(C3Pe*eta)-(CRc_Pe)*exp(C4Pe*eta))+
+        	Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne*exp(C3Ne*eta)-CRc_Ne*exp(C4Ne*eta))
     		;
 		J.correctBoundaryConditions();
