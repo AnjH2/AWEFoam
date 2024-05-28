@@ -1,0 +1,78 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+
+reactionCoeffs
+{
+	psi_Ne_H2 	1;
+	psi_Ne_O2 	0;
+	psi_Ne_H2O 	-2;
+	psi_Ne_OH 	2;
+	
+	psi_Pe_H2 	0;
+	psi_Pe_O2 	-0.5;
+	psi_Pe_H2O 	-1;
+	psi_Pe_OH 	2;
+	
+	E0_Ne_ref 	-0.828;
+	E0_Pe_ref 	0.401;
+	
+	T0_E0_Ne 	298.15;
+	T0_E0_Pe 	298.15;
+	
+	Ds_Ne 		161.2;
+	Ds_Pe 		-324;
+	
+	i0_Ne_ref 	0.112;
+	i0_Pe_ref 	0.00128;
+	
+	Ea_Ne 		40000.0;
+	Ea_Pe 		46156.12;
+	
+	T0_i0_Ne 	353;
+	T0_i0_Pe 	353;
+	
+	alpha_a_Ne 	0.285;//0.285;//0.5;
+	alpha_c_Ne 	0.715;//0.715;//0.5;
+	alpha_a_Pe 	0.61;//0.61;//0.5;
+	alpha_c_Pe 	0.39;//0.39;//0.5;
+	
+	u_OH	2.05e-3;	//Mobility
+	u_K	7.619e-4;	//Mobility
+	
+	//henry law
+	DeltaH_H2	500;
+	DeltaH_O2	1700;
+	H_ref_H2	7.8e-6;
+	H_ref_O2	1.3e-5;
+	T_H_ref_H2	298.15;
+	T_H_ref_O2	298.15;
+		//Sechenov correction
+		f0_H2	-1.944e-4; //KOH
+		f1_H2	-3.167e-7; //KOH
+		f0_O2	-5.712e-4; //KOH
+		f1_O2	 5.854e-7; //KOH
+	n_Temp	0;
+	T_BV_ref	TBV;
+	
+	//k_as		0.3; //mean velocity 0.015m/s //tubebundle assumption as=120m²/m³ 
+
+}
+
+
+
+// ************************************************************************* //

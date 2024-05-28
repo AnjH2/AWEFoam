@@ -1,6 +1,0 @@
-mixtureViscosityModel/mixtureViscosityModel.C
-mixtureViscosityModel/mixtureViscosityModelNew.C
-Beckermann/Beckermann.C
-Ishii/Ishii.C
-
-LIB = $(FOAM_USER_LIBBIN)/libOurDriftFluxTransportModels

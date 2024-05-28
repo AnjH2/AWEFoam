@@ -1,0 +1,170 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1e-3;
+
+
+
+Ny		45.0;
+Nz		1;
+tPe		1.8;
+tDi		0.85;
+tNe		1.8;
+cellLength	30.0;
+cellDepth	30;
+
+S1 10.0;
+SDi	2;
+
+t2 #eval #{ $tPe+$tDi #};
+t3 #eval #{ $tPe+$tDi+$tNe #};
+
+dyPe	6.37345514017;
+dyNe	6.37345514017;
+
+dyDiNe	1.92027451324;	
+dyDiPe	1.92027451324;
+
+dx	2;
+
+
+Nx  #eval #{ round($cellLength/($t3*$S1) *$Ny) #};
+
+
+NyPE #eval #{ round($tPe/($t3)*$Ny) #};
+NyNE #eval #{ round($tNe/($t3)*$Ny) #};
+NyD #eval #{ round($tDi/($t3)*$Ny*$SDi) #};
+
+vertices
+(
+//positiveElectrode
+    (0 			0 		0)   		//0
+    ($cellLength 	0 		0)		//1
+    ($cellLength 	$tPe 		0)		//2
+    (0 			$tPe		0)		//3
+    (0 			0 		$cellDepth)	//4
+    ($cellLength 	0 		$cellDepth)	//5
+    ($cellLength 	$tPe 		$cellDepth)	//6
+    (0 			$tPe 		$cellDepth)	//7
+//diaphrame    
+    (0 			$t2		0)   		//8
+    ($cellLength 	$t2 		0)		//9
+    (0	 		$t2  		$cellDepth)	//10
+    ($cellLength	$t2		$cellDepth)	//11
+//negativeDiaphram
+    (0 			$t3		0)		//12
+    ($cellLength 	$t3 		0)		//13
+    (0	 		$t3 		$cellDepth)	//14
+    ($cellLength 	$t3 		$cellDepth)	//15
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) 	positiveElectode 	($Nx $NyPE $Nz) simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyPe)(0.5 0.5 #eval #{ 1/$dyPe #}))  1)
+    hex (3 2 9 8 7 6 11 10) 	diaphram 		($Nx $NyD $Nz) simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyDiPe)(0.5 0.5 #eval #{ 1/$dyDiNe #}))  1)
+    hex (8 9 13 12 10 11 15 14) negativeElectode 	($Nx $NyNE $Nz) simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyNe)(0.5 0.5 #eval #{ 1/$dyNe #}))  1)
+    
+);
+//x - ((0.1 0.15 4)(0.8 0.7 1)(0.1 0.15 0.25))
+//y - ((0.2 0.3 4)(0.6 0.4 1)(0.2 0.3 0.25)) 
+edges
+(
+);
+
+boundary
+(
+    PNe
+    {
+        type wall;
+        faces
+        (
+            (12 14 15 13)
+        );
+    }
+    PPe
+    {
+	type wall;
+	faces
+	(
+	    (1 5 4 0)
+	);
+    }
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 3 2 1)
+            (4 5 6 7)
+            (2 3 8 9)
+            (9 8 12 13)
+            (7 10 11 6)
+            (11 10 14 15)
+        );
+    }
+    Outlet1
+    {
+        type patch;
+        faces
+        (
+            (1 2 6 5)
+        );
+    }
+    Outlet2
+    {
+        type patch;
+        faces
+        (
+            (9 13 15 11)
+        );
+    }
+    Inlet1
+    {
+        type patch;
+        faces
+        (
+            (0 4 7 3)
+        );
+    }
+    Inlet2
+    {
+        type patch;
+        faces
+        (
+                (10 14 12 8)
+        );
+    }
+
+    OWall
+    {
+    	type wall;
+    	faces
+    	(
+    	      (2 9 11 6)
+        );
+    }
+    IWall
+    {
+    	type wall;
+    	faces
+    	(
+    	     (7 10 8 3)
+        );
+    }
+);
+
+
+// ************************************************************************* //

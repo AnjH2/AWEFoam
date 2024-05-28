@@ -1,0 +1,14 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/wmake/scripts/AllwmakeParseArguments
+#------------------------------------------------------------------------------
+
+wmake $targetType mixtureViscosityModels
+wmake $targetType concentrationLossModels
+wmake $targetType relativeVelocityModels
+wmake $targetType sherwoodModels
+wmake $targetType coverageModels
+wmake $targetType massAndSpeciesTransferModels
+wmake $targetType
+
+#------------------------------------------------------------------------------

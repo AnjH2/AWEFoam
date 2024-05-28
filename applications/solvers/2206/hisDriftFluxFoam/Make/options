@@ -1,0 +1,43 @@
+LIB_USER_SRC=$(VM_PROJECT_USER_DIR)/src
+EXE_INC = \
+    -IincompressibleTwoPhaseInteractingMixture \
+    -IspeciesMixture \
+    -IporousProperties \
+    -IreactionProperties \
+    -IspeciesProperties \
+    -IspeciesTransport \
+    -ImixtureViscosityModels/lnInclude \
+    -IsherwoodModels/lnInclude \
+    -I./relativeVelocityModels/lnInclude \
+    -I./coverageModels/lnInclude \
+    -I./concentrationLossModels/lnInclude \
+    -I./massAndSpeciesTransferModels/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude 
+
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lmeshTools \
+    -lsampling \
+    -lcompressibleTransportModels \
+    -lincompressibleTransportModels \
+    -ltwoPhaseMixture \
+    -lHisDriftFluxTransportModels \
+    -lHisDriftFluxRelativeVelocityModels \
+    -lHisDriftFluxCoverageModels \
+    -lHisDriftFluxConcentrationLossModels \
+    -lHisDriftFluxMassAndSpeciesTransferModels \
+    -lHisDriftFluxSherwoodModels \
+    -lturbulenceModels \
+    -lcompressibleTurbulenceModels \
+    -lthermoTools 
+

@@ -1,0 +1,260 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      setFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+tcPe		2e-3;//flow channel size, at the positive electrode
+tPe		1.8e-3; //Positive electrode thickness
+tDi		0.85e-3; //Diaframe thickness
+tNe		1.8e-3; //Negative electrode thickness
+tcNe		2e-3;//flow channel size, at the Negative electrode
+
+cellLength	30.0e-3;
+cellDepth	30e-3;
+nD		0.025;
+VV		1;//matransfer
+VVV		1;//drift
+
+
+t1 #eval #{ $tPe+$tcPe #};
+t2 #eval #{ $t1+$tDi #};
+t3 #eval #{ $t2+$tNe #};
+t4 #eval #{ $t3+$tcNe #};
+L0 #eval #{ $cellLength*0.05 #};
+
+V1Ne1 #eval #{ $t2+$tNe*$nD #};
+//V1Ne2 #eval #{ $t3-$tNe*$nD #};
+//V1Pe1 #eval #{ $t1+$tPe*$nD #};
+V1Pe2 #eval #{ $tPe-$tPe*$nD #};
+
+
+defaultFieldValues
+(
+    //volScalarFieldValue sigma_s 1000
+    volScalarFieldValue r_p 2e-05
+    volScalarFieldValue Ne 0
+    volScalarFieldValue Pe 0
+    volScalarFieldValue Mem 0
+    volScalarFieldValue InRegion 0
+    volScalarFieldValue eps 0.9999
+    volScalarFieldValue	tau 1
+);
+
+/*
+Pe region:
+	box (0 $tcPe 0) ($cellLength  $t1 $cellDepth);
+Ne region:
+	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+Mem region:
+	box (0 $t1 0) ($cellLength  $t2 $cellDepth);
+*/
+
+regions
+(
+//tau 
+    boxToCell
+    {
+    	box (0 $tcPe 0) ($cellLength  $t1 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue tau 1.2
+    	);
+    }
+    boxToCell
+    {
+    	box (0 $t1 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue tau 2.8
+    	);
+    }
+        boxToCell
+    {
+    	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue tau 1.2
+    	);
+    }
+    boxToCell
+    {
+    	box (0 0 0) ($cellLength  $tcPe $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue PeC 1
+    	);
+    }
+    boxToCell
+    {
+    	box (0 $tcPe 0) ($cellLength  $t1 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue Pe 1
+    	);
+    }
+        boxToCell
+    {
+    	box (0 $t1 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue Mem 1
+    	);
+    }
+    boxToCell
+    {
+    	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue Ne 1
+    	);
+    }
+        boxToCell
+    {
+    	box (0 $t3 0) ($cellLength  $t4 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue NeC 1
+    	);
+    }
+
+    
+    /*boxToCell
+    {
+    	box (0 0 0) ($L0  $t3 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue InRegion 1
+    	);
+    }*/
+
+    
+    boxToCell
+    {
+    	box (0 $tcPe 0) ($cellLength  $t1 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue eps 0.97
+    	);
+    }
+    boxToCell
+    {
+    	box (0 $t1 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue eps 0.5
+    	);
+    }
+        boxToCell
+    {
+    	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue eps 0.97
+    	);
+    }
+
+    
+    boxToCell
+    {
+    	box (0.0 $t2 0) ($cellLength  $V1Ne1 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue V1 $VVV
+    	);
+    }
+        boxToCell
+    {
+    	box (0.0 $V1Pe2 0) ($cellLength  $t1 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue V1 $VVV
+    	);
+    }
+
+    //XXXXXXX
+
+    boxToCell
+    {
+    	box (0.0 $t2 0) ($cellLength  $V1Ne1 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue V2 $VV
+    	);
+    }
+        boxToCell
+    {
+    	box (0.0 $V1Pe2 0) ($cellLength  $tPe $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue V2 $VV
+    	);
+    }
+
+    
+    /*   boxToCell
+    {
+    	box (0 $tPe 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue alpha.gas 0
+    	);
+    }
+        boxToCell
+    {
+    	box (0 $tPe 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue C_H2.gas 0
+    	);
+    }
+        boxToCell
+    {
+    	box (0 $tPe 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue C_O2.gas 0
+    	);
+    }
+        boxToCell
+    {
+    	box (0 $tPe 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue C_H2O.gas 0
+    	);
+    }*/
+);
+
+
+// ************************************************************************* //
