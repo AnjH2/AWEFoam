@@ -3,10 +3,7 @@
     
 
 
-    volScalarField divU
-    (
-	fvc::div(phi)
-    );
+
     
     if (nAlphaSubCycles > 1)
     {
@@ -42,11 +39,14 @@
 
     // Apply the diffusion term separately to allow implicit solution
     // and boundedness of the explicit advection
+    volScalarField alpha1_old=alpha1;
+  for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
   {
+  	
         fvScalarMatrix alpha1Eqn
         (
-            fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1)
-          - fvm::laplacian(alpha1*UdmModel.Ddm(), alpha1)
+            fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1_old)
+          - fvm::laplacian((1-Mem+VSMALL)*alpha1*UdmModel.Ddm(), alpha1)
         );
 
         alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));
@@ -64,13 +64,13 @@
             << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
             << endl;
     }
-
+	alphaPhi=alphaPhi*fvc::interpolate(epsilon1); //to make it superficial
     //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2) + phi*rho2; //original
     //rhoPhi = fvc::interpolate(alpha1*mixture.rhod())*(phi+phir)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2; //V665
     //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2; //V722
     //surfaceScalarField alpha2Phi=fvc::interpolate(1-alpha1)*(fvc::interpolate(1/alpha1)*alphaPhi-phir-phiDdm+phiDcm+phiL);
     //rhoPhi = fvc::interpolate(rho1)*alphaPhi+fvc::interpolate(1-alpha1)*(fvc::interpolate(1/alpha1)*alphaPhi-phir-phiDdm+phiDcm+phiL)*rho2; //V754
-    rhoPhi = fvc::interpolate(mixture.rho())*(alphaPhi*fvc::interpolate(1/alpha1)-phir);
+    rhoPhi = fvc::interpolate(mixture.rho())*(alphaPhi*fvc::interpolate(1/alpha1)-phir*fvc::interpolate(epsilon1));
     rho = mixture.rho();
     
     //rhoPhi = fvc::interpolate(rho)*(fvc::interpolate(1/alpha1)*alphaPhi-phir);; //V755

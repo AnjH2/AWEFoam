@@ -42,11 +42,12 @@
 	
     for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
     {
+    	
         tmp<surfaceScalarField> talphaPhiUn
         (
             fvc::flux
             (
-                phi,
+                phi*fvc::interpolate(1/epsilon1),
                 alpha1,
                 alphaScheme
             )
@@ -72,7 +73,7 @@
                 talphaPhiCorr.ref(),
                 vDotvmcAlphal,
                 (
-                    divU*(alpha10 - alpha100)
+                    (alpha10 - alpha100)
                   - vDotvmcAlphal*alpha10
                 )(),
                 UniformField<scalar>(mixture.alphaMax()),
@@ -93,12 +94,12 @@
         else
         {
             alphaPhi = talphaPhiUn;
-
+		
             MULES::explicitSolve
             (
                 geometricOneField(),
                 alpha1,
-                phi,
+                phi*fvc::interpolate(1/epsilon1),
                 alphaPhi,
                 vDotvmcAlphal,
                 vDoteAlphal,

@@ -87,7 +87,9 @@ forAll(species2,i)
 Foam::tmp<Foam::volScalarField>
 Foam::sherwoodModels::constantSherwood::ki(const int i)
 	{
+
 		return D2_[i]*sh_[i]/(d_);
+		
 	}
 
 bool Foam::sherwoodModels::constantSherwood::read

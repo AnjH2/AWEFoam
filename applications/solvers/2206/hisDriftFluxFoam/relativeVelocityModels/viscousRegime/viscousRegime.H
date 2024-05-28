@@ -65,12 +65,22 @@ class viscousRegime
 	dimensionedScalar D_;
 	const volScalarField& V1_;
 	const volScalarField& eps_;
+	const volVectorField& U_;
+	const dimensionedVector eg_;
+	const dimensionedVector en_;
+	const dimensionedVector em_;
 	
     // Private functions??
     
     volScalarField rd();
     volScalarField psi();
     volScalarField f();
+    volScalarField kappa();
+    volScalarField beta();
+    volScalarField gamma(const dimensionedVector i);
+    volVectorField USmig();
+    volVectorField UVis();
+    volVectorField USaff();
 public:
 
     //- Runtime type information
