@@ -132,8 +132,9 @@ void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_mDot_wall(cons
 		
 		C_sat_[i]=k_H_[i]*(mixture_.p_num()-p_water_);
 		C_sat_[i].correctBoundaryConditions();
-		mDot_Wall_[i]=(Pe_+Ne_)*min(max(c_AB_*shModelAB_->ki(i)*
-		as_[i]*theta*MW_[i]*(C2_s[i]-C_sat_[i]),mDot_Wall_[i]*0),Psi_BV_[i]*MW_[i]);
+
+		mDot_Wall_[i]=(Pe_+Ne_)*min(max(c_AB_*shModelAB_->ki(i)*as_[i]*theta*MW_[i]*(C2_s[i]-C_sat_[i]),mDot_Wall_[i]*0),Psi_BV_[i]*MW_[i]);
+
 		mDot_Wall_[i].correctBoundaryConditions();
 	} else if (i==2 and waterVapour_) {
 		mDot_Wall_[i]=((mDot_Wall_[0]/MW_[0]+mDot_Wall_[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(mDot_Wall_[0]/MW_[0]+mDot_Wall_[1]/MW_[1]))*MW_[2];
