@@ -235,7 +235,7 @@ Foam::tmp<Foam::volTensorField> Foam::relativeVelocityModel::tauDm() const
         new volTensorField
         (
             "tauDm",
-            alphad_/alphac_*rhoc_*rhod_/rho()*Udj()*Udj()
+            alphad_*rhod_*Udm_*Udm_+alphac_*rhoc_*Ucm()*Ucm()
         )
     );
 }

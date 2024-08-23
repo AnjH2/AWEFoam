@@ -18,28 +18,17 @@ solvers
 {
     "alpha.*"
     {
-        nAlphaCorr      3;
-        nAlphaSubCycles 3;
-
-        MULESCorr       no;
-        nLimiterIter    3;
-        alphaApplyPrevCorr  yes;
-
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
+	nAlphaCorr	1;
+	nAlphaSubCycles	1;
+	
+        solver          PBiCGStab;
+        preconditioner	DILU;
+        
         tolerance       1e-6;
         relTol          0;
         minIter         1;
     }
 
-    "alpha.*Diffusion"
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-6;
-        relTol          0;
-        minIter         1;
-    }
 
     p_rgh
     {
@@ -127,15 +116,15 @@ PIMPLE
 }
 HisDriftFlux
 {
-	potentialCorrections	4;
+	potentialCorrections	1;
 	speciesCorrections	1;
-	outerChemicalCorrections 2;
+	outerChemicalCorrections 1;
 }
 relaxationFactors
 {
     equations
     {
-        ".*"           1;
+        ".*"           0.75;
         "C*"		0.5;
         UNe		0.75;
         UPe		0.75;

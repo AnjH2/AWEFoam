@@ -28,6 +28,8 @@ License
 #include "surfaceFields.H"
 #include "fvc.H"
 #include "../incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.H"
+#include "../gammaOH.H"
+
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -194,7 +196,7 @@ forAll(electrodes,i)
                 		mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
-                		IOobject::NO_WRITE
+                		IOobject::AUTO_WRITE
             		),
             		E0_ref_[i]+Ds_[i]/(2*Foam::constant::physicoChemical::F)*(T_-T0_E0_[i])
         	)
@@ -247,7 +249,31 @@ t_OH_=u_OH_/(u_K_+u_OH_);
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-
+void Foam::reactionProperties::correct(const volScalarField& p_water_,const volScalarField& p_water_pure_,const dimensionedScalar p_num_, const volScalarField& m_KOH)
+	{
+		
+		forAll(electrodes,i)
+		{
+			
+			E0_[i]=E0_ref_[i]+Ds_[i]/(2*Foam::constant::physicoChemical::F)*(T_-T0_E0_[i])
+			+Foam::constant::physicoChemical::R*T_/(2*Foam::constant::physicoChemical::F)
+				*log(
+					 pow(1-(p_water_)/p_num_,psi_[0+i*4])		//hydrogen
+					*pow(1-(p_water_)/p_num_,psi_[1+i*4])		//oxygen
+					*pow((  p_water_)/p_water_pure_,psi_[2+i*4])	//water
+					*pow(cal_gammaOH(T_,m_KOH)*m_KOH,psi_[3+i*4])	//OH
+				);
+				
+		}
+		forAll(species2,i)
+		{
+			if (species2[i]=="H2"||species2[i]=="O2")
+        		{
+				
+				k_H_[i]=H_ref_[i]*exp(DeltaH_[i]*(1/T_-1/T_H_ref_[i]))*exp((f0_[i]+f1_[i]*T_)*C2_OH_);
+			}
+		}
+	}
 
 
 // ************************************************************************* //

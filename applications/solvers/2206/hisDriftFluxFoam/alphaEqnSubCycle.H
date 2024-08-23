@@ -1,60 +1,32 @@
 {
     phir=fvc::flux(UdmModel.Udm());
     
-
-
-
+      Pair<tmp<volScalarField>> mDot =
+        mSTa.mDot();
+    const volScalarField& mDotc = mDot[0]();
+    const volScalarField& mDote = mDot[1]();
     
-    if (nAlphaSubCycles > 1)
-    {
-        dimensionedScalar totalDeltaT = runTime.deltaT();
-        surfaceScalarField rhoPhiSum
-        (
-            IOobject
-            (
-                "rhoPhiSum",
-                runTime.timeName(),
-                mesh
-            ),
-            mesh,
-            dimensionedScalar(rhoPhi.dimensions(), Zero)
-        );
-
-        for
-        (
-            subCycle<volScalarField> alphaSubCycle(alpha1, nAlphaSubCycles);
-            !(++alphaSubCycle).end();
-        )
-        {
-            #include "alphaEqn.H"
-            rhoPhiSum += (runTime.deltaT()/totalDeltaT)*rhoPhi;
-        }
-
-        rhoPhi = rhoPhiSum;
-    }
-    else
-    {
-        #include "alphaEqn.H"
-    }
-
-    // Apply the diffusion term separately to allow implicit solution
-    // and boundedness of the explicit advection
-    volScalarField alpha1_old=alpha1;
+	
   for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
   {
   	
+  	
         fvScalarMatrix alpha1Eqn
         (
-            fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1_old)
-          - fvm::laplacian((1-Mem+VSMALL)*alpha1*UdmModel.Ddm(), alpha1)
+            fvm::ddt(epsilon1*rho1,alpha1)
+            +fvm::div(phi*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(rhod*U,alphad)")
+            ==
+            -mDote//+mDotc
+            +fvm::laplacian((1-Mem+VSMALL)*rho1*UdmModel.Ddm(), alpha1)
+            -fvm::div(phir*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(rhod*Udm,alphad)")
         );
 
-        alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));
+        alpha1Eqn.solve(mesh.solver("alpha1Eqn"));
 	
-        alphaPhi += alpha1Eqn.flux();
+        alphaPhi = alpha1Eqn.flux()/fvc::interpolate(epsilon1*rho1);
         
         alpha2 = 1.0 - alpha1;
-        phir += alpha1Eqn.flux()*fvc::interpolate(1/alpha1);
+        
         
 	
 	
@@ -64,7 +36,7 @@
             << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
             << endl;
     }
-	alphaPhi=alphaPhi*fvc::interpolate(epsilon1); //to make it superficial
+	//alphaPhi=alphaPhi*fvc::interpolate(epsilon1); //to make it superficial
     //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2) + phi*rho2; //original
     //rhoPhi = fvc::interpolate(alpha1*mixture.rhod())*(phi+phir)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2; //V665
     //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2; //V722

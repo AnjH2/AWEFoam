@@ -149,7 +149,7 @@ void Foam::relativeVelocityModels::viscousRegime::correct()
 {
     
     
-    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*1/(1+exp(-2*100*(alphad_-0.01)))*(UVis()+USaff()+USmig());
+    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*(UVis()+USaff()+USmig());
     /*
     Udm_.component(0) = pow(2,0.5)*pow((sigma_*g_.component(0)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
     Info<<Udm_.component(0)<<endl;

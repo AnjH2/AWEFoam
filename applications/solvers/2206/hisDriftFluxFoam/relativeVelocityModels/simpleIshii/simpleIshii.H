@@ -54,13 +54,34 @@ class simpleIshii
 :
     public relativeVelocityModel
 {
-    // Private data
-
-        //- A coefficient
-        dimensionedScalar n_;
-
-        //- Drift velocity
-        dimensionedVector V0_;
+	const incompressibleTwoPhaseInteractingMixture& mixture_;
+	//const dimensionedVector g_;
+	const meshObjects::gravity& g_;
+	
+	const dimensionedScalar rd_;
+	const dimensionedScalar n_;
+	const dimensionedScalar& rhoc_;
+	const volScalarField& rhod_;
+	dimensionedScalar D_;
+	const volScalarField& V1_;
+	const volScalarField& eps_;
+	const volVectorField& U_;
+	const dimensionedVector eg_;
+	const dimensionedVector en_;
+	const dimensionedVector em_;
+	
+	
+    // Private functions??
+    
+    volScalarField kappa();
+    volScalarField beta();
+    volScalarField f();
+    volVectorField vStokes();
+    volScalarField gamma(const dimensionedVector i);
+    
+    volVectorField UStokes();
+    volVectorField USaff();
+    volVectorField USmig();
 
 
 

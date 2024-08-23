@@ -157,7 +157,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i)
         	mDot_Wall_[i]*0,
         	
         	
-       		-V2_*(mDot_Wall_[i]+(Pe_+PeC_+Ne_+NeC_)*epsilon_*shModelDB_->ki(i)/(shModelDB_->d()/2)*
+       		-V2_*(mDot_Wall_[i]+(Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/(shModelDB_->d()/2)*
        		epsilon_*alpha_*MW_[i]*max(C2_[i] - C_sat_[i], C0))
     	);
     }
@@ -220,7 +220,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i, const boo
         	"mDotC_"+species2[i],  mDot_Wall_[i]*0
     	);
 
-    	if (limitedAlpha1.mesh().time().outputTime() and Write)
+    	if (mDot_Wall_[i].mesh().time().outputTime() and Write)
     	{
         	mDotE.write();
     	}

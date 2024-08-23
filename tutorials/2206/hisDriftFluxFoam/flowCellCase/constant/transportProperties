@@ -18,7 +18,7 @@ phases          (gas electrolyte);
 
 gas
 {
-    transportModel  linearMu;
+    transportModel  Beckermann;
 
     rho             0.0645;
     nud		    1.44e-4;
@@ -67,7 +67,7 @@ electrolyte
 
 
 
-relativeVelocityModel simpleIshiiTEST;//viscousRegime;//simpleIshii;//
+relativeVelocityModel simpleIshii;//viscousRegime;//simpleIshii;//
 
 "(simple|general|pSimple|distorted|viscousRegime)Coeffs"
 {
@@ -81,15 +81,25 @@ relativeVelocityModel simpleIshiiTEST;//viscousRegime;//simpleIshii;//
 
     R_DB	$RDB;
     SurfaceTension 80e-3;
+    D		5e-7;
 }
 "(simpleIshii|simpleIshiiTEST)Coeffs"
 {
-    V0              (0.025 0 0);
-    n               1.125;//2.4;
-    D			0;//1;
+    R_DB		$RDB;
+    n               	5;//2.4;
+    D			1e-07;//1;
+    minAlpha		0.4;
+}
+"(Schillings)Coeffs"
+{
+    en			(0 1 0);//normal vector on g
+    em			(0 0 1);//normal vector on g and normal on en
+    D			1;//1;
+    n			1;
+    R_DB	$RDB;
 }
 
-coverageModel vogt;
+coverageModel linearVogt;
 
 "(linearCoverage|vogt|linearVogt|bubbleNeuclation|bubbleNeuclationLinear|zeroCoverage)Coeffs"
 {
@@ -107,9 +117,10 @@ coverageModel vogt;
 	
 	tau_da		9.76e-6;
 	tau_db		4.45;
+	n		1;	//power of linear coverage
 }
 
-concentrationLossModel localReference;
+concentrationLossModel constantRatio;
 
 "(constantRatio|fixedReferenceValue|localReference)Coeffs"
 {
@@ -139,9 +150,10 @@ stoichiometricCoefficient true; //use stoichiometricCoefficient as exponent CR[i
 	
 }
 
+
 speciesTransport
 {
-	wireModel	general;
+	wireModel	constantSherwood;
 	
 	"wireModel_generalCoeffs"
 	{
@@ -149,7 +161,17 @@ speciesTransport
 		a	1.1;
 		b	0.43;
 		c	0.33;
-		d	0.2e-3;
+		d	0.2e-3;//wire diameter
+		
+	}
+	"wireModel_constantSherwoodCoeffs"
+	{
+		
+		sh_H2	1;
+		sh_O2	1;
+		sh_H2O	1;
+		sh_OH	1;
+		d	0.2e-3;//wire diameter
 		
 	}
 
@@ -159,11 +181,12 @@ massAndSpeciesTransferModel mixedSaturation;
 "(surfaceSaturation|mixedSaturation|bulkSaturation)Coeffs"
 {
 
-	AttachedBubbleGrowthModel	general;
+	
 
 	waterVapour 	true;
 	m_KOH		7.65; //[mol/kg] 7.65-> 30wt%	
 	
+	AttachedBubbleGrowthModel	constantSherwood;
 	"AttachedBubbleGrowthModel_constantSherwoodCoeffs"
 	{
 		
@@ -171,37 +194,38 @@ massAndSpeciesTransferModel mixedSaturation;
 		sh_O2	1;
 		sh_H2O	0;
 		sh_OH	0;
-		d	0.2e-3;
+		d	0.0001;
 		
 	}
-	"AttachedBubbleGrowthModel_generalCoeffs"
+	"AttachedBubbleGrowthModel_(generalR|general)Coeffs"
 	{
 		
 		a	1.1;
 		b	0.43;
 		c	0.33;
-		d	0.2e-3;
+		d	0.0001;
 		
 	}
-	DetachedBubbleGrowthModel	WhitakerR;
+	DetachedBubbleGrowthModel	constantSherwood;
 	"DetachedBubbleGrowthModel_constantSherwoodCoeffs"
 	{
 		sh_H2	1;
 		sh_O2	1;
 		sh_H2O	0;
 		sh_OH	0;
-		d	0.4e-3;
+		d	0.0002;
 	}
-	"DetachedBubbleGrowthModel_WhitakerRCoeffs"
+	"DetachedBubbleGrowthModel_(WhitakerR|Whitaker)Coeffs"
 	{
 
-		d	0.4e-3;
+		d	0.0002;
 	}
+	
 	tau_c	0.01;
 	tau_b	0.1;
-	c_AB	4;//163; //angle=9deg
-	K_DB	0;
+	c_AB	40;//4//163; //angle=9deg
 	K_AB	0;
+	K_DB	0;
 	R_DB	$RDB;
 	/*c_AB_H2	100;//163; //angle=9deg
 	c_AB_O2	100;//163; //angle=9deg
@@ -214,8 +238,6 @@ massAndSpeciesTransferModel mixedSaturation;
 	a	1;	//mixing constant (a*C-C_sat)
 
 }
-
-
 p_num		101325;
 T0		298; //reference temperature
 mu_KOH		0.000581;	//extrapolated to 80C with data from from https://link.springer.com/content/pdf/10.1134/S0018151X20060127.pdf?pdf=button%20sticky (checked 23/01-2023)

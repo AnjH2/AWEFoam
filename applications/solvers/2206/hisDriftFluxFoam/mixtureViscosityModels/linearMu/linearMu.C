@@ -180,7 +180,6 @@ Foam::mixtureViscosityModels::linearMu::mu(const volScalarField& muc, const volS
 }
 
 void Foam::mixtureViscosityModels::linearMu::mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num){
-
 mud_m_=mud_m_*0;
 forAll(species1,i)
 	{
@@ -188,28 +187,22 @@ forAll(species1,i)
 	forAll(species1,j)
 		{
 			phi1_[i*3+j]=pow(1+pow(mud_[i]/mud_[j],0.5)*pow(MW_[j]/MW_[i],0.25),2)
-            			/(4/pow(2,0.5)*pow(1+MW_[i]/MW_[j],0.5));
+            			*(1/pow(8,0.5)*pow(1+MW_[i]/MW_[j],-0.5));
 
-        		if (j==0) {
+        		if (j==0 and j!=i) {
         			a_=a_+(NeC_+Ne_)*phi1_[i*3+j]*(p_num-p_water)/p_num;
-        			
-        		} else if(j==1) {
+        		} else if(j==1 and j!=i) {
         			a_=a_+(PeC_+Pe_)*phi1_[i*3+j]*(p_num-p_water)/p_num;
-        			
-        		} else { 
-        			a_=a_+Mem_*phi1_[i*3+j]+(Pe_+PeC_+Ne_+NeC_)*phi1_[i*3+j]*p_water/p_num;
-        			
+        		} else if (j!=i) { 
+        			a_=a_+Mem_*phi1_[i*3+j]+(Pe_+Ne_)*phi1_[i*3+j]*p_water/p_num;
         		}
 		}
 		if (i==0) {
-			mud_m_=mud_m_+((NeC_+Ne_)*(p_num-p_water)/p_num*mud_[i])/a_;
-			
+			mud_m_=mud_m_+((NeC_+Ne_)*mud_[i])/(1+1/((p_num-p_water)/p_num)*a_);
 		} else if(i==1) {
-			mud_m_=mud_m_+((PeC_+Pe_)*(p_num-p_water)/p_num*mud_[i])/a_;
-			
+			mud_m_=mud_m_+((PeC_+Pe_)*mud_[i])/(1+1/((p_num-p_water)/p_num)*a_);
 		} else { 
-			mud_m_=mud_m_+((Mem_+(Pe_+PeC_+Ne_+NeC_)*p_water/p_num)*mud_[i])/a_;
-			
+			mud_m_=mud_m_+mud_[i]/(1+1/((p_water)/p_num)*a_);
 		}
 	//mud_m_=mud_m_+(x_(i)*mud_[i])/a_;
 	}

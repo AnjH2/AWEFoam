@@ -61,6 +61,7 @@ Description
 #include "IOobjectList.H"
 #include "loopControl.H"
 #include "condKOH.H"
+#include "m_KOH.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -128,7 +129,7 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
-    mSTa.correct_waterPartialPressure();
+    
     while (runTime.run())
     {
         #include "readTimeControls.H"
@@ -136,16 +137,19 @@ int main(int argc, char *argv[])
         #include "setDeltaT.H"
 
         ++runTime;
-
-        Info<< "Time = " << runTime.timeName() << nl << endl;
         
+        
+        Info<< "Time = " << runTime.timeName() << nl << endl;
+        mSTa.correct_waterPartialPressure(cal_mKOH(T,C2[3]/1000)*dimensionedScalar(dimensionSet(1,0,0,0,-1,0,0),1));
         
         // --- initialising mixture velocity
-        
+       
         mixture.correct(mSTa.p_water());
+        
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+            mSTa.correct_waterPartialPressure(cal_mKOH(T,C2[3]/1000)*dimensionedScalar(dimensionSet(1,0,0,0,-1,0,0),1));	
             #include "alphaControls.H"
             
             UdmModel.correct();
@@ -181,7 +185,7 @@ int main(int argc, char *argv[])
             
             speciesP.correct_D2_eff(1-alpha2);
             
-            react.correct(mSTa.p_water(),mixture.p_num());
+            react.correct(mSTa.p_water(),mSTa.p_water_pure(),mixture.p_num(),cal_mKOH(T,C2[3]/1000));
             
             for (int k=0; k<=outerChemicalCorrections; k++)
             {

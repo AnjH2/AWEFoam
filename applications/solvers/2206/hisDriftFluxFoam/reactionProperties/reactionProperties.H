@@ -40,6 +40,8 @@ SourceFiles
 #include "physicoChemicalConstants.H"
 #include "IOdictionary.H"
 
+
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -144,12 +146,7 @@ public:
             return k_H_;
         }
 	
-	void correct(const volScalarField p_water_,const dimensionedScalar p_num_) const{
-		forAll(electrodes,i)
-		{
-			E0_ref_[i]+Ds_[i]/(2*Foam::constant::physicoChemical::F)*(T_-T0_E0_[i])+Foam::constant::physicoChemical::R*T_/(2*Foam::constant::physicoChemical::F)*log(((p_num_-p_water_)*(1-i+0.5*i))/p_water_);//(1-i+0.5*i) is a simple switch, i=0-> Ne, i=1 -> Pe
-		}
-	}
+	void correct(const volScalarField& p_water_,const volScalarField& p_water_pure_,const dimensionedScalar p_num_, const volScalarField& m_KOH);
 
 };
 
