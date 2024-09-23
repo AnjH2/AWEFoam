@@ -59,6 +59,12 @@ Foam::speciesTransport::speciesTransport
             		"speciesProperties"
         	).C2()
 	),
+	alphal_(
+	        mesh.lookupObject<volScalarField>
+        	(
+            		"alpha.electrolyte"
+        	)
+	),
 		Pe_(
 	        mesh.lookupObject<volScalarField>
         	(

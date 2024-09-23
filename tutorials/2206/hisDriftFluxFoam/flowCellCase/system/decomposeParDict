@@ -14,9 +14,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains  4;
+numberOfSubdomains  3;
 
-A	4;
+A	3;
 B #eval #{ $A/2 #};
 method  simple;
 

@@ -13,7 +13,7 @@ FoamFile
     object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-RDB		0.1e-3;
+RDB		0.025e-3;
 phases          (gas electrolyte);
 
 gas
@@ -67,7 +67,7 @@ electrolyte
 
 
 
-relativeVelocityModel simpleIshii;//viscousRegime;//simpleIshii;//
+relativeVelocityModel simple;//viscousRegime;//simpleIshii;//combined//combinedDiffusion;
 
 "(simple|general|pSimple|distorted|viscousRegime)Coeffs"
 {
@@ -87,8 +87,14 @@ relativeVelocityModel simpleIshii;//viscousRegime;//simpleIshii;//
 {
     R_DB		$RDB;
     n               	5;//2.4;
-    D			1e-07;//1;
-    minAlpha		0.4;
+    D			1e-08;//1;
+    minAlphad		0.4;
+    CW			1;
+    y0			0;
+    y1			1.8e-3;
+    y2			#eval{1.8e-3+0.85e-3};
+    y3			#eval{1.8e-3*2+0.85e-3};
+    
 }
 "(Schillings)Coeffs"
 {
@@ -98,14 +104,40 @@ relativeVelocityModel simpleIshii;//viscousRegime;//simpleIshii;//
     n			1;
     R_DB	$RDB;
 }
+"(combined|combinedDiffusion)Coeffs"
+{
 
-coverageModel linearVogt;
+    rd_Ne		$RDB;
+    D_Ne			1e-08;//1;
+    
+    
+    rd_Pe		$RDB;
+    D_Pe			1e-08;//1;
+    
+    
+    
+    n               	5;//2.4;
+    minAlphad		0.4;
+    
+    //combined only
+    CW_Pe			1;
+    CW_Ne			1;
+    y0			0;
+    y1			1.8e-3;
+    y2			#eval{1.8e-3+0.85e-3};
+    y3			#eval{1.8e-3*2+0.85e-3};
+    
+
+}
+
+coverageModel vogt;
 
 "(linearCoverage|vogt|linearVogt|bubbleNeuclation|bubbleNeuclationLinear|zeroCoverage)Coeffs"
 {
 	//vogt
 	J_lim		300000.0;   ///ffrom vogt
 	J_scale		1;
+	Temperature_ref	298.15;
 	//bubbleNeuclation
 	alpha_b		0.524;	//contact angle in rad
 	tau_d		1;	//time scale of neuclation, to signify howmany bubbles are also growing at the same time
@@ -161,7 +193,8 @@ speciesTransport
 		a	1.1;
 		b	0.43;
 		c	0.33;
-		d	0.2e-3;//wire diameter
+		d_Ne	2e-05;//wire diameter
+		d_Pe	2e-05;//wire diameter
 		
 	}
 	"wireModel_constantSherwoodCoeffs"
@@ -171,7 +204,8 @@ speciesTransport
 		sh_O2	1;
 		sh_H2O	1;
 		sh_OH	1;
-		d	0.2e-3;//wire diameter
+		d_Ne	2e-05;//wire diameter
+		d_Pe	2e-05;//wire diameter
 		
 	}
 
@@ -190,11 +224,12 @@ massAndSpeciesTransferModel mixedSaturation;
 	"AttachedBubbleGrowthModel_constantSherwoodCoeffs"
 	{
 		
-		sh_H2	1;
-		sh_O2	1;
+		sh_H2	0;
+		sh_O2	0;
 		sh_H2O	0;
 		sh_OH	0;
-		d	0.0001;
+		d_Ne	0.0001;
+		d_Pe	0.0001;
 		
 	}
 	"AttachedBubbleGrowthModel_(generalR|general)Coeffs"
@@ -203,29 +238,32 @@ massAndSpeciesTransferModel mixedSaturation;
 		a	1.1;
 		b	0.43;
 		c	0.33;
-		d	0.0001;
+		d_Ne	0.0001;
+		d_Pe	0.0001;
 		
 	}
 	DetachedBubbleGrowthModel	constantSherwood;
 	"DetachedBubbleGrowthModel_constantSherwoodCoeffs"
 	{
-		sh_H2	1;
-		sh_O2	1;
+		sh_H2	0;
+		sh_O2	0;
 		sh_H2O	0;
 		sh_OH	0;
-		d	0.0002;
+		d_Ne	2e-05;
+		d_Pe	2e-05;
 	}
 	"DetachedBubbleGrowthModel_(WhitakerR|Whitaker)Coeffs"
 	{
 
-		d	0.0002;
+		d_Ne	2e-05;
+		d_Pe	2e-05;
 	}
 	
 	tau_c	0.01;
 	tau_b	0.1;
-	c_AB	40;//4//163; //angle=9deg
-	K_AB	0;
+	c_AB	4;//4//163; //angle=9deg
 	K_DB	0;
+	K_AB	0;
 	R_DB	$RDB;
 	/*c_AB_H2	100;//163; //angle=9deg
 	c_AB_O2	100;//163; //angle=9deg

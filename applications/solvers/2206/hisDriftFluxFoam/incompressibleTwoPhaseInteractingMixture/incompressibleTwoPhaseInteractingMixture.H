@@ -126,6 +126,11 @@ public:
         {
             return *muModel_;
         }
+        
+        const List<word> species1L() const
+        {
+            return species1;
+        }
 
         //- Return const-access to the continuous-phase viscosityModel
         const viscosityModel& nucModel() const
@@ -194,7 +199,7 @@ public:
         volScalarField rho() const
         {
             
-            return alpha1_*rhod_+ alpha2_*rhoc_;// 
+            return alpha1_*rhod_+ (1-alpha1_)*rhoc_;// 
         }
         
         
@@ -204,7 +209,7 @@ public:
         {
             return
                 alpha1_.boundaryField()[patchi]*rhod_
-              + alpha2_.boundaryField()[patchi]*rhoc_.value();//.fcValue();
+              + (1-alpha1_)().boundaryField()[patchi]*rhoc_.value();//.fcValue();
         }
 
         //- Return the mixture viscosity

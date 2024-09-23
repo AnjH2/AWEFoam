@@ -60,9 +60,12 @@ class simpleIshii
 	
 	const dimensionedScalar rd_;
 	const dimensionedScalar n_;
+	const dimensionedScalar minAlphad_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
 	dimensionedScalar D_;
+	dimensionedScalar CW_;
+	volVectorField ULub_;
 	const volScalarField& V1_;
 	const volScalarField& eps_;
 	const volVectorField& U_;
@@ -80,8 +83,8 @@ class simpleIshii
     volScalarField gamma(const dimensionedVector i);
     
     volVectorField UStokes();
-    volVectorField USaff();
-    volVectorField USmig();
+    
+    volVectorField ULub();
 
 
 

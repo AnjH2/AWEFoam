@@ -59,8 +59,10 @@ class linearVogt
 
         //- exchange current density -> read
         const volScalarField& J_;
+        const volScalarField& T_;
         const dimensionedScalar J_lim_;
         const dimensionedScalar J_scale_;
+        const dimensionedScalar T_ref_;
         
         const PtrList <dimensionedScalar>& as_;
         const volScalarField& Pe_;
@@ -68,7 +70,6 @@ class linearVogt
         //- volume fraction of gas -> read
         const volScalarField& alphad_;
         const dimensionedScalar n_;
-        const volScalarField& p_water_;
         
         
         

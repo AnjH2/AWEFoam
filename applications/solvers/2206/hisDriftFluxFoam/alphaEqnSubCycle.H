@@ -6,24 +6,24 @@
     const volScalarField& mDotc = mDot[0]();
     const volScalarField& mDote = mDot[1]();
     
-	
+
   for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
   {
-  	
-  	
+
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(epsilon1*rho1,alpha1)
-            +fvm::div(phi*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(rhod*U,alphad)")
+            +fvm::div(phi*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(U,alphad)")
             ==
-            -mDote//+mDotc
+            -(mSTa.mDotAlphal()[1]-fvm::Sp(mSTa.mDotAlphal()[1], alpha1))//+mDotc
+            -(mSTa.mDotAlpha_Wall())
             +fvm::laplacian((1-Mem+VSMALL)*rho1*UdmModel.Ddm(), alpha1)
-            -fvm::div(phir*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(rhod*Udm,alphad)")
+            -fvm::div(phir*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(Udm,alphad)")
         );
 
         alpha1Eqn.solve(mesh.solver("alpha1Eqn"));
 	
-        alphaPhi = alpha1Eqn.flux()/fvc::interpolate(epsilon1*rho1);
+        alphaPhi = alpha1Eqn.flux()/fvc::interpolate(rho1);
         
         alpha2 = 1.0 - alpha1;
         
@@ -42,7 +42,7 @@
     //rhoPhi = alphaPhi*(fvc::interpolate(mixture.rhod()) - rho2)+fvc::interpolate(1-alpha1)*(phi+phiL)*rho2; //V722
     //surfaceScalarField alpha2Phi=fvc::interpolate(1-alpha1)*(fvc::interpolate(1/alpha1)*alphaPhi-phir-phiDdm+phiDcm+phiL);
     //rhoPhi = fvc::interpolate(rho1)*alphaPhi+fvc::interpolate(1-alpha1)*(fvc::interpolate(1/alpha1)*alphaPhi-phir-phiDdm+phiDcm+phiL)*rho2; //V754
-    rhoPhi = fvc::interpolate(mixture.rho())*(alphaPhi*fvc::interpolate(1/alpha1)-phir*fvc::interpolate(epsilon1));
+    rhoPhi = fvc::interpolate(mixture.rho())*(alphaPhi*1/fvc::interpolate(alpha1)-phir);
     rho = mixture.rho();
     
     //rhoPhi = fvc::interpolate(rho)*(fvc::interpolate(1/alpha1)*alphaPhi-phir);; //V755

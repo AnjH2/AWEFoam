@@ -94,6 +94,7 @@ protected:
         //const dimensionedScalar& p_num_;
         //Mass transfer model.
         PtrList <volScalarField> mDot_Wall_;
+        PtrList <volScalarField> mDotAlpha_Wall_;
         //water vapourModel
         const bool waterVapour_;
         
@@ -177,12 +178,19 @@ public:
         	return waterVapour_;
         }
         
+        const PtrList <volScalarField>& C_sat() const
+        {
+            return C_sat_;
+        }
+        
         void correct_Psi_BV(int i);
         
         //
 	void correct_waterPartialPressure(const volScalarField& m_KOH);
 	
 	const volScalarField p_water(const volScalarField m_KOH_);
+	
+	
         
         //- Update the massAndSpeciesTransfer
         virtual void correct_mDot_wall(const int i,const PtrList<volScalarField>& C2_s, const volScalarField& theta) = 0;
@@ -197,6 +205,10 @@ public:
         virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write) = 0;
 
 	Pair<tmp<volScalarField>> mDot();
+	
+	Pair<tmp<volScalarField>> mDotAlphal();
+	
+	const volScalarField mDotAlpha_Wall();
         
         //- Return the volumetric condensation and vaporisation rates as a
         //  coefficient to multiply (1 - alphal) for the condensation rate

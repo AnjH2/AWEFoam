@@ -59,12 +59,7 @@ Foam::sherwoodModels::constantSherwood::constantSherwood
 :
     sherwoodModel(name, mixture, sherwoodPropertiesSub1),
     constantSherwoodCoeffsSub1_(sherwoodPropertiesSub1.optionalSubDict(name+"_"+modelName + "Coeffs")),
-        d_
-	(
-		"d",
-		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
-		constantSherwoodCoeffsSub1_
-	),
+    d_(electrodes.size()),
     sh_(species2.size())
     
 
@@ -79,7 +74,15 @@ forAll(species2,i)
 
         
 	}
+forAll(electrodes,i)
+	{
+	d_.set
+    	(
+        	i,
+        	new dimensionedScalar("d_"+electrodes[i], dimLength,constantSherwoodCoeffsSub1_)
+        );
 
+        }
 }
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -88,7 +91,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::sherwoodModels::constantSherwood::ki(const int i)
 	{
 
-		return D2_[i]*sh_[i]/(d_);
+		return D2_[i]*sh(i)/(d_[0]*(Ne_+NeC_)+d_[1]*(Pe_+PeC_)+(d_[1]+d_[0])/2*Mem_);
 		
 	}
 

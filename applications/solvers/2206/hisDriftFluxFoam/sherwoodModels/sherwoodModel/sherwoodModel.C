@@ -53,6 +53,7 @@ Foam::sherwoodModel::sherwoodModel
     name_(name),
     mixture_(mixture),
     species2({"H2","O2","H2O","OH"}),
+    electrodes({"Ne","Pe"}),
     sherwoodPropertiesSub1_(sherwoodPropertiesSub1),
 
     D2_(
@@ -66,7 +67,37 @@ Foam::sherwoodModel::sherwoodModel
         	(
             		"Udm"
         	)
-        )
+        ), 
+        PeC_(
+	        mixture_.rhod().mesh().lookupObject<volScalarField>
+        	(
+            		"PeC"
+        	)
+	),
+	NeC_(
+	        mixture_.rhod().mesh().lookupObject<volScalarField>
+        	(
+            		"NeC"
+        	)
+	),
+        Pe_(
+	        mixture_.rhod().mesh().lookupObject<volScalarField>
+        	(
+            		"Pe"
+        	)
+	),
+	Ne_(
+	        mixture_.rhod().mesh().lookupObject<volScalarField>
+        	(
+            		"Ne"
+        	)
+	),
+	Mem_(
+	        mixture_.rhod().mesh().lookupObject<volScalarField>
+        	(
+            		"Mem"
+        	)
+	)
 	
 {
 

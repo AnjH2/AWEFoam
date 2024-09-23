@@ -90,12 +90,23 @@ protected:
         mutable volVectorField Udm_;
         
         volScalarField Ddm_;
-
+        
+        const scalar y0_;
+        const scalar y1_;
+	const scalar y2_;
+	const scalar y3_;
+	volScalarField yNormal_;
+	
+	
 	const volScalarField& Pe_;
 	
 	const volScalarField& Ne_;
+	const volScalarField& PeC_;
+	
+	const volScalarField& NeC_;
 	
 	const volScalarField& Mem_;
+	
 
 public:
 

@@ -75,12 +75,17 @@ protected:
         word name_;
         const incompressibleTwoPhaseInteractingMixture& mixture_;
         List<word> species2;
+        List<word> electrodes;
         dictionary sherwoodPropertiesSub1_;
         
         const PtrList <volScalarField>& D2_;
         const volVectorField& Udm_;
 
-
+	const volScalarField& Pe_;
+	const volScalarField& PeC_;
+	const volScalarField& Ne_;
+	const volScalarField& NeC_;
+	const volScalarField& Mem_;
     // Private Member Functions
 
         //- No copy construct
@@ -139,7 +144,7 @@ public:
 
     // Member Functions
     
-	virtual const dimensionedScalar& d() const = 0;
+	virtual const PtrList <dimensionedScalar>& d()const = 0;
 	virtual tmp<volScalarField> ki(const int i) = 0;
     
     

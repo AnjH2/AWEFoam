@@ -57,6 +57,13 @@ Foam::coverageModels::linearVogt::linearVogt
             "J"
         )
     ),
+    T_
+    (
+        mesh.lookupObject<volScalarField>
+        (
+            "T"
+        )
+    ),
         
     J_lim_
 	(
@@ -68,6 +75,12 @@ Foam::coverageModels::linearVogt::linearVogt
 	(
 		"J_scale",
 		dimless,//find true dimension!!!--------------
+		dict
+	),
+	T_ref_
+	(
+		"Temperature_ref",
+		dimTemperature,
 		dict
 	),
     as_(
@@ -100,13 +113,6 @@ Foam::coverageModels::linearVogt::linearVogt
     n_
     (
     	dict.lookupOrDefault<dimensionedScalar>("n", dimensionedScalar("n", dimless, 1.0))
-    ),
-        p_water_
-        (
-        mesh.lookupObject<volScalarField>
-        (
-            "p_water"
-        )
     )
     
 {}
@@ -123,7 +129,8 @@ Foam::coverageModels::linearVogt::~linearVogt()
 void Foam::coverageModels::linearVogt::correct()
 {
 
-    theta_ =max(pow(alphad_,n_),(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*p_num_/(p_num_-p_water_));
+    theta_ =max(pow(alphad_,n_),(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
+
     theta_.correctBoundaryConditions();
 }
 

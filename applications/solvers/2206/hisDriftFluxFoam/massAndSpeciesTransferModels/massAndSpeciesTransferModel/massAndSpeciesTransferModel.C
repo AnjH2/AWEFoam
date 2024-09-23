@@ -169,6 +169,7 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
         ),    */
         
     mDot_Wall_(species2.size()),
+    mDotAlpha_Wall_(species2.size()),
     waterVapour_(dict.get<bool>("waterVapour")),
     
     p_water_
@@ -221,6 +222,23 @@ forAll(species2,i)
                 		mesh,
                 		IOobject::NO_READ,
                 		IOobject::AUTO_WRITE
+            		),
+            		mesh,
+            		dimensionSet(1,-3,-1,0,0,0,0)
+        	)
+        );
+        mDotAlpha_Wall_.set
+    	(
+        	i,
+        	new volScalarField
+        	(
+        		IOobject
+        		(
+        			"mDotAlpha_Wall_"+species2[i],
+        			mesh.time().timeName(),
+                		mesh,
+                		IOobject::NO_READ,
+                		IOobject::NO_WRITE
             		),
             		mesh,
             		dimensionSet(1,-3,-1,0,0,0,0)
@@ -456,9 +474,41 @@ Foam::massAndSpeciesTransferModel::mDot()
     }
     return sumMDot;
 }
+Foam::Pair<Foam::tmp<Foam::volScalarField>>
+Foam::massAndSpeciesTransferModel::mDotAlphal() 
+{
 
+    Pair<tmp<volScalarField>> sumMDotAlphal(this->mDotAlphal(0)[0]*0,this->mDotAlphal(0)[0]*0);
+    
+    forAll(species1,i){
+    	if (i<=1 or (waterVapour_ and i==2)){
+    		//const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
+    	
+    		
+    	
+    		Pair<tmp<volScalarField>> mDotAlphal = this->mDotAlphal(i);
+    		sumMDotAlphal[0] = sumMDotAlphal[0] + mDotAlphal[0];
+    		sumMDotAlphal[1] = sumMDotAlphal[1] + mDotAlphal[1];
+    	}
+    }
+    return sumMDotAlphal;
+}
 
-
+const Foam::volScalarField
+Foam::massAndSpeciesTransferModel::mDotAlpha_Wall()
+{
+    return
+    (
+    	min(
+    	    mDotAlpha_Wall_[0]+mDotAlpha_Wall_[1]
+    	    -fvc::Su(
+    	            mDotAlpha_Wall_[0]+mDotAlpha_Wall_[1],
+    	            alpha_),
+    	    Psi_BV_[0]*MW_[0]+Psi_BV_[1]*MW_[1]
+    	    )
+    	*((MW_[2]*(Ne_/MW_[0]+Pe_/MW_[1]))*((mixture_.p_num()/(mixture_.p_num()-p_water_))-1)+1)
+    );
+}
 
 
 /*bool Foam::massAndSpeciesTransferModel::read()

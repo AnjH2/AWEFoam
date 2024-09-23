@@ -39,6 +39,7 @@ SourceFiles
 
 #include "volFields.H"
 #include "concentrationLossModel.H"
+#include "massAndSpeciesTransferModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -57,9 +58,11 @@ class fixedReferenceValue
 {
     // Private data
 	PtrList <dimensionedScalar> C2_Ref_;
+	const PtrList <volScalarField>& C2_sat_;
 	PtrList <dimensionedScalar> n_Ne_;
 	PtrList <dimensionedScalar> n_Pe_;
 	const bool nb_;
+	const bool sat_;
 public:
 
     //- Runtime type information

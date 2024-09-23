@@ -129,7 +129,7 @@ volVectorField Foam::relativeVelocityModels::combinedDiffusion::UStokes(int j)
 void Foam::relativeVelocityModels::combinedDiffusion::correct()
 {    
 
-    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0))*Ne_+(UStokes(1))*Pe_);
+    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0))*(Ne_+NeC_)+(UStokes(1))*(Pe_+PeC_));
     
 
     /*
@@ -141,7 +141,7 @@ void Foam::relativeVelocityModels::combinedDiffusion::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*(D_[0]*Ne_+D_[1]*Pe_)/alphad_;
+    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*(D_[0]*(Ne_+NeC_)+D_[1]*(Pe_+PeC_))/alphad_;
     Ddm_.correctBoundaryConditions();
 }
 

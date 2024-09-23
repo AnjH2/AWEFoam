@@ -7,5 +7,7 @@ viscousRegime/viscousRegime.C
 simpleIshii/simpleIshii.C
 simpleIshiiTEST/simpleIshiiTEST.C
 Schillings/Schillings.C
+combined/combined.C
+combinedDiffusion/combinedDiffusion.C
 
 LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxRelativeVelocityModels

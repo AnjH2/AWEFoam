@@ -107,9 +107,35 @@ Foam::relativeVelocityModel::relativeVelocityModel
             IOobject::AUTO_WRITE
         ),
         alphac_.mesh(),
-        dimensionedScalar(dimVelocity*dimLength, Zero),
-        UdmPatchFieldTypes()
+        dimensionedScalar(dimVelocity*dimLength, Zero)
     ),
+    
+    y0_(
+    	dict.lookupOrDefault<scalar>("y0", Zero)//scalar(1.0)
+    ),
+    y1_(
+    	dict.lookupOrDefault<scalar>("y1", Zero)
+    ),
+    y2_(
+    	dict.lookupOrDefault<scalar>("y2", Zero)
+    ),
+    y3_(
+    	dict.lookupOrDefault<scalar>("y3", Zero)
+    ),
+    yNormal_
+    (
+        IOobject
+        (
+            "yNormal",
+            alphac_.time().timeName(),
+            alphac_.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        alphac_.mesh(),
+        dimensionedScalar(dimLength, 1)
+    ),
+
         Pe_(
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
@@ -122,13 +148,57 @@ Foam::relativeVelocityModel::relativeVelocityModel
             		"Ne"
         	)
 	),
+	PeC_(
+	        alphad_.mesh().lookupObject<volScalarField>
+        	(
+            		"PeC"
+        	)
+	),
+	NeC_(
+	        alphad_.mesh().lookupObject<volScalarField>
+        	(
+            		"NeC"
+        	)
+	),
 	Mem_(
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
             		"Mem"
         	)
 	)
-{}
+{
+forAll ( alphac_.mesh().C(), celli) //loop through cell centres
+{
+  if(alphac_.mesh().C()[celli].y()<y1_) //not sure if this is correct syntax
+  {
+      if (mag(alphac_.mesh().C()[celli].y()-y0_)<=mag(alphac_.mesh().C()[celli].y()-y1_))
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y0_;
+      }
+      else
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y1_;
+      }
+  }
+  else if ((alphac_.mesh().C()[celli].y()<y3_) and (alphac_.mesh().C()[celli].y()>y2_))
+  {
+      if (mag(alphac_.mesh().C()[celli].y()-y3_)<=mag(alphac_.mesh().C()[celli].y()-y2_))
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y3_;
+      }
+      else
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y2_;
+      }
+  }
+  else
+  {
+  	yNormal_[celli]=1;
+  }
+}
+
+
+}
 
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //

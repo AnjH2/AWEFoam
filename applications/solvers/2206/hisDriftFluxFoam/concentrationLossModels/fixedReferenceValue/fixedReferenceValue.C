@@ -51,9 +51,16 @@ Foam::concentrationLossModels::fixedReferenceValue::fixedReferenceValue
 :
     concentrationLossModel(dict,mesh),
     C2_Ref_(species2.size()),
+    C2_sat_(
+		mesh.lookupObject<massAndSpeciesTransferModel>
+        	(
+            		"massAndSpeciesTransferModel"
+        	).C_sat()
+    ),
     n_Ne_(species2.size()),
     n_Pe_(species2.size()),
-    nb_(concentrationLossModelDict_.get<bool>("stoichiometricCoefficient"))
+    nb_(concentrationLossModelDict_.get<bool>("stoichiometricCoefficient")),
+    sat_(concentrationLossModelDict_.get<bool>("saturationReference"))
 {
 if (nb_) {
 	forAll(species2,i) {
@@ -120,18 +127,34 @@ void Foam::concentrationLossModels::fixedReferenceValue::correct(const PtrList <
 	CRc_Pe_=1;
 	forAll(species2,i)
 	{
-		CR_[i]=C2_s_[i]/C2_Ref_[i];
-		if (ab_Ne_[i]==1) {
-			CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
-		}
-		if (ab_Pe_[i]==1) {
-			CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
-		}
-		if (cb_Ne_[i]==1) {
-			CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
-		}
-		if (cb_Pe_[i]==1) {
-			CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		if (i <= 1 and sat_) {
+		    CR_[i]=C2_s_[i]/C2_sat_[i];
+		    if (ab_Ne_[i]==1) {
+			    CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		    }
+		    if (ab_Pe_[i]==1) {
+			    CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		    }
+		    if (cb_Ne_[i]==1) {
+			    CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		    }
+		    if (cb_Pe_[i]==1) {
+			    CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		    }
+		} else {
+			CR_[i]=C2_s_[i]/C2_Ref_[i];
+		    if (ab_Ne_[i]==1) {
+			    CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		    }
+		    if (ab_Pe_[i]==1) {
+			    CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		    }
+		    if (cb_Ne_[i]==1) {
+			    CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+		    }
+		    if (cb_Pe_[i]==1) {
+			    CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+		    }
 		}
 	}
 }

@@ -155,6 +155,16 @@ volScalarField V2_
         dimensionedScalar(phi.dimensions(), Zero)
     );
 
+// Construct compressible turbulence model
+autoPtr
+<
+    CompressibleTurbulenceModel<incompressibleTwoPhaseInteractingMixture>
+> turbulence
+(
+    CompressibleTurbulenceModel<incompressibleTwoPhaseInteractingMixture>
+    ::New(rho, U, rhoPhi, mixture)
+);
+
 // Relative Velocity
 autoPtr<relativeVelocityModel> UdmModelPtr
 (
@@ -166,15 +176,7 @@ autoPtr<relativeVelocityModel> UdmModelPtr
 );
 surfaceScalarField phir(fvc::flux(UdmModelPtr->Udm()));
 
-// Construct compressible turbulence model
-autoPtr
-<
-    CompressibleTurbulenceModel<incompressibleTwoPhaseInteractingMixture>
-> turbulence
-(
-    CompressibleTurbulenceModel<incompressibleTwoPhaseInteractingMixture>
-    ::New(rho, U, rhoPhi, mixture)
-);
+
 
 
 

@@ -59,18 +59,21 @@ Foam::sherwoodModels::WhitakerR::WhitakerR
 :
     sherwoodModel(name, mixture, sherwoodPropertiesSub1),
     WhitakerRCoeffsSub1_(sherwoodPropertiesSub1.optionalSubDict(name+"_"+modelName + "Coeffs")),
-        d_
-	(
-		"d",
-		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
-		WhitakerRCoeffsSub1_
-	)
+        d_(electrodes.size())
     
 
 {
 Info<<"\t" <<modelName << " model should only be used for moving bubbles"<<endl;
 Info<<"\tAssuming dynamic viscosity dosent change significantly as function of concentration"<<endl;
+forAll(electrodes,i)
+	{
+	d_.set
+    	(
+        	i,
+        	new dimensionedScalar("d_"+electrodes[i], dimLength,WhitakerRCoeffsSub1_)
+        );
 
+        }
 }
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -78,7 +81,7 @@ Info<<"\tAssuming dynamic viscosity dosent change significantly as function of c
 Foam::tmp<Foam::volScalarField>
 Foam::sherwoodModels::WhitakerR::ki(const int i)
 	{
-		return D2_[i]*sh(i)/(d_);
+		return D2_[i]*sh(i)/(d_[0]*(Ne_+NeC_)+d_[1]*(Pe_+PeC_)+(d_[1]+d_[0])/2*Mem_);
 	}
 
 

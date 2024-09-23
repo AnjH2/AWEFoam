@@ -55,7 +55,7 @@
         (
             fvm::laplacian(rhorAUf, p_rgh) 
             == 
-            fvc::div(phiHbyA) +fvc::ddt(epsilon1,rho)
+            fvc::div(phiHbyA) +fvc::ddt(epsilon1,mixture.rho())
             			
         );
     

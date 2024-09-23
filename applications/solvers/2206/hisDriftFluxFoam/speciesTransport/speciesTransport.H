@@ -64,6 +64,7 @@ protected:
 	List<word> species2;
 	PtrList <volScalarField> C2_s_;
 	const PtrList <volScalarField>& C2_;
+	const volScalarField& alphal_;
 	const volScalarField& Pe_;
 	const volScalarField& Ne_;
 	const volScalarField& Mem_;

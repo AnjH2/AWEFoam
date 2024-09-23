@@ -65,7 +65,7 @@ protected:
         dictionary generalCoeffsSub1_;
         //- Maximum sherwood
         //dimensionedScalar muMax_;
-	const dimensionedScalar d_;
+	PtrList <dimensionedScalar> d_;
 	PtrList <dimensionedScalar> abc_;
 
 	
@@ -96,7 +96,8 @@ public:
 
 
     // Member Functions
-	const dimensionedScalar& d()const {
+	const PtrList <dimensionedScalar>& d()const 
+	{
 		return d_;
 	}
 	tmp<volScalarField> ki(const int i);
@@ -106,7 +107,7 @@ public:
         
 
 	const tmp<volScalarField> sh(const int i){
-		return 1+abc_[0]*pow(Re(d_),abc_[1])*pow(Sc(i),abc_[2]);
+		return 1+abc_[0]*pow(Re(d_[0])*(Ne_+NeC_)+Re(d_[1])*(Pe_+PeC_)+Re((d_[1]+d_[0])/2)*Mem_,abc_[1])*pow(Sc(i),abc_[2]);
 	}
 };
 

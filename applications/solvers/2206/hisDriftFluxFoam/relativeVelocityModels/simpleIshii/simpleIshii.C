@@ -59,15 +59,33 @@ Foam::relativeVelocityModels::simpleIshii::simpleIshii
 		dict
 	),
     n_("n",dimless,dict),
+    minAlphad_("minAlphad",dimless,dict),
     rhoc_(mixture.rhoc()),
     rhod_(mixture.rhod()),
+   
     D_("D", dimVelocity*dimLength, dict),
+    
+    CW_("CW", dimless, dict),
+        ULub_
+    (
+        IOobject
+        (
+            "ULub",
+            alphac_.time().timeName(),
+            alphac_.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        alphac_.mesh(),
+        dimensionedVector(dimVelocity, Zero)
+    ),
         V1_(
 	alphac_.mesh().lookupObject<volScalarField>
         (
             	"V1"
         )
         ),
+
     eps_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
@@ -80,6 +98,7 @@ Foam::relativeVelocityModels::simpleIshii::simpleIshii
             	"U"
             )
         ),
+
     eg_("eg",(-1*g_)/mag(g_)),
     en_(dict.lookupOrDefault<dimensionedVector>("en", dimensionedVector("en", dimless, vector (0,1,0)))),
     em_(dict.lookupOrDefault<dimensionedVector>("em", dimensionedVector("em", dimless, vector (0,0,1))))
@@ -94,7 +113,7 @@ Foam::relativeVelocityModels::simpleIshii::~simpleIshii()
 volScalarField Foam::relativeVelocityModels::simpleIshii::kappa()
 {
 	
-	return 0.6*pow(alphad_,2);
+	return 60*pow(alphad_,1);
 }
 
 volScalarField Foam::relativeVelocityModels::simpleIshii::beta()
@@ -106,7 +125,7 @@ volScalarField Foam::relativeVelocityModels::simpleIshii::beta()
 volScalarField Foam::relativeVelocityModels::simpleIshii::f()
 {
 	
-	return pow(1-alphad_,n_);
+	return pow(1-min(alphad_,minAlphad_),n_);
 }
 
 volVectorField Foam::relativeVelocityModels::simpleIshii::vStokes()
@@ -128,25 +147,29 @@ volVectorField Foam::relativeVelocityModels::simpleIshii::UStokes()
 	return f()*mag(vStokes())*eg_*(1-Mem_+VSMALL);
 }
 
-volVectorField Foam::relativeVelocityModels::simpleIshii::USaff()
+volVectorField Foam::relativeVelocityModels::simpleIshii::ULub()
 {
-	
-	return f()*mag(vStokes())*sign(gamma(en_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(en_)))/mixture_.nucModel().nu())*en_*(1-Mem_+VSMALL)
-	 +f()*mag(vStokes())*sign(gamma(em_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(em_)))/mixture_.nucModel().nu())*em_*(1-Mem_+VSMALL);
+
+	return  sign(yNormal_)*sqrt
+		(
+			(
+			alphad_*rhoc_*CW_*2/(2*rd_)*pow(mag(UStokes()),2)*pow(2*rd_/(2*yNormal_),2)*dimensionedScalar(dimLength,1.0)
+			)
+			/rhoc_
+		)*dimensionedVector(dimless,vector(0.0,1.0,0.0));
 }
 
-volVectorField Foam::relativeVelocityModels::simpleIshii::USmig()
-{
-	return -1/alphad_*pow(rd_,2)*mag(gamma(en_))*kappa()/(mixture_.mu()*(dimensionedScalar(dimless/dimTime,VSMALL)+(fvc::grad(U_)&eg_&en_)))*fvc::grad(fvc::grad(U_*mixture_.mu())&eg_&en_)*(1-Mem_+VSMALL)
-	-1/alphad_*pow(rd_,2)*mag(gamma(em_))*kappa()/(mixture_.mu()*(dimensionedScalar(dimless/dimTime,VSMALL)+(fvc::grad(U_)&eg_&em_)))*fvc::grad(fvc::grad(U_*mixture_.mu())&eg_&em_)*(1-Mem_+VSMALL);
-}
+
+
+
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 void Foam::relativeVelocityModels::simpleIshii::correct()
-{
+{    
+	ULub_=ULub();
+    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*(UStokes()+ULub_);
     
-    
-    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*(UStokes()+USaff()+USmig());
+
     /*
     Udm_.component(0) = pow(2,0.5)*pow((sigma_*g_.component(0)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
     Info<<Udm_.component(0)<<endl;
@@ -156,7 +179,7 @@ void Foam::relativeVelocityModels::simpleIshii::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*D_/mag(alphad_);
+    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*D_/alphad_;
     Ddm_.correctBoundaryConditions();
 }
 

@@ -63,9 +63,9 @@ protected:
 
         //- Dictionary
         dictionary WhitakerCoeffsSub1_;
-        //- Maximum sherwood
+                //- Maximum sherwood
         //dimensionedScalar muMax_;
-	const dimensionedScalar d_;
+	PtrList <dimensionedScalar> d_;
 
 	
 
@@ -95,7 +95,8 @@ public:
 
 
     // Member Functions
-	const dimensionedScalar& d()const {
+	const PtrList <dimensionedScalar>& d()const 
+	{
 		return d_;
 	}
 	tmp<volScalarField> ki(const int i);
@@ -103,8 +104,9 @@ public:
         //- Read transportProperties dictionary
         bool read(const dictionary& sherwoodPropertiesSub1);
         
-	const tmp<volScalarField> sh(const int i){
-		return 2+(0.4*pow(Re(d_),0.5)+0.06*pow(Re(d_),2/3))*pow(Sc(i),0.4);
+	const tmp<volScalarField> sh(const int i)
+	{
+		return 2+(0.4*pow(Re(d_[0])*(Ne_+NeC_)+Re(d_[1])*(Pe_+PeC_)+Re((d_[1]+d_[0])/2)*Mem_,0.5)+0.06*pow(Re(d_[0])*(Ne_+NeC_)+Re(d_[1])*(Pe_+PeC_)+Re((d_[1]+d_[0])/2)*Mem_,2/3)*pow(Sc(i),0.4));
 	}
 };
 
