@@ -46,7 +46,8 @@ namespace Foam
 Foam::concentrationLossModel::concentrationLossModel
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const massAndSpeciesTransferModel& mSTaPtr
 )
 :
 	concentrationLossModelDict_(dict),
@@ -59,7 +60,7 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::NO_WRITE
+            		IOobject::AUTO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
@@ -71,7 +72,7 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::NO_WRITE
+            		IOobject::AUTO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
@@ -83,7 +84,7 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::NO_WRITE
+            		IOobject::AUTO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
@@ -95,11 +96,25 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::NO_WRITE
+            		IOobject::AUTO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
     	),
+    	Pe_
+    	(
+    		mesh.lookupObject<volScalarField>
+        	(
+            		"Pe"
+        	)
+        ),
+    	Ne_
+    	(
+    		mesh.lookupObject<volScalarField>
+        	(
+            		"Ne"
+        	)
+       	),
     	a_Ne_(concentrationLossModelDict_.get<wordList>("a_Ne")),
 	a_Pe_(concentrationLossModelDict_.get<wordList>("a_Pe")),
 	c_Ne_(concentrationLossModelDict_.get<wordList>("c_Ne")),
@@ -170,7 +185,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
-                		IOobject::NO_WRITE
+                		IOobject::AUTO_WRITE
             		),
             		mesh,
             		dimensionedScalar("CR_"+species2[i],dimless,One)
@@ -190,7 +205,8 @@ forAll(species2,i)
 Foam::autoPtr<Foam::concentrationLossModel> Foam::concentrationLossModel::New
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const massAndSpeciesTransferModel& mSTaPtr
 )
 {
     const word modelType(dict.get<word>(typeName));
@@ -216,7 +232,8 @@ Foam::autoPtr<Foam::concentrationLossModel> Foam::concentrationLossModel::New
             ctorPtr
             (
                 dict.optionalSubDict(modelType + "Coeffs"),
-                mesh
+                mesh,
+                mSTaPtr
             )
         );
 }

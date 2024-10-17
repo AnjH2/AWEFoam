@@ -4,7 +4,7 @@
 
 surfaceScalarField alpha2Phi
 (
-	phi*fvc::interpolate(alpha2)+fvc::flux(alpha2*(UdmModel.Dcm()*fvc::grad(alpha2)+UdmModel.Ucm()))
+	phi*fvc::interpolate(alpha2)+fvc::flux(alpha2*((UdmModel.Dcm()&fvc::grad(alpha2))+UdmModel.Ucm()))
 );
 
 for(label i=0; i<C2.size(); i++)

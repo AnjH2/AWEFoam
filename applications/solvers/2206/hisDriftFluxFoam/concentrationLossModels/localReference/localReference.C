@@ -48,10 +48,11 @@ namespace concentrationLossModels
 Foam::concentrationLossModels::localReference::localReference
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const massAndSpeciesTransferModel& mSTaPtr
 )
 :
-    concentrationLossModel(dict,mesh),
+    concentrationLossModel(dict,mesh,mSTaPtr),
     n_Ne_(species2.size()),
     n_Pe_(species2.size()),
     /*C2_s_(

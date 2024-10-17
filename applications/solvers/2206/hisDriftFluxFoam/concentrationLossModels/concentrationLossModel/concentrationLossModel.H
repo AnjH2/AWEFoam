@@ -39,6 +39,7 @@ SourceFiles
 #include "fvCFD.H"
 #include "dictionary.H"
 #include "runTimeSelectionTables.H"
+#include "massAndSpeciesTransferModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -70,6 +71,8 @@ protected:
 	volScalarField CRa_Pe_;
 	volScalarField CRc_Ne_;
 	volScalarField CRc_Pe_;
+	const volScalarField& Pe_;
+	const volScalarField& Ne_;
 	List<word> a_Ne_;
 	List<word> a_Pe_;
 	List<word> c_Ne_;
@@ -93,8 +96,9 @@ public:
         concentrationLossModel,
         dictionary,
         (const dictionary& dict,
-         const fvMesh& mesh),
-        (dict, mesh)
+         const fvMesh& mesh,
+         const massAndSpeciesTransferModel& mSTaPtr),
+        (dict, mesh, mSTaPtr)
     );
 
 
@@ -104,7 +108,8 @@ public:
         concentrationLossModel
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const massAndSpeciesTransferModel& mSTaPtr
         );
 
 
@@ -112,7 +117,8 @@ public:
     static autoPtr<concentrationLossModel> New
     (
         const dictionary& dict,
-        const fvMesh& mesh
+        const fvMesh& mesh,
+        const massAndSpeciesTransferModel& mSTaPtr
     );
 
 

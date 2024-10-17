@@ -45,6 +45,7 @@ divSchemes
     "div(rhod*U,alphad)"	Gauss linearUpwind default;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
     div(tauDm)          Gauss linear;
+    div(U,alphad)		Gauss upwind;
 }
 
 laplacianSchemes

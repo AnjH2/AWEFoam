@@ -180,7 +180,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& muc, const volScalarField& rhod) const
 {
 
-    return pow(pow(1-alpha_,kr_)/(muc/rhoc_)+pow(alpha_,kr_)/(mud_m_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
+    return pow(pow(1-alpha_,kr_*(Pe_+Ne_+Mem_)+(1-Pe_-Ne_))/(muc/rhoc_)+pow(alpha_,kr_*(Pe_+Ne_+Mem_)+(1-Pe_-Ne_))/(mud_m_/rhod),-1)*(alpha_*rhod+(1-alpha_)*rhoc_);
 }
 
 void Foam::mixtureViscosityModels::Beckermann::mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num){

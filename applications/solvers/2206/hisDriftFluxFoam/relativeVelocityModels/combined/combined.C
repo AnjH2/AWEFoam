@@ -68,7 +68,7 @@ Foam::relativeVelocityModels::combined::combined
     D_(electrodes.size()),//("D", dimVelocity*dimLength, dict),
     
     CW_(electrodes.size()),//("CW", dimless, dict),
-        ULub_
+    ULub_
     (
         IOobject
         (
@@ -80,6 +80,19 @@ Foam::relativeVelocityModels::combined::combined
         ),
         alphac_.mesh(),
         dimensionedVector(dimVelocity, Zero)
+    ),
+    V_
+    (
+        IOobject
+        (
+            "VCell",
+            alphac_.time().timeName(),
+            alphac_.mesh(),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        alphac_.mesh(),
+        dimensionedScalar(dimVolume, Zero)
     ),
         V1_(
 	alphac_.mesh().lookupObject<volScalarField>
@@ -113,7 +126,7 @@ forAll(electrodes,i)
         D_.set
         (
         	i,
-        	new dimensionedScalar("D_"+electrodes[i], dimVelocity*dimLength,dict_)
+        	new dimensionedTensor("D_"+electrodes[i], dimVelocity*dimLength,dict_)
         );
         CW_.set
         (
@@ -121,6 +134,10 @@ forAll(electrodes,i)
         	new dimensionedScalar("CW_"+electrodes[i], dimless,dict_)
         );
         }
+forAll (alphac_.mesh().C(), celli)
+	{
+	V_[celli]=alphac_.mesh().V()[celli];
+	}        
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -158,19 +175,44 @@ volVectorField Foam::relativeVelocityModels::combined::vStokes(int j)
 volVectorField Foam::relativeVelocityModels::combined::UStokes(int j)
 {
 	
-	return f()*mag(vStokes(j))*eg_;
+	return f()*mag(vStokes(j))*(1-(Ne_+Pe_)*hF_)*eg_;
 }
 
 volVectorField Foam::relativeVelocityModels::combined::ULub(int j)
 {
 
-	return  sign(yNormal_)*sqrt
+/*forAll (alphac_.mesh().C(), celli)
+	{
+	ULub_[celli]=sign(yNormal_[celli])*
 		(
+				alphad_[celli]*CW_[j].value()*2/(2*rd_[j].value())*pow(mag(UStokes(j)[celli]),2)*pow(2*rd_[j].value()/(2*yNormal_[celli]),2)*alphac_.mesh().V()[celli]
+		)
+		/(
+				3*Foam::constant::mathematical::pi*mixture_.nucModel().nu()()[celli]*2*rd_[j].value()
+		)
+			*vector(0.0,1.0,0.0);
+	}
+	
+	
+	return ULub_;*/
+	/*return  -1*sign(yNormal_)*
 			(
-			alphad_*rhoc_*CW_[j]*2/(2*rd_[j])*pow(mag(UStokes(j)),2)*pow(2*rd_[j]/(2*yNormal_),2)*dimensionedScalar(dimLength,1.0)
+				alphad_*CW_[j]*2/(2*rd_[j])*pow(mag(UStokes(j)),2)*pow(2*rd_[j]/(2*yNormal_),2)
 			)
-			/rhoc_
-		)*dimensionedVector(dimless,vector(0.0,1.0,0.0));
+			/(
+				3*Foam::constant::mathematical::pi*mixture_.nucModel().nu()*2*rd_[j]
+			)
+			*dimensionedVector(dimless,vector(0.0,1.0,0.0));
+				//Force/(3*pi*mu_L*D_db)*/
+ULub_=sign(yNormal_)*
+		(
+				alphad_*CW_[j]*2/(2*rd_[j])*pow(mag(UStokes(j)),2)*pow(2*rd_[j]/(2*yNormal_),2)*V_
+		)
+		/(
+				3*Foam::constant::mathematical::pi*mixture_.nucModel().nu()*2*rd_[j]
+		)
+			*dimensionedVector(dimless,vector(0.0,1.0,0.0));
+return ULub_;
 }
 
 
@@ -181,7 +223,7 @@ volVectorField Foam::relativeVelocityModels::combined::ULub(int j)
 void Foam::relativeVelocityModels::combined::correct()
 {    
 
-    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0)+ULub(0))*Ne_+(UStokes(1)+ULub(1))*Pe_);
+    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0)+ULub(0))*(Ne_+NeC_)+(UStokes(1)+ULub(1))*(Pe_+PeC_));
     
 
     /*
@@ -193,7 +235,7 @@ void Foam::relativeVelocityModels::combined::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*(D_[0]*Ne_+D_[1]*Pe_)/alphad_;
+    Ddm_=(rhoc_/rho())*(rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))*(f()/alphad_+2*pow(alphad_,50));
     Ddm_.correctBoundaryConditions();
 }
 

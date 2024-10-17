@@ -89,7 +89,7 @@ protected:
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
         
-        volScalarField Ddm_;
+        volTensorField Ddm_;
         
         const scalar y0_;
         const scalar y1_;
@@ -97,6 +97,8 @@ protected:
 	const scalar y3_;
 	volScalarField yNormal_;
 	
+	const scalar dF_;
+	const scalar hF_;
 	
 	const volScalarField& Pe_;
 	
@@ -170,12 +172,12 @@ public:
 	tmp<volVectorField> Udj() const;
 	
 	//- Return the relative diffusion of the dispersed phase, volumesentric
-	const volScalarField& Ddm() const
+	const volTensorField& Ddm() const
         {
             return Ddm_;
         }
 	//- Return the relative diffusion of the continues phase
-	tmp<volScalarField> Dcm() const;
+	tmp<volTensorField> Dcm() const;
         //- Return the stress tensor due to the phase transport
         tmp<volTensorField> tauDm() const;
 

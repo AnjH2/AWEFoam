@@ -384,7 +384,8 @@ autoPtr<concentrationLossModel> CLModelPtr
     concentrationLossModel::New
     (
         transportProperties,
-        mesh
+        mesh,
+        mSTaPtr
     )
 );
 

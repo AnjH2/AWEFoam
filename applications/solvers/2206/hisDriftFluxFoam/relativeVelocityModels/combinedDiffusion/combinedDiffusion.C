@@ -87,7 +87,7 @@ forAll(electrodes,i)
         D_.set
         (
         	i,
-        	new dimensionedScalar("D_"+electrodes[i], dimVelocity*dimLength,dict_)
+        	new dimensionedTensor("D_"+electrodes[i], dimless,dict_)
         );
         }
 }
@@ -115,7 +115,7 @@ volVectorField Foam::relativeVelocityModels::combinedDiffusion::vStokes(int j)
 volVectorField Foam::relativeVelocityModels::combinedDiffusion::UStokes(int j)
 {
 	
-	return f()*mag(vStokes(j))*eg_;
+	return f()*mag(vStokes(j))*(1-(Ne_+Pe_)*hF_)*eg_;
 }
 
 
@@ -141,7 +141,7 @@ void Foam::relativeVelocityModels::combinedDiffusion::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(1-Mem_+VSMALL)*(rhoc_/rho())*(D_[0]*(Ne_+NeC_)+D_[1]*(Pe_+PeC_))/alphad_;
+    Ddm_=(rhoc_/rho())*(rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))*(f()/alphad_+2*pow(alphad_,50));
     Ddm_.correctBoundaryConditions();
 }
 

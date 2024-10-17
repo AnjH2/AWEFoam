@@ -73,7 +73,8 @@ public:
         localReference
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const massAndSpeciesTransferModel& mSTaPtr
         );
 
 

@@ -67,7 +67,7 @@ class combinedDiffusion
 	const dimensionedScalar minAlphad_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
-	PtrList <dimensionedScalar> D_;
+	PtrList <dimensionedTensor> D_;
 	const volScalarField& eps_;
 	const dimensionedVector eg_;
 	

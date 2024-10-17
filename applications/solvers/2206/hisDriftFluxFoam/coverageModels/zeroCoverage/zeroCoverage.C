@@ -69,7 +69,7 @@ Foam::coverageModels::zeroCoverage::~zeroCoverage()
 
 void Foam::coverageModels::zeroCoverage::correct()
 {
-    theta_ =dimensionedScalar("zeroCoverage_",dimless,1);
+    theta_ =dimensionedScalar("zeroCoverage_",dimless,0);
 }
 
 

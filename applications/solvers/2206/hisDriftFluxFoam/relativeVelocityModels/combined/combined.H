@@ -66,9 +66,10 @@ class combined
 	const dimensionedScalar minAlphad_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
-	PtrList <dimensionedScalar> D_;
+	PtrList <dimensionedTensor> D_;
 	PtrList <dimensionedScalar> CW_;
 	volVectorField ULub_;
+	volScalarField V_;
 	const volScalarField& V1_;
 	const volScalarField& eps_;
 	const volVectorField& U_;

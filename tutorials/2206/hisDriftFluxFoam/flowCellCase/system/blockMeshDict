@@ -23,7 +23,7 @@ Nz		1;
 tPe		1.8;
 tDi		0.85;
 tNe		1.8;
-cellLength	30.0;
+cellLength	50.0;
 cellDepth	30;
 
 S1 10.0;

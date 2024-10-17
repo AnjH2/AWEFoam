@@ -20,5 +20,6 @@ decomposePar -force
 #Running case
 mpirun -np 3 hisDriftFluxFoam -parallel
 
+reconstructPar
 echo "Setup and initial run steps completed."
 

@@ -12,6 +12,7 @@ EXE_INC = \
 LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lincompressibleTransportModels \
+    -LmassAndSpeciesTransferModels \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \

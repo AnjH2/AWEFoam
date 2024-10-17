@@ -13,7 +13,7 @@ FoamFile
     object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-RDB		0.025e-3;
+RDB		0.05e-3;
 phases          (gas electrolyte);
 
 gas
@@ -51,7 +51,7 @@ gas
     //Ishii
     alpha_crit	    1;
     //Beckermann
-    kr		1.5;//BECKKR;
+    kr		1.25;//BECKKR;
     }
 }
 
@@ -67,7 +67,7 @@ electrolyte
 
 
 
-relativeVelocityModel simple;//viscousRegime;//simpleIshii;//combined//combinedDiffusion;
+relativeVelocityModel combinedDiffusion;//viscousRegime;//simpleIshii;//
 
 "(simple|general|pSimple|distorted|viscousRegime)Coeffs"
 {
@@ -87,14 +87,8 @@ relativeVelocityModel simple;//viscousRegime;//simpleIshii;//combined//combinedD
 {
     R_DB		$RDB;
     n               	5;//2.4;
-    D			1e-08;//1;
-    minAlphad		0.4;
-    CW			1;
-    y0			0;
-    y1			1.8e-3;
-    y2			#eval{1.8e-3+0.85e-3};
-    y3			#eval{1.8e-3*2+0.85e-3};
-    
+    D			8;//1;
+    minAlpha		0.4;
 }
 "(Schillings)Coeffs"
 {
@@ -108,20 +102,25 @@ relativeVelocityModel simple;//viscousRegime;//simpleIshii;//combined//combinedD
 {
 
     rd_Ne		$RDB;
-    D_Ne			1e-08;//1;
-    
+    D_Ne_		8;
+    D_Ne			(#eval{$D_Ne_/8} 0 0
+    				 0 $D_Ne_ 0
+    				 0 0 $D_Ne_);//1;
+    CW_Ne			0.1;
     
     rd_Pe		$RDB;
-    D_Pe			1e-08;//1;
+    D_Pe_		8;
+    D_Pe			(#eval{$D_Pe_/8} 0 0
+    				 0 $D_Pe_ 0
+    				 0 0 $D_Pe_);//1;
+    CW_Pe			0.1;
     
-    
+    dF			1; //dispersion scale. incresses bubble dispersion. value is a scale.
+    hF			0; //hindering. makes bubbles move slower in porouse media. value should be between 0 and 1.
     
     n               	5;//2.4;
     minAlphad		0.4;
     
-    //combined only
-    CW_Pe			1;
-    CW_Ne			1;
     y0			0;
     y1			1.8e-3;
     y2			#eval{1.8e-3+0.85e-3};
@@ -130,7 +129,8 @@ relativeVelocityModel simple;//viscousRegime;//simpleIshii;//combined//combinedD
 
 }
 
-coverageModel vogt;
+
+coverageModel linearVogt;
 
 "(linearCoverage|vogt|linearVogt|bubbleNeuclation|bubbleNeuclationLinear|zeroCoverage)Coeffs"
 {
@@ -224,12 +224,12 @@ massAndSpeciesTransferModel mixedSaturation;
 	"AttachedBubbleGrowthModel_constantSherwoodCoeffs"
 	{
 		
-		sh_H2	0;
-		sh_O2	0;
+		sh_H2	10;
+		sh_O2	10;
 		sh_H2O	0;
 		sh_OH	0;
-		d_Ne	0.0001;
-		d_Pe	0.0001;
+		d_Ne	0.05e-3;
+		d_Pe	0.05e-03;
 		
 	}
 	"AttachedBubbleGrowthModel_(generalR|general)Coeffs"
@@ -238,25 +238,25 @@ massAndSpeciesTransferModel mixedSaturation;
 		a	1.1;
 		b	0.43;
 		c	0.33;
-		d_Ne	0.0001;
-		d_Pe	0.0001;
+		d_Ne	0.05e-3;
+		d_Pe	0.05e-03;
 		
 	}
 	DetachedBubbleGrowthModel	constantSherwood;
 	"DetachedBubbleGrowthModel_constantSherwoodCoeffs"
 	{
-		sh_H2	0;
-		sh_O2	0;
+		sh_H2	1;
+		sh_O2	1;
 		sh_H2O	0;
 		sh_OH	0;
-		d_Ne	2e-05;
-		d_Pe	2e-05;
+		d_Ne	0.1e-3;
+		d_Pe	0.1e-03;
 	}
 	"DetachedBubbleGrowthModel_(WhitakerR|Whitaker)Coeffs"
 	{
 
-		d_Ne	2e-05;
-		d_Pe	2e-05;
+		d_Ne	0.1e-3;
+		d_Pe	0.1e-03;
 	}
 	
 	tau_c	0.01;

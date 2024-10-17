@@ -45,10 +45,11 @@ namespace concentrationLossModels
 Foam::concentrationLossModels::constantRatio::constantRatio
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const massAndSpeciesTransferModel& mSTaPtr
 )
 :
-    concentrationLossModel(dict,mesh)
+    concentrationLossModel(dict,mesh,mSTaPtr)
 {}
 
 

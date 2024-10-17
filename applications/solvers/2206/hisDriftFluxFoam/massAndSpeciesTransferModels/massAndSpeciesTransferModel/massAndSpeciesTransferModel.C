@@ -224,7 +224,7 @@ forAll(species2,i)
                 		IOobject::AUTO_WRITE
             		),
             		mesh,
-            		dimensionSet(1,-3,-1,0,0,0,0)
+            		dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),VSMALL)
         	)
         );
         mDotAlpha_Wall_.set
@@ -241,7 +241,7 @@ forAll(species2,i)
                 		IOobject::NO_WRITE
             		),
             		mesh,
-            		dimensionSet(1,-3,-1,0,0,0,0)
+            		dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),VSMALL)
         	)
         );
 	Psi_BV_.set
@@ -258,7 +258,7 @@ forAll(species2,i)
                 		IOobject::AUTO_WRITE
             		),
             		mesh,
-            		dimensionSet(0,-3,-1,0,1,0,0)
+            		dimensionedScalar(dimensionSet(0,-3,-1,0,1,0,0),VSMALL)
         	)
         );
         C_sat_.set

@@ -28,6 +28,7 @@ License
 #include "fixedReferenceValue.H"
 #include "addToRunTimeSelectionTable.H"
 #include "../../reactionProperties/reactionProperties.H"
+#include "massAndSpeciesTransferModel.H"
 //#include "../../speciesMixture/speciesMixture.H"
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -46,17 +47,13 @@ namespace concentrationLossModels
 Foam::concentrationLossModels::fixedReferenceValue::fixedReferenceValue
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const massAndSpeciesTransferModel& mSTaPtr
 )
 :
-    concentrationLossModel(dict,mesh),
+    concentrationLossModel(dict,mesh,mSTaPtr),
     C2_Ref_(species2.size()),
-    C2_sat_(
-		mesh.lookupObject<massAndSpeciesTransferModel>
-        	(
-            		"massAndSpeciesTransferModel"
-        	).C_sat()
-    ),
+    C2_sat_(mSTaPtr.C_sat()),
     n_Ne_(species2.size()),
     n_Pe_(species2.size()),
     nb_(concentrationLossModelDict_.get<bool>("stoichiometricCoefficient")),
@@ -106,7 +103,17 @@ forAll(species2,i)
         	(
         	i,
         	new dimensionedScalar("C_ref_"+species2[i], dimensionSet(0, -3, 0, 0, 1, 0, 0),dict)
-        	);   	
+        	);   
+       /*C2_sat_.set
+		(
+			i,
+			volScalarField& (
+					mesh.lookupObject<massAndSpeciesTransferModel>
+        					(
+            							"massAndSpeciesTransferModel"
+        					)
+        				).C_sat()
+        	);	*/	
 	}
 }
 
@@ -129,31 +136,32 @@ void Foam::concentrationLossModels::fixedReferenceValue::correct(const PtrList <
 	{
 		if (i <= 1 and sat_) {
 		    CR_[i]=C2_s_[i]/C2_sat_[i];
+		    
 		    if (ab_Ne_[i]==1) {
-			    CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+			    CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i]*Ne_,n_Ne_[i]);
 		    }
 		    if (ab_Pe_[i]==1) {
-			    CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+			    CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i]*Pe_,n_Pe_[i]);
 		    }
 		    if (cb_Ne_[i]==1) {
-			    CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+			    CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i]*Ne_,n_Ne_[i]);
 		    }
 		    if (cb_Pe_[i]==1) {
-			    CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+			    CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i]*Pe_,n_Pe_[i]);
 		    }
 		} else {
 			CR_[i]=C2_s_[i]/C2_Ref_[i];
 		    if (ab_Ne_[i]==1) {
-			    CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+			    CRa_Ne_=CRa_Ne_*Foam::pow(CR_[i]*Ne_,n_Ne_[i]);
 		    }
 		    if (ab_Pe_[i]==1) {
-			    CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+			    CRa_Pe_=CRa_Pe_*Foam::pow(CR_[i]*Pe_,n_Pe_[i]);
 		    }
 		    if (cb_Ne_[i]==1) {
-			    CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i],n_Ne_[i]);
+			    CRc_Ne_=CRc_Ne_*Foam::pow(CR_[i]*Ne_,n_Ne_[i]);
 		    }
 		    if (cb_Pe_[i]==1) {
-			    CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i],n_Pe_[i]);
+			    CRc_Pe_=CRc_Pe_*Foam::pow(CR_[i]*Pe_,n_Pe_[i]);
 		    }
 		}
 	}

@@ -107,7 +107,7 @@ Foam::relativeVelocityModel::relativeVelocityModel
             IOobject::AUTO_WRITE
         ),
         alphac_.mesh(),
-        dimensionedScalar(dimVelocity*dimLength, Zero)
+        dimensionedTensor(dimVelocity*dimLength, Zero)
     ),
     
     y0_(
@@ -135,7 +135,12 @@ Foam::relativeVelocityModel::relativeVelocityModel
         alphac_.mesh(),
         dimensionedScalar(dimLength, 1)
     ),
-
+    hF_(
+    	dict.lookupOrDefault<scalar>("hF", 0) //how much the velocity is reduced, 0 is free rasing bubble, only active in Pe and Ne
+    ),
+    dF_(
+    	dict.lookupOrDefault<scalar>("dF", 1) //how much the dispersion is incressed, 1 is defined dispersion, only active in Pe and Ne
+    ),
         Pe_(
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
@@ -257,24 +262,25 @@ Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Ucm() const
 {
     volScalarField betac(alphac_*rhoc_);
     volScalarField betad(alphad_*rhod_);
-    return tmp<volVectorField>
+    return -betad*Udm_/betac;
+    /*return tmp<volVectorField>
     (
         new volVectorField
         (
             "Ucm",
             -betad*Udm_/betac
         )
-    );
+    );*/
     
 }
 // Calculate the relative velocity of the continuous phase w.r.t the mean
-Foam::tmp<Foam::volScalarField> Foam::relativeVelocityModel::Dcm() const
+Foam::tmp<Foam::volTensorField> Foam::relativeVelocityModel::Dcm() const
 {
     volScalarField betac(alphac_*rhoc_);
     volScalarField betad(alphad_*rhod_);
-    return tmp<volScalarField>
+    return tmp<volTensorField>
     (
-        new volScalarField
+        new volTensorField
         (
             "Dcm",
             -betad*Ddm_/betac

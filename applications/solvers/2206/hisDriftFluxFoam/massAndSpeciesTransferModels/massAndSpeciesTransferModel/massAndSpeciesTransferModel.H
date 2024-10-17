@@ -56,7 +56,7 @@ namespace Foam
 class massAndSpeciesTransferModel
 {
     // Private Member Functions
-
+	
         //- No copy construct
         massAndSpeciesTransferModel(const massAndSpeciesTransferModel&) = delete;
 
