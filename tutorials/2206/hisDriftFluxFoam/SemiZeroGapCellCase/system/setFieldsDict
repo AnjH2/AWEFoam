@@ -21,6 +21,7 @@ tNe		1.8e-3; //Negative electrode thickness
 tcNe		2e-3;//flow channel size, at the Negative electrode
 
 cellLength	30.0e-3;
+inletLength     5e-3;
 cellDepth	30e-3;
 nD		0.025;
 VV		1;//matransfer
@@ -47,7 +48,7 @@ defaultFieldValues
     volScalarFieldValue Pe 0
     volScalarFieldValue Mem 0
     volScalarFieldValue InRegion 0
-    volScalarFieldValue eps 0.9999
+    volScalarFieldValue eps 1
     volScalarFieldValue	tau 1
 );
 
@@ -65,7 +66,7 @@ regions
 //tau 
     boxToCell
     {
-    	box (0 $tcPe 0) ($cellLength  $t1 $cellDepth);
+    	box (-$inletLength $tcPe 0) ($cellLength  $t1 $cellDepth);
     	
     	fieldValues
     	(
@@ -74,7 +75,7 @@ regions
     }
     boxToCell
     {
-    	box (0 $t1 0) ($cellLength  $t2 $cellDepth);
+    	box (-$inletLength $t1 0) ($cellLength  $t2 $cellDepth);
     	
     	fieldValues
     	(
@@ -83,7 +84,7 @@ regions
     }
         boxToCell
     {
-    	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+    	box (-$inletLength $t2 0) ($cellLength  $t3 $cellDepth);
     	
     	fieldValues
     	(
@@ -92,7 +93,7 @@ regions
     }
     boxToCell
     {
-    	box (0 0 0) ($cellLength  $tcPe $cellDepth);
+    	box (-$inletLength 0 0) ($cellLength  $tcPe $cellDepth);
     	
     	fieldValues
     	(
@@ -101,7 +102,7 @@ regions
     }
     boxToCell
     {
-    	box (0 $tcPe 0) ($cellLength  $t1 $cellDepth);
+    	box (-$inletLength $tcPe 0) ($cellLength  $t1 $cellDepth);
     	
     	fieldValues
     	(
@@ -110,7 +111,7 @@ regions
     }
         boxToCell
     {
-    	box (0 $t1 0) ($cellLength  $t2 $cellDepth);
+    	box (-$inletLength $t1 0) ($cellLength  $t2 $cellDepth);
     	
     	fieldValues
     	(
@@ -119,7 +120,7 @@ regions
     }
     boxToCell
     {
-    	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+    	box (-$inletLength $t2 0) ($cellLength  $t3 $cellDepth);
     	
     	fieldValues
     	(
@@ -128,7 +129,7 @@ regions
     }
         boxToCell
     {
-    	box (0 $t3 0) ($cellLength  $t4 $cellDepth);
+    	box (-$inletLength $t3 0) ($cellLength  $t4 $cellDepth);
     	
     	fieldValues
     	(
@@ -150,7 +151,7 @@ regions
     
     boxToCell
     {
-    	box (0 $tcPe 0) ($cellLength  $t1 $cellDepth);
+    	box (-$inletLength $tcPe 0) ($cellLength  $t1 $cellDepth);
     	
     	fieldValues
     	(
@@ -159,7 +160,7 @@ regions
     }
     boxToCell
     {
-    	box (0 $t1 0) ($cellLength  $t2 $cellDepth);
+    	box (-$inletLength $t1 0) ($cellLength  $t2 $cellDepth);
     	
     	fieldValues
     	(
@@ -168,7 +169,7 @@ regions
     }
         boxToCell
     {
-    	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+    	box (-$inletLength $t2 0) ($cellLength  $t3 $cellDepth);
     	
     	fieldValues
     	(
@@ -179,7 +180,7 @@ regions
     
     boxToCell
     {
-    	box (0.0 $t2 0) ($cellLength  $V1Ne1 $cellDepth);
+    	box (-$inletLength $t2 0) ($cellLength  $V1Ne1 $cellDepth);
     	
     	fieldValues
     	(
@@ -188,7 +189,7 @@ regions
     }
         boxToCell
     {
-    	box (0.0 $V1Pe2 0) ($cellLength  $t1 $cellDepth);
+    	box (-$inletLength $V1Pe2 0) ($cellLength  $t1 $cellDepth);
     	
     	fieldValues
     	(
@@ -200,7 +201,7 @@ regions
 
     boxToCell
     {
-    	box (0.0 $t2 0) ($cellLength  $V1Ne1 $cellDepth);
+    	box (-$inletLength $t2 0) ($cellLength  $V1Ne1 $cellDepth);
     	
     	fieldValues
     	(
@@ -209,7 +210,7 @@ regions
     }
         boxToCell
     {
-    	box (0.0 $V1Pe2 0) ($cellLength  $tPe $cellDepth);
+    	box (-$inletLength $V1Pe2 0) ($cellLength  $tPe $cellDepth);
     	
     	fieldValues
     	(

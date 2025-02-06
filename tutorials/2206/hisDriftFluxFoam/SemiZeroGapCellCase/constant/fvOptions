@@ -50,8 +50,8 @@ porosity1
     	coordinateSystem
     	{
         	origin  (0 0 0);
-        	e1      ($cellLength $tcPe 0);
-        	e2      (0 $t1 $cellDepth);
+        	e1      (1 1 0);
+        	e2      (0 0 1);
     	}
     }
 }
@@ -74,8 +74,8 @@ porosity2
     	coordinateSystem
     	{
         	origin  (0 0 0);
-        	e1      (0 $t1 0);
-        	e2      ($cellLength $t2 $cellDepth);
+        	e1      (1 1 0);
+        	e2      (0 0 1);
     	}
     }
 }
@@ -97,34 +97,12 @@ porosity3
     	coordinateSystem
     	{
         	origin  (0 0 0);
-        	e1      (0 $t2 0);
-        	e2      ($cellLength $t3 $cellDepth);
+        	e1      (1 1 0);
+        	e2      (0 0 1);
     	}
     }
 }
-porosity4
-{
-    type            explicitPorositySource;
 
-    explicitPorositySourceCoeffs
-    {
-        selectionMode   cellZone;
-
-        cellZone        flowChannel;
-
-        type            DarcyForchheimer;
-
-        d   (1 1 1);
-    	f   (0 0 0);
-
-    	coordinateSystem
-    	{
-        	origin  (0 0 0);
-        	e1      ($cellLength 0 0);
-        	e2      (0 $t4 $cellDepth);
-    	}
-    }
-}
 
 
 // ************************************************************************* //

@@ -224,7 +224,7 @@ forAll(species2,i)
                 		IOobject::AUTO_WRITE
             		),
             		mesh,
-            		dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),VSMALL)
+            		dimensionSet(1,-3,-1,0,0,0,0)
         	)
         );
         mDotAlpha_Wall_.set
@@ -241,7 +241,7 @@ forAll(species2,i)
                 		IOobject::NO_WRITE
             		),
             		mesh,
-            		dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),VSMALL)
+            		dimensionSet(1,-3,-1,0,0,0,0)
         	)
         );
 	Psi_BV_.set
@@ -258,7 +258,7 @@ forAll(species2,i)
                 		IOobject::AUTO_WRITE
             		),
             		mesh,
-            		dimensionedScalar(dimensionSet(0,-3,-1,0,1,0,0),VSMALL)
+            		dimensionSet(0,-3,-1,0,1,0,0)
         	)
         );
         C_sat_.set
@@ -275,7 +275,7 @@ forAll(species2,i)
                 		IOobject::NO_WRITE
             		),
             		mesh,
-            		dimensionedScalar(dimensionSet(0,-3,0,0,1,0,0),One)
+            		dimensionedScalar(dimensionSet(0,-3,0,0,1,0,0),1)
         	)
         );
 	}
@@ -497,14 +497,12 @@ Foam::massAndSpeciesTransferModel::mDotAlphal()
 const Foam::volScalarField
 Foam::massAndSpeciesTransferModel::mDotAlpha_Wall()
 {
+
     return
     (
-    	min(
-    	    mDotAlpha_Wall_[0]+mDotAlpha_Wall_[1]
-    	    -fvc::Su(
-    	            mDotAlpha_Wall_[0]+mDotAlpha_Wall_[1],
-    	            alpha_),
-    	    Psi_BV_[0]*MW_[0]+Psi_BV_[1]*MW_[1]
+    	-1*min(
+    	    (mDotAlpha_Wall_[0]+mDotAlpha_Wall_[1])*(1-pow(alpha_,5))
+    	    ,Psi_BV_[0]*MW_[0]+Psi_BV_[1]*MW_[1]
     	    )
     	*((MW_[2]*(Ne_/MW_[0]+Pe_/MW_[1]))*((mixture_.p_num()/(mixture_.p_num()-p_water_))-1)+1)
     );

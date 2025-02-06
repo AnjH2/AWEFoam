@@ -16,7 +16,7 @@ FoamFile
 
 application     currentTransport;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
@@ -51,6 +51,8 @@ maxDeltaT	0.05;
 
 functions
 {
+ #includeFunc conversionRatioH2
+  #includeFunc conversionRatioO2
 	PWall_Ne
 	{
 	name    PNe;

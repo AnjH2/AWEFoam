@@ -9,18 +9,37 @@
 
   for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
   {
-
+	//loop to update mass transfer
+	//for(label i=0; i<mixture.species1L().size(); i++)
+	//{
+	//	mSTa.correct_mDot_wall(i,sTp.C2_s(),theta);
+        //}
+        /*fvScalarMatrix alpha1Eqn
+        (
+            fvm::ddt(epsilon1*rho1,alpha1)
+            //+fvm::div(phi*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(U,alphad)")
+            +fvm::div(phi*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(U,alphad)")
+            ==
+           // -(
+           // 	mSTa.mDotAlphal()[1]*pow(alpha1,2)+fvm::Sp(mSTa.mDotAlphal()[1]*(-2*alpha1+1), alpha1)
+           // )//+mDotc
+            -mSTa.mDot()[1]
+            +fvm::laplacian((1-Mem+VSMALL)*rho1*UdmModel.Ddm(), alpha1)
+            -fvm::div(phir*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(Udm,alphad)")
+        );*/
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(epsilon1*rho1,alpha1)
-            +fvm::div(phi*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(U,alphad)")
+            //+fvm::div(phi*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(U,alphad)")
+            +fvm::div(phi*fvc::interpolate(rho1),alpha1,"div(U,alphad)")
             ==
-            -(mSTa.mDotAlphal()[1]-fvm::Sp(mSTa.mDotAlphal()[1], alpha1))//+mDotc
-            -(mSTa.mDotAlpha_Wall())
-            +fvm::laplacian((1-Mem+VSMALL)*rho1*UdmModel.Ddm(), alpha1)
+           // -(
+           // 	mSTa.mDotAlphal()[1]*pow(alpha1,2)+fvm::Sp(mSTa.mDotAlphal()[1]*(-2*alpha1+1), alpha1)
+           // )//+mDotc
+            -mSTa.mDot()[1]
+            +fvm::laplacian((1-Mem+VSMALL)*epsilon1*rho1*UdmModel.Ddm(), alpha1)
             -fvm::div(phir*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(Udm,alphad)")
         );
-
         alpha1Eqn.solve(mesh.solver("alpha1Eqn"));
 	
         alphaPhi = alpha1Eqn.flux()/fvc::interpolate(rho1);

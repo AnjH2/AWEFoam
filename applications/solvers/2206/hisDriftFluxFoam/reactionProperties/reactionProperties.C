@@ -256,7 +256,7 @@ void Foam::reactionProperties::correct(const volScalarField& p_water_,const volS
 		{
 			
 			E0_[i]=E0_ref_[i]+Ds_[i]/(2*Foam::constant::physicoChemical::F)*(T_-T0_E0_[i])
-			+Foam::constant::physicoChemical::R*T_/(2*Foam::constant::physicoChemical::F)
+			-Foam::constant::physicoChemical::R*T_/(2*Foam::constant::physicoChemical::F)
 				*log(
 					 pow(1-(p_water_)/p_num_,psi_[0+i*4])		//hydrogen
 					*pow(1-(p_water_)/p_num_,psi_[1+i*4])		//oxygen

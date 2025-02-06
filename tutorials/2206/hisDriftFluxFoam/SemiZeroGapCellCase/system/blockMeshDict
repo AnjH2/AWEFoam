@@ -27,6 +27,7 @@ tNe		1.8; //Negative electrode thickness
 tcNe		2;//flow channel size, at the Negative electrode
 
 cellLength	30.0;
+inletLength     5;
 cellDepth	30;
 
 S1 4.0;
@@ -47,6 +48,7 @@ dx	4;
 
 
 Nx  #eval #{ round($cellLength/($t3*$S1) *$Ny) #};
+NxInlet  #eval #{ round($inletLength/($t3*$S1) *$Ny) #};
 
 NyPEc #eval #{ round($tcPe/($t4)*$Ny) #};
 NyPE #eval #{ round($tPe/($t4)*$Ny) #};
@@ -86,7 +88,18 @@ vertices
     ($cellLength 	$t4 		0)		//21
     (0	 		$t4 		$cellDepth)	//22
     ($cellLength 	$t4 		$cellDepth)	//23
-
+// extra inlet entranche length y=0
+    (-$inletLength 	0 		0)
+    (-$inletLength 	0 		$cellDepth)
+ // extra inlet entranche length y=tcPe   
+    (-$inletLength 	$tcPe 		0)
+    (-$inletLength 	$tcPe 		$cellDepth)
+// extra inlet entranche length y=t3
+    (-$inletLength 	$t3 		0)
+    (-$inletLength 	$t3		$cellDepth)
+// extra inlet entranche length y=t4
+    (-$inletLength 	$t4 		0)
+    (-$inletLength 	$t4 		$cellDepth)
 );
 
 blocks
@@ -96,10 +109,9 @@ blocks
 	hex (8 9 13 12 10 11 15 14) 	diaphram 		($Nx $NyD $Nz) 	simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyDiPe)(0.5 0.5 #eval #{ 1/$dyDiNe #}))  1)
 	hex (12 13 17 16 14 15 19 18) 	negativeElectode	($Nx $NyNE $Nz) simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyNe)(0.5 0.5 #eval #{ 1/$dyNe #}))  1)
 	hex (16 17 21 20 18 19 23 22) 	flowChannel		($Nx $NyPEc $Nz) 	simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyNe)(0.5 0.5 #eval #{ 1/$dyNe #}))  1)
-    //hex (0 1 2 3 4 5 6 7) 	positiveElectode 	($Nx $NyPE $Nz) simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyPe)(0.5 0.5 #eval #{ 1/$dyPe #}))  1)
-    //hex (3 2 9 8 7 6 11 10) 	diaphram 		($Nx $NyD $Nz) simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyDiPe)(0.5 0.5 #eval #{ 1/$dyDiNe #}))  1)
-    //hex (8 9 13 12 10 11 15 14) negativeElectode 	($Nx $NyNE $Nz) simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyNe)(0.5 0.5 #eval #{ 1/$dyNe #}))  1)
-    
+	// extra entranchence length
+        hex (24 0 4 26 25 2 6 27)	flowChannel		($NxInlet $NyPEc $Nz) 	simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyPe)(0.5 0.5 #eval #{ 1/$dyPe #}))  1)
+        hex (28 16 20 30 29 18 22 31) 	flowChannel		($NxInlet $NyPEc $Nz) 	simpleGrading (((0.5 0.5 $dx)(0.5 0.5 #eval #{ 1/$dx #})) ((0.5 0.5 $dyNe)(0.5 0.5 #eval #{ 1/$dyNe #}))  1)
 );
 //x - ((0.1 0.15 4)(0.8 0.7 1)(0.1 0.15 0.25))
 //y - ((0.2 0.3 4)(0.6 0.4 1)(0.2 0.3 0.25)) 
@@ -122,6 +134,12 @@ boundary
 	    (20 22 23 21)
 	    //(8 9 13 12)
 	    //(10 11 15 14)
+	    
+	    (28 16 18 29)
+	    (30 20 22 31)
+	    
+	    (24 0 2 25)
+	    (26 4 6 27)
 	    
 	);
     }
@@ -152,8 +170,10 @@ boundary
         type patch;
         faces
         (
-            (0 2 6 4)
-            (16 18 22 20)
+            //(0 2 6 4)
+            //(16 18 22 20)
+            (24 25 27 26)
+            (28 29 31 30)
             
         );
     }
@@ -200,6 +220,12 @@ boundary
             //(9 11 15 13)
             //(13 15 19 17)
             //(17 19 23 21)
+            
+            (28 16 20 30)
+            (29 18 22 31)
+            
+            (24 0 4 26)
+            (25 2 6 27)
             
         );
     }

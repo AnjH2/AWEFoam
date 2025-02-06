@@ -126,7 +126,7 @@ forAll(electrodes,i)
         D_.set
         (
         	i,
-        	new dimensionedTensor("D_"+electrodes[i], dimVelocity*dimLength,dict_)
+        	new dimensionedTensor("D_"+electrodes[i], dimless,dict_)
         );
         CW_.set
         (
@@ -224,7 +224,6 @@ void Foam::relativeVelocityModels::combined::correct()
 {    
 
     Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0)+ULub(0))*(Ne_+NeC_)+(UStokes(1)+ULub(1))*(Pe_+PeC_));
-    
 
     /*
     Udm_.component(0) = pow(2,0.5)*pow((sigma_*g_.component(0)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
@@ -235,7 +234,7 @@ void Foam::relativeVelocityModels::combined::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(rhoc_/rho())*(rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))*(f()/alphad_+2*pow(alphad_,50));
+    Ddm_=(rhoc_/rho())*(rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))*f()/alphad_;
     Ddm_.correctBoundaryConditions();
 }
 

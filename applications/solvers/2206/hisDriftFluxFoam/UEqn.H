@@ -5,8 +5,8 @@
     fvVectorMatrix UEqn
     (
         (1/epsilon1)*fvm::ddt(rho, U) 
-      + (1/epsilon1)*fvm::div(rhoPhi/fvc::interpolate(epsilon1), U,"div(rhoPhi,U)")
-      + (1.0/epsilon1)*fvc::div(UdmModel.tauDm())
+      + (1/pow(epsilon1,2))*fvm::div(rhoPhi, U,"div(rhoPhi,U)")
+      + fvc::div(UdmModel.tauDm())
       + (1.0/epsilon1)*turbulence->divDevRhoReff(U)
       //- fvm::Sp(fvc::ddt(epsilon1,rho) + (1/pow(epsilon1,2))*fvc::div(rhoPhi), U)
      ==

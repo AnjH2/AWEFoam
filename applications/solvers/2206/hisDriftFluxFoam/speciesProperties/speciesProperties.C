@@ -73,7 +73,7 @@ Foam::speciesProperties::speciesProperties
     	       mesh.time().timeName(),
      	       mesh,
      	       IOobject::MUST_READ,
-    	       IOobject::NO_WRITE
+    	       IOobject::AUTO_WRITE
     	    ),
     	    mesh 
     	),

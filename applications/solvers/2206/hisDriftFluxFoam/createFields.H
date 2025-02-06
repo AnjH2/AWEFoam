@@ -378,7 +378,7 @@ autoPtr<coverageModel> thetaModelPtr
         mesh
     )
 );
-// surface coverage
+// concentrationloss
 autoPtr<concentrationLossModel> CLModelPtr
 (
     concentrationLossModel::New

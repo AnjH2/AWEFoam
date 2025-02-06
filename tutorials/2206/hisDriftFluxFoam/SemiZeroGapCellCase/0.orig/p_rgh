@@ -27,30 +27,15 @@ boundaryField
         //value           uniform 0;
        //type            fixedValue;
        //value           uniform PIN0;
-       type            fixedFluxPressure;
+       type            zeroGradient;
        //value           unifrom $internalField;
 
     }
     Outlet
     {
-    	type 	codedFixedValue;
-    	value	uniform 0;
-    	name 	prghHydrostat1;
-	code	#{
-
-            const vectorField Cf(this->patch().Cf());
-            const scalarField p_(patch().size(), Zero);
-            scalarField prgh_(patch().size(), Zero);
-            const scalarField rho_(this->patch().lookupPatchField<volScalarField, scalar>("rho"));
-            const scalarField gh_(this->patch().lookupPatchField<volScalarField, scalar>("gh"));
-            forAll(Cf,faceI)
-            {
-
-            prgh_[faceI] = p_[faceI]-rho_[faceI]*gh_[faceI];
-            }
-            operator==(prgh_);
-
-		#};
+    	type 	prghTotalPressure;
+    	p0              $internalField;
+    	value 	uniform 0;
     }
 
 

@@ -128,14 +128,16 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::~mixedSaturation()
 
 void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_mDot_wall(const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta)
 {
+
 	if (i<=1){
 		
 		C_sat_[i]=k_H_[i]*(mixture_.p_num()-p_water_);
 		C_sat_[i].correctBoundaryConditions();
-		
-		mDotAlpha_Wall_[i]=(Pe_+Ne_)*max(c_AB_*shModelAB_->ki(i)*as_[i]*theta*MW_[i]*(C2_s[i]-C_sat_[i]),mDot_Wall_[i]*0);
-		mDot_Wall_[i]=min(mDotAlpha_Wall_[i]*(1-alpha_),Psi_BV_[i]*MW_[i]);
 
+		mDotAlpha_Wall_[i]=(Pe_+Ne_)*max(c_AB_*shModelAB_->ki(i)*as_[i]*theta*MW_[i]*(C2_s[i]-C_sat_[i]),dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),0));
+		//mDot_Wall_[i]=min(mDotAlpha_Wall_[i]*(1-alpha_),Psi_BV_[i]*MW_[i]); removed 05-11-2024 -> it is already damped by Psi_BV
+		mDot_Wall_[i]=min(mDotAlpha_Wall_[i]*(1-pow(alpha_,5)),Psi_BV_[i]*MW_[i]);
+		
 		mDot_Wall_[i].correctBoundaryConditions();
 	} else if (i==2 and waterVapour_) {
 		mDot_Wall_[i]=(mDot_Wall_[0]+mDot_Wall_[1])*(MW_[2]*(Ne_/MW_[0]+Pe_/MW_[1]))*((mixture_.p_num()/(mixture_.p_num()-p_water_))-1);
@@ -160,7 +162,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i)
         	
         	
        		-V2_*((Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/((shModelDB_->d()[0]*Ne_+shModelDB_->d()[1]*Pe_+(shModelDB_->d()[1]+shModelDB_->d()[0])/2*(1-Pe_-Ne_))/2)*
-       		epsilon_*alpha_*MW_[i]*max(C2_[i] - C_sat_[i], C0))
+       		epsilon_*MW_[i]*max(C2_[i] - C_sat_[i], C0))
     	);
     }
     else if (i==2 and waterVapour_) {
@@ -214,8 +216,8 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i, const boo
 
     	volScalarField mDotE
     	(
-        	"mDotE_"+species2[i], mDot_Wall_[i]+V2_*((Pe_+PeC_+Ne_+NeC_)*epsilon_*shModelDB_->ki(i)/((shModelDB_->d()[0]*Ne_+shModelDB_->d()[1]*Pe_+(shModelDB_->d()[1]+shModelDB_->d()[0])/2*(1-Pe_-Ne_))/2)*
-        	alpha_*epsilon_*MW_[i]*max(C2_[i] - C_sat_[i], C0))*limitedAlpha2//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
+        	"mDotE_"+species2[i], mDot_Wall_[i]+V2_*((Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/((shModelDB_->d()[0]*Ne_+shModelDB_->d()[1]*Pe_+(shModelDB_->d()[1]+shModelDB_->d()[0])/2*(1-Pe_-Ne_))/2)*
+       		epsilon_*alpha_*(1-pow(alpha_,5))*MW_[i]*max(C2_[i] - C_sat_[i], C0))//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
     	);
     	volScalarField mDotC
     	(

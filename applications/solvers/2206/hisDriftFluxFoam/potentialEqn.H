@@ -122,9 +122,13 @@
         	fvm::laplacian((Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T), Ue)+fvc::laplacian(-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2,C2[3])	
         	==-1*(Je_Pe+Je_Ne)
         	);*/
+        	volScalarField sigmae
+		(
+		calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(max(alpha2,SMALL),1.5))
+		);
         	fvScalarMatrix UeEqn
         	(
-        	fvm::laplacian(calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(alpha2,1.5)), Ue)+fvc::laplacian(-1*z[3]*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2,C2[3])	
+        	fvm::laplacian(sigmae, Ue)//+fvc::laplacian(-1*z[3]*F*poroM.eps()*rho*max(alpha2,SMALL)*speciesP.D2_eff()[3]/rho2,C2[3])	
         	==-1*(Je_Pe+Je_Ne)
         	);
 		

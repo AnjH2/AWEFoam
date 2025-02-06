@@ -51,7 +51,7 @@ gas
     //Ishii
     alpha_crit	    1;
     //Beckermann
-    kr		1.25;//BECKKR;
+    kr		1.5;//BECKKR;
     }
 }
 
@@ -115,8 +115,8 @@ relativeVelocityModel combinedDiffusion;//viscousRegime;//simpleIshii;//
     				 0 0 $D_Pe_);//1;
     CW_Pe			0.1;
     
-    dF			1; //dispersion scale. incresses bubble dispersion. value is a scale.
-    hF			0; //hindering. makes bubbles move slower in porouse media. value should be between 0 and 1.
+    dF			5; //dispersion scale. incresses bubble dispersion. value is a scale.
+    hF			0.9; //hindering. makes bubbles move slower in porouse media. value should be between 0 and 1.
     
     n               	5;//2.4;
     minAlphad		0.4;
