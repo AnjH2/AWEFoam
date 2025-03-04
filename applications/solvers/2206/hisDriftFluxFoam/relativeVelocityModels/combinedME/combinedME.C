@@ -146,7 +146,7 @@ void Foam::relativeVelocityModels::combinedME::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(rhoc_/rho())*(((rd_[0]*mag(vStokes(0))*D_[0]+Usp(0))*(Ne_*dF_+NeC_)+(rd_[1]*mag(vStokes(1))*D_[1])*(Pe_*dF_+PeC_))*f()/alphad_+(Usp(1)*(Pe_+PeC_)+Usp(0)*(Ne_+NeC_)));
+    Ddm_=(rhoc_/rho())*(((rd_[0]*mag(vStokes(0))*D_[0]+Usp(0))*(Ne_*dF_+NeC_)+(rd_[1]*mag(vStokes(1))*D_[1])*(Pe_*dF_+PeC_))*f()/alphad_+(Usp(1)*(Pe_*dF_+PeC_)+Usp(0)*(Ne_*dF_+NeC_)));
     Ddm_.correctBoundaryConditions();
 }
 

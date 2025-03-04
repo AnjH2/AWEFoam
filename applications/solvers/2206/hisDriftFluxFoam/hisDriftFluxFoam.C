@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            mSTa.correct_waterPartialPressure(cal_mKOH(T,C2[3]/1000)*dimensionedScalar(dimensionSet(1,0,0,0,-1,0,0),1));	
+            //mSTa.correct_waterPartialPressure(cal_mKOH(T,C2[3]/1000)*dimensionedScalar(dimensionSet(1,0,0,0,-1,0,0),1));	
             #include "alphaControls.H"
             
             UdmModel.correct();

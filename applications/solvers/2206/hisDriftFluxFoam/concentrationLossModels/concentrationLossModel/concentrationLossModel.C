@@ -60,7 +60,7 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::AUTO_WRITE
+            		IOobject::NO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
@@ -72,7 +72,7 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::AUTO_WRITE
+            		IOobject::NO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
@@ -84,7 +84,7 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::AUTO_WRITE
+            		IOobject::NO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
@@ -96,7 +96,7 @@ Foam::concentrationLossModel::concentrationLossModel
             		mesh.time().timeName(),
             		mesh,
             		IOobject::NO_READ,
-            		IOobject::AUTO_WRITE
+            		IOobject::NO_WRITE
     		),
     		mesh,
     		dimensionedScalar(dimless,One)
@@ -185,7 +185,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::NO_READ,
-                		IOobject::AUTO_WRITE
+                		IOobject::NO_WRITE
             		),
             		mesh,
             		dimensionedScalar("CR_"+species2[i],dimless,One)

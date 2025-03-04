@@ -56,7 +56,7 @@ Foam::concentrationLossModels::saturationReferenceValue::saturationReferenceValu
     C2_sat_(mSTaPtr.C_sat()),
     n_Ne_(species2.size()),
     n_Pe_(species2.size()),
-    nb_(concentrationLossModelDict_.get<bool>("stoichiometricCoefficient"))
+    nb_(concentrationLossModelDict_.get<bool>("stoichiometricCoefficient")),
     sat_(concentrationLossModelDict_.getOrDefault<bool>("stoichiometricCoefficient",false))
 {
 if (nb_) {
@@ -100,10 +100,22 @@ if (nb_) {
 forAll(species2,i)
 	{
 	C2_Ref_.set
-        	(
+        (
         	i,
-        	new dimensionedScalar("C_ref_"+species2[i], dimensionSet(0, -3, 0, 0, 1, 0, 0),dict)
-        	);   
+        	new volScalarField
+        	(
+        		IOobject
+        		(
+        			"CR_"+species2[i],
+        			mesh.time().timeName(),
+                		mesh,
+                		IOobject::NO_READ,
+                		IOobject::AUTO_WRITE
+            		),
+            		mesh,
+            		dimensionedScalar("C_ref_"+species2[i], dimensionSet(0, -3, 0, 0, 1, 0, 0),dict)
+            	)
+        );   
        /*C2_sat_.set
 		(
 			i,

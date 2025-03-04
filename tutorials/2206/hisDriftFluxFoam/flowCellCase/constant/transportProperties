@@ -67,7 +67,7 @@ electrolyte
 
 
 
-relativeVelocityModel combinedDiffusion;//viscousRegime;//simpleIshii;//
+relativeVelocityModel combinedfixedD;//viscousRegime;//simpleIshii;//
 
 "(simple|general|pSimple|distorted|viscousRegime)Coeffs"
 {
@@ -98,21 +98,21 @@ relativeVelocityModel combinedDiffusion;//viscousRegime;//simpleIshii;//
     n			1;
     R_DB	$RDB;
 }
-"(combined|combinedDiffusion)Coeffs"
+"(combined|combinedDiffusion|combinedFixedD)Coeffs"
 {
 
     rd_Ne		$RDB;
     D_Ne_		8;
-    D_Ne			(#eval{$D_Ne_/8} 0 0
-    				 0 $D_Ne_ 0
-    				 0 0 $D_Ne_);//1;
+    D_Ne			($D_Ne_ 0 0
+    				 0 #eval{$D_Ne_/8}_ 0
+    				 0 0 #eval{$D_Ne_/8});//1;
     CW_Ne			0.1;
     
     rd_Pe		$RDB;
     D_Pe_		8;
-    D_Pe			(#eval{$D_Pe_/8} 0 0
-    				 0 $D_Pe_ 0
-    				 0 0 $D_Pe_);//1;
+    D_Pe			($D_Pe_ 0 0
+    				 0 #eval{$D_Pe_/8} 0
+    				 0 0 #eval{$D_Pe_/8});//1;
     CW_Pe			0.1;
     
     dF			1; //dispersion scale. incresses bubble dispersion. value is a scale.

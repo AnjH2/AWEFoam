@@ -244,6 +244,7 @@ forAll(species2,i)
             		dimensionSet(1,-3,-1,0,0,0,0)
         	)
         );
+
 	Psi_BV_.set
     	(
         	i,
@@ -338,14 +339,14 @@ Foam::massAndSpeciesTransferModel::~massAndSpeciesTransferModel()
 void Foam::massAndSpeciesTransferModel::correct_Psi_BV(int i)
 {
 
-		if(z_[i].value() == 0) //not charged species C_[i]
-		{
+		//if(z_[i].value() == 0) //not charged species C_[i]
+		//{
 			Psi_BV_[i]=-((psi_[i]*Ne_+psi_[i+4]*Pe_)/2)*(J_)/Foam::constant::physicoChemical::F;
-		}
-		else //charged species C_[i]
-		{
-			Psi_BV_[i]=-(t_OH_/z_[i].value()+(psi_[i]*Ne_+psi_[i+4]*Pe_)/2)*(J_)/Foam::constant::physicoChemical::F;
-		}
+		//}
+		//else //charged species C_[i]
+		//{
+		//	Psi_BV_[i]=-(t_OH_/z_[i].value()+(psi_[i]*Ne_+psi_[i+4]*Pe_)/2)*(J_)/Foam::constant::physicoChemical::F;
+		//}
 	
 }
 //calculates the partial pressure of water in a salt mixture

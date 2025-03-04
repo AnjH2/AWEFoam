@@ -28,11 +28,12 @@ for(label i=0; i<C2.size(); i++)
         
         );
 	
-	sTp.correct(i,theta);	//calculates concentation of speceies i on the surfaces of the electrodes
+		//calculates concentation of speceies i on the surfaces of the electrodes
 	if(i<=1)
 	{
 		
 		mSTa.correct_mDot_wall(i,sTp.C2_s(),theta);
+		sTp.correct(i,theta);
 		Pair<tmp<volScalarField>> mDot = mSTa.mDot(i,1);
     		const volScalarField& mDotc = mDot[0]();
     		const volScalarField& mDotv = mDot[1]();
@@ -42,7 +43,7 @@ for(label i=0; i<C2.size(); i++)
 		//C2Eqn -= mSTa.ciSource(i);//mSTa.Psi_m()[i];
 	} else if (i==2 and mSTa.waterVapour()){
 		mSTa.correct_mDot_wall(i,sTp.C2_s(),theta);
-		
+		sTp.correct(i,theta);
 		Pair<tmp<volScalarField>> mDot = mSTa.mDot(i,1);
     		const volScalarField& mDotc = mDot[0]();
     		const volScalarField& mDotv = mDot[1]();
@@ -52,12 +53,13 @@ for(label i=0; i<C2.size(); i++)
 		
 		//C2Eqn -= mSTa.ciSource(i,true);
 		//C2Eqn += (mSTa.Psi_m()[0]+mSTa.Psi_m()[1])/(1-mSTa.p_water()/mixture.p_num())-(mSTa.Psi_m()[0]+mSTa.Psi_m()[1]);
-	} /*if (i<=3){
+	} if (i<=3){
+		sTp.correct(i,theta);
 		//C2Eqn +=fvc::laplacian(speciesP.D2_eff()[i]*F*z[i]*C2[i]/(R*T),Ue)
-		C2Eqn -=fvm::div((fvc::interpolate(alpha2*speciesP.D2_eff()[i]*F*z[i]*MW[i]/(R*T)))*fvc::snGrad(Ue)*mesh.magSf(),C2[i], "div(const*snGrad(Ue),C2[i])");
+		//C2Eqn -=fvm::div((fvc::interpolate(alpha2*speciesP.D2_eff()[i]*F*z[i]*MW[i]/(R*T)))*fvc::snGrad(Ue)*mesh.magSf(),C2[i], "div(const*snGrad(Ue),C2[i])");
 		//added poroM.eps()*!!! 06-03-2024
 		//romved poroM.eps() its already present from D2_eff() 11-09-2024
-	}*/
+	}
         C2Eqn.relax();
 
         solve(C2Eqn);

@@ -58,10 +58,11 @@ class saturationReferenceValue
 {
     // Private data
 	PtrList <volScalarField> C2_Ref_;
+	PtrList <volScalarField> C2_sat_;
 	PtrList <dimensionedScalar> n_Ne_;
 	PtrList <dimensionedScalar> n_Pe_;
 	const bool nb_;
-	const bool sat_;
+	bool sat_;
 public:
 
     //- Runtime type information

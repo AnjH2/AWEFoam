@@ -67,7 +67,7 @@ electrolyte
 
 
 
-relativeVelocityModel combinedME;//viscousRegime;//simpleIshii;//
+relativeVelocityModel combinedFixedD;//viscousRegime;//simpleIshii;//
 
 "(simple|general|pSimple|distorted|viscousRegime)Coeffs"
 {
@@ -98,7 +98,7 @@ relativeVelocityModel combinedME;//viscousRegime;//simpleIshii;//
     n			1;
     R_DB	$RDB;
 }
-"(combined|combinedDiffusion)Coeffs"
+"(combined|combinedDiffusion|combinedFixedD)Coeffs"
 {
 
     rd_Ne		$RDB;

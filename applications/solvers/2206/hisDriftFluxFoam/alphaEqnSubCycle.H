@@ -37,7 +37,7 @@
            // 	mSTa.mDotAlphal()[1]*pow(alpha1,2)+fvm::Sp(mSTa.mDotAlphal()[1]*(-2*alpha1+1), alpha1)
            // )//+mDotc
             -mSTa.mDot()[1]
-            +fvm::laplacian((1-Mem+VSMALL)*epsilon1*rho1*UdmModel.Ddm(), alpha1)
+            +fvm::laplacian((1-Mem)*epsilon1*rho1*UdmModel.Ddm(), alpha1)
             -fvm::div(phir*fvc::interpolate((1-Mem+VSMALL)*rho1),alpha1,"div(Udm,alphad)")
         );
         alpha1Eqn.solve(mesh.solver("alpha1Eqn"));

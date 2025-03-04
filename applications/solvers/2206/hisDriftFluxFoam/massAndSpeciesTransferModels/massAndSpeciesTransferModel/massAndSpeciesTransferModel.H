@@ -95,6 +95,7 @@ protected:
         //Mass transfer model.
         PtrList <volScalarField> mDot_Wall_;
         PtrList <volScalarField> mDotAlpha_Wall_;
+        PtrList <volScalarField> mDotDiff_;
         //water vapourModel
         const bool waterVapour_;
         
