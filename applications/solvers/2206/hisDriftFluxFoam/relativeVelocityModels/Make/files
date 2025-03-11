@@ -1,9 +1,11 @@
 relativeVelocityModel/relativeVelocityModel.C
+stuckBubbles/stuckBubbles.C
 simple/simple.C
 combined/combined.C
 combinedDiffusion/combinedDiffusion.C
 combinedJJ/combinedJJ.C
 combinedME/combinedME.C
 combinedFixedD/combinedFixedD.C
+
 
 LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxRelativeVelocityModels
