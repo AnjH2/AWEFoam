@@ -61,7 +61,6 @@ Foam::relativeVelocityModels::Schillings::Schillings
     n_("n",dimless,dict),
     rhoc_(mixture.rhoc()),
     rhod_(mixture.rhod()),
-    D_("D", dimless, dict),
         V1_(
 	alphac_.mesh().lookupObject<volScalarField>
         (
@@ -117,7 +116,7 @@ volScalarField Foam::relativeVelocityModels::Schillings::f()
 volVectorField Foam::relativeVelocityModels::Schillings::vStokes()
 {
 	
-	return mag(g_)*sqr(2*rd_)/(18*mixture_.nucModel().nu())*eg_;
+	return mag(g_)*sqr(2*rd_)/(18*mixture_.nuc())*eg_;
 }
 
 volScalarField Foam::relativeVelocityModels::Schillings::gamma(const dimensionedVector i)
@@ -135,21 +134,10 @@ volVectorField Foam::relativeVelocityModels::Schillings::UStokes()
 volVectorField Foam::relativeVelocityModels::Schillings::USaff()
 {
 	
-	return f()*mag(vStokes())*sign(gamma(en_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(en_)))/mixture_.nucModel().nu())*en_*(1-Mem_+VSMALL)
-	 +f()*mag(vStokes())*sign(gamma(em_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(em_)))/mixture_.nucModel().nu())*em_*(1-Mem_+VSMALL);
+	return f()*mag(vStokes())*sign(gamma(en_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(en_)))/mixture_.nuc())*en_*(1-Mem_+VSMALL)
+	 +f()*mag(vStokes())*sign(gamma(em_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(em_)))/mixture_.nuc())*em_*(1-Mem_+VSMALL);
 }
 
-volScalarField Foam::relativeVelocityModels::Schillings::UHdiff()
-{
-	
-	return 1/alphad_*rd_*f()*mag(vStokes())*D_*(1-Mem_+VSMALL);
-}
-
-volScalarField Foam::relativeVelocityModels::Schillings::USdiff()
-{
-
-	return 1/alphad_*pow(rd_,2)*(mag(fvc::grad(U_&eg_)&(em_))+mag(fvc::grad(U_&eg_)&(en_)))*beta()*(1-Mem_+VSMALL);
-}
 
 volVectorField Foam::relativeVelocityModels::Schillings::USmig()
 {
@@ -175,8 +163,8 @@ void Foam::relativeVelocityModels::Schillings::correct()
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
 
 
-    Ddm_=(UHdiff()+USdiff())*(rhoc_/rho());
-    Ddm_.correctBoundaryConditions();
+    //Ddm_=(UHdiff()+USdiff())*(rhoc_/rho());
+    //Ddm_.correctBoundaryConditions();
 }
 
 

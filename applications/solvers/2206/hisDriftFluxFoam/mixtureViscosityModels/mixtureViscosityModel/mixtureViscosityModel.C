@@ -52,8 +52,14 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
 :
     name_(name),
     species1({"H2","O2","H2O"}),
+    porousRegions({"Ne","Pe","Mem"}),
     viscosityPropertiesSub1_(viscosityPropertiesSub1),
     viscosityPropertiesSub2_(viscosityPropertiesSub2),
+    muc_
+    (
+        "mu",dimDynamicViscosity,viscosityPropertiesSub2_
+    ),
+    rhoc_("rho", dimDensity, viscosityPropertiesSub2_),
     U_(U),
     phi_(phi),
     MW_(
@@ -126,7 +132,21 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
     			//(
     			//)
     		)
-  	)
+  	),
+  	
+    kr_(
+            	IOobject
+            	(
+               		"kr",
+                	U.mesh().time().timeName(),
+                	U.mesh(),
+                	IOobject::NO_READ,
+                	IOobject::NO_WRITE
+            	),
+            	U.mesh(),
+            	dimensionedScalar(dimless,1)
+        
+        )
 
 	
 {
@@ -142,5 +162,6 @@ bool Foam::mixtureViscosityModel::read(const dictionary& viscosityPropertiesSub1
 
     return true;
 }
+
 
 // ************************************************************************* //

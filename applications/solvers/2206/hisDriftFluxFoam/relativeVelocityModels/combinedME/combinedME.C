@@ -45,10 +45,11 @@ namespace relativeVelocityModels
 Foam::relativeVelocityModels::combinedME::combinedME
 (
     const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName
 )
 :
-    relativeVelocityModel(dict, mixture),
+    relativeVelocityModel(dict, mixture,modelName),
     mixture_(mixture),
     electrodes({"Ne","Pe"}),
     dict_(dict),
@@ -63,10 +64,7 @@ Foam::relativeVelocityModels::combinedME::combinedME
     n_("n",dimless,dict_),
     rhoc_(mixture.rhoc()),
     rhod_(mixture.rhod()),
-   
-    D_(electrodes.size()),//("D", dimVelocity*dimLength, dict),
-    
-    
+      
     eps_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
@@ -85,11 +83,6 @@ forAll(electrodes,i)
         	i,
         	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
         );
-        D_.set
-        (
-        	i,
-        	new dimensionedTensor("D_"+electrodes[i], dimless,dict_)
-        );
         }
 }
 
@@ -105,10 +98,10 @@ volScalarField Foam::relativeVelocityModels::combinedME::f()
 	return pow(1-alphad_,n_);
 }
 
-volVectorField Foam::relativeVelocityModels::combinedME::vStokes(int j)
+dimensionedVector Foam::relativeVelocityModels::combinedME::vStokes(int j)
 {
 	
-	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nucModel().nu())*eg_;
+	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nuc())*eg_;
 }
 
 
@@ -133,7 +126,7 @@ volTensorField Foam::relativeVelocityModels::combinedME::Usp(int j)
 
 void Foam::relativeVelocityModels::combinedME::correct()
 {    
-
+    dModel_->correct();
     Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0))*(Ne_+NeC_)+(UStokes(1))*(Pe_+PeC_));
     
 
@@ -146,8 +139,8 @@ void Foam::relativeVelocityModels::combinedME::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(rhoc_/rho())*(((rd_[0]*mag(vStokes(0))*D_[0]+Usp(0))*(Ne_*dF_+NeC_)+(rd_[1]*mag(vStokes(1))*D_[1])*(Pe_*dF_+PeC_))*f()/alphad_+(Usp(1)*(Pe_*dF_+PeC_)+Usp(0)*(Ne_*dF_+NeC_)));
-    Ddm_.correctBoundaryConditions();
+    //Ddm_=(rhoc_/rho())*(((rd_[0]*mag(vStokes(0))*D_[0]+Usp(0))*(Ne_*dF_+NeC_)+(rd_[1]*mag(vStokes(1))*D_[1])*(Pe_*dF_+PeC_))*f()/alphad_+(Usp(1)*(Pe_*dF_+PeC_)+Usp(0)*(Ne_*dF_+NeC_)));
+    //Ddm_.correctBoundaryConditions();
 }
 
 

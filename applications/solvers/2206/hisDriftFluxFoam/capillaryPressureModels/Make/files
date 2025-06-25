@@ -1,0 +1,5 @@
+capillaryPressureModel/capillaryPressureModel.C
+capillaryPressureModel/capillaryPressureModelNew.C
+leverett/leverett.C
+
+LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxCapillaryPressureModels

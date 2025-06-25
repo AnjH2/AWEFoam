@@ -79,7 +79,14 @@ incompressibleTwoPhaseInteractingMixture
             phi
         )
     ),
-
+    pCapModel_
+    (
+        capillaryPressureModel::New
+        (
+            alpha2_,
+            dict_
+        )
+    ),
     nucModel_
     (
         viscosityModel::New
@@ -195,6 +202,15 @@ incompressibleTwoPhaseInteractingMixture
     		U.mesh().lookupObject<volScalarField>
    	 	(
     			"NeC"
+    			//(
+    			//)
+    		)
+  	),
+  	eps_
+       	(
+    		U.mesh().lookupObject<volScalarField>
+   	 	(
+    			"eps"
     			//(
     			//)
     		)

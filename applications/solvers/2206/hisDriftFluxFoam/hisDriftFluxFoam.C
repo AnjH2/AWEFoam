@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
 
     
     relativeVelocityModel& UdmModel(UdmModelPtr());
+    relativeVelocityModel& freeUdmModel(fUdmModelPtr());
     
     coverageModel& thetaModel(thetaModelPtr());
     const volScalarField& theta=thetaModel.theta();
@@ -153,6 +154,7 @@ int main(int argc, char *argv[])
             #include "alphaControls.H"
             
             UdmModel.correct();
+            freeUdmModel.correct();
             
             thetaModel.uP_num(mixture.p_num());
             thetaModel.correct();
@@ -167,7 +169,9 @@ int main(int argc, char *argv[])
             //mixture.correct_D1();
 
             mixture.correct_nu();
-
+            //Info<<"correct darcy drag for rdrPiso"<<endl;
+            #include "correctD.H"
+            //Info<<"correct construct U matrix"<<endl;
             #include "UEqn.H"
 
             // --- Pressure corrector loop

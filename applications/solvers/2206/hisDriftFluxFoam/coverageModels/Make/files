@@ -3,7 +3,6 @@ linearCoverage/linearCoverage.C
 zeroCoverage/zeroCoverage.C
 vogt/vogt.C
 linearVogt/linearVogt.C
-bubbleNeuclation/bubbleNeuclation.C
-bubbleNeuclationLinear/bubbleNeuclationLinear.C
+
 
 LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxCoverageModels

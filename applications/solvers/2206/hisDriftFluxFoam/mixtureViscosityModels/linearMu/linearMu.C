@@ -173,10 +173,10 @@ forAll(species1,i)
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::mixtureViscosityModels::linearMu::mu(const volScalarField& muc, const volScalarField& rhod) const
+Foam::mixtureViscosityModels::linearMu::mu(const volScalarField& rhod) const
 {
 
-    return mud_m_*alpha_+muc*(1-alpha_);
+    return mud_m_*alpha_+muc_*(1-alpha_);
 }
 
 void Foam::mixtureViscosityModels::linearMu::mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num){

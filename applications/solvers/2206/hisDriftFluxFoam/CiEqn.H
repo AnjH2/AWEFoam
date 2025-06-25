@@ -1,10 +1,16 @@
 // solve the transport eqaution for species in phase 2
 //dimensionedScalar t_OH=u_OH/(u_K+u_OH);***********
 //iterates over each species C_[i]
+word alphaScheme("div(phi,alpha)");
+word alpharScheme("div(phirb,alpha)");
 
 surfaceScalarField alpha2Phi
 (
-	phi*fvc::interpolate(alpha2)+fvc::flux(alpha2*((UdmModel.Dcm()&fvc::grad(alpha2))+UdmModel.Ucm()))
+	//phi*fvc::interpolate(alpha2)+fvc::flux(alpha2*((UdmModel.Dcm()&fvc::grad(alpha2))+UdmModel.Ucm()))
+	(fvc::flux(phi,rho,alphaScheme) + fvc::flux(-alphaPhi,mixture.rhod(),alpharScheme))/mixture.rhoc()
+	   
+      //((phi*fvc::interpolate(rho))()-(alphaPhi*fvc::interpolate(mixture.rhod()))())/mixture.rhoc()
+        
 );
 
 for(label i=0; i<C2.size(); i++)

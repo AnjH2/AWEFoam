@@ -131,7 +131,7 @@ volScalarField Foam::relativeVelocityModels::simpleIshii::f()
 volVectorField Foam::relativeVelocityModels::simpleIshii::vStokes()
 {
 	
-	return mag(g_)*sqr(2*rd_)/(18*mixture_.nucModel().nu())*eg_;
+	return mag(g_)*sqr(2*rd_)/(18*mixture_.nuc())*eg_;
 }
 
 volScalarField Foam::relativeVelocityModels::simpleIshii::gamma(const dimensionedVector i)

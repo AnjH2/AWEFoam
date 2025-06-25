@@ -1,6 +1,7 @@
 EXE_INC = \
     -I../incompressibleTwoPhaseInteractingMixture \
     -I../mixtureViscosityModels/lnInclude \
+    -I../capillaryPressureModels/lnInclude \
     -I../sherwoodModels/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \

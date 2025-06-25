@@ -45,57 +45,69 @@ namespace relativeVelocityModels
 Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
 (
     const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName
 )
 :
-    relativeVelocityModel(dict, mixture),
+    relativeVelocityModel(dict, mixture,modelName),
     mixture_(mixture),
-    electrodes({"Ne","Pe"}),
+    baseModel_(relativeVelocityModel::New(dict.subDict("baseModel"),mixture_,"base:")),
+    covModel_(coverageModel::New(dict.subDict("covModel"),mixture_.alpha2().mesh(),"base:")),
     dict_(dict),
-    g_(meshObjects::gravity::New(mixture.U().time())),
-    
-    rd_(electrodes.size()),
-	//(
-	//	"R_DB",
-	//	dimensionSet ( 0, 1, 0, 0, 0, 0,0),
-	//	dict
-	//),
-    n_("n",dimless,dict_),
-    rhoc_(mixture.rhoc()),
-    rhod_(mixture.rhod()),
-   
-    D_(electrodes.size()),//("D", dimVelocity*dimLength, dict),
-    
-    
-    eps_(
-	    alphac_.mesh().lookupObject<volScalarField>
-            (
-            	"eps"
-            )
-        ),
-
-    eg_("eg",(-1*g_)/mag(g_)),
-        U_(
-	    alphac_.mesh().lookupObject<volVectorField>
-            (
-            	"U"
-            )
-        ),
-        rU_("rU",dimless,dict_)
-{
-forAll(electrodes,i)
-	{
-	rd_.set
-    	(
-        	i,
-        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
-        );
-        D_.set
+    alpha1_(mixture_.alpha1()),
+    U_
+    (
+        mixture_.alpha1().mesh().lookupObject<volVectorField>
         (
-        	i,
-        	new dimensionedTensor("D_"+electrodes[i], dimless,dict_)
-        );
-        }
+            "U"
+        )
+    ),
+    n_
+	(
+		"n",
+		dimless,
+		dict
+	),
+	Udm_P
+    (
+        IOobject
+        (
+            "Udm_P",
+            U_.time().timeName(),
+            U_.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        U_.mesh(),
+        dimensionedVector(dimVelocity, Zero)
+    ),
+    alphaStatic_
+    (
+        IOobject
+        (
+            "alphaStatic",
+            U_.time().timeName(),
+            U_.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        U_.mesh(),
+        dimensionedScalar(dimless, Zero)
+    ),
+        alphaMoveing_
+    (
+        IOobject
+        (
+            "alphaMoveing",
+            U_.time().timeName(),
+            U_.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        U_.mesh(),
+        dimensionedScalar(dimless, Zero)
+    )
+{
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -105,30 +117,25 @@ Foam::relativeVelocityModels::stuckBubbles::~stuckBubbles()
 
 // * * * * * * * * * * * * * * Private Functions  * * * * * * * * * * * * * * //
 
-volVectorField Foam::relativeVelocityModels::stuckBubbles::vStokes(int j)
-{
-	
-	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nucModel().nu())*eg_;
-}
-
-
-
-
-
-
-
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 void Foam::relativeVelocityModels::stuckBubbles::correct()
 {    
-
-    Udm_ = (1-Mem_+VSMALL)*U_*rU_;
+    dModel_->correct();
+    baseModel_->correct();
+    covModel_->correct();
+    
+    //volScalarField alphaStatic_(pow(covModel_->theta(),1/n_));
+    alphaStatic_=pow(covModel_->theta(),1/n_);
+    //volScalarField alphaMoveing_(max(alpha1_-alphaStatic_,Zero));
+    alphaMoveing_=max(alpha1_-alphaStatic_,Zero);
+    Udm_ = (-U_*alphaStatic_+alphaMoveing_*baseModel_->Udm())/(alphaMoveing_+alphaStatic_);
+    Udm_P=baseModel_->Udm();
     
     
-    Ddm_=(rhoc_/rho())*((rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))/alphad_);
-    Ddm_.correctBoundaryConditions();
+    //Ddm_=alphaMoveing_*baseModel_->Ddm();
 }
 
 

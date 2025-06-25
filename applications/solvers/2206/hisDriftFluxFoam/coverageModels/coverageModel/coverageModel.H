@@ -80,8 +80,9 @@ public:
         coverageModel,
         dictionary,
         (const dictionary& dict,
-         const fvMesh& mesh),
-        (dict, mesh)
+         const fvMesh& mesh,
+         const word& modelName ),
+        (dict, mesh, modelName)
     );
 
 
@@ -91,7 +92,8 @@ public:
         coverageModel
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+    const word& modelName = ""
         );
 
 
@@ -99,7 +101,8 @@ public:
     static autoPtr<coverageModel> New
     (
         const dictionary& dict,
-        const fvMesh& mesh
+        const fvMesh& mesh,
+        const word& modelName = ""
     );
 
 

@@ -111,10 +111,15 @@ public:
 
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
-        tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const;
-	const PtrList<volScalarField>& mud()
+        tmp<volScalarField> mu(const volScalarField& rhod) const;
+	const PtrList<volScalarField>& mud() const
 	{
 		return mud_;
+	}
+	
+	virtual	const volScalarField& mud_m() const
+	{
+		return mud_m_;
 	}
 	void mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num);
 

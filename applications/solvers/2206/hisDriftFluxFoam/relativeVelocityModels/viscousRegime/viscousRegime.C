@@ -140,8 +140,8 @@ volVectorField Foam::relativeVelocityModels::viscousRegime::UVis()
 volVectorField Foam::relativeVelocityModels::viscousRegime::USaff()
 {
 	
-	return mag(UVis())*sign(gamma(en_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(en_)))/mixture_.nucModel().nu())*en_*(1-Mem_+VSMALL)
-	 +mag(UVis())*sign(gamma(em_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(em_)))/mixture_.nucModel().nu())*em_*(1-Mem_+VSMALL);
+	return mag(UVis())*sign(gamma(en_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(en_)))/mixture_.nuc())*en_*(1-Mem_+VSMALL)
+	 +mag(UVis())*sign(gamma(em_))*6.46/(6*Foam::constant::mathematical::pi)*sqrt((sqr(rd_)*mag(gamma(em_)))/mixture_.nuc())*em_*(1-Mem_+VSMALL);
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 

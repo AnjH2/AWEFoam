@@ -68,6 +68,33 @@ volScalarField p
     ),
     p_rgh
 );
+Info << "Reading or preparing transfer current field J \n" << endl;
+volScalarField J
+(
+	IOobject
+	(
+		"J",
+		runTime.timeName(),
+		mesh,
+		IOobject::READ_IF_PRESENT,
+		IOobject::AUTO_WRITE
+	),
+	mesh,
+	dimensionSet(0,-3,0,0,0,1,0)
+);
+volScalarField Solid
+(
+    IOobject
+    (
+        "Solid",
+        mesh.time().timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar ("Solid", dimless, 1)
+);
 Info<< "Reading porousProperties\n" << endl;
 porousProperties poroM(mesh);
 
@@ -87,7 +114,7 @@ reactionProperties react(mesh);
 volScalarField& alpha1(mixture.alpha1());
 
 // Mixture density
-
+Info<<"Creating field density"<<endl;
 volScalarField rho
 (
     IOobject
@@ -98,9 +125,10 @@ volScalarField rho
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    mixture.rho()
+    mixture.rho()*poroM.eps()
 );
 // Mass flux
+Info<<"Creating mass flux rhoPhi"<<endl;
 surfaceScalarField rhoPhi
 (
     IOobject
@@ -111,9 +139,8 @@ surfaceScalarField rhoPhi
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-    fvc::interpolate(rho)*phi
+    fvc::interpolate(mixture.rho())*phi
 );
-
 
   
     
@@ -143,6 +170,7 @@ volScalarField V2_
         mesh,
         dimensionedScalar(dimless,One)
 );
+Info<<"Creating Saturation flux"<<endl;
     surfaceScalarField alphaPhi
     (
         IOobject
@@ -171,10 +199,20 @@ autoPtr<relativeVelocityModel> UdmModelPtr
     relativeVelocityModel::New
     (
         transportProperties,
-        mixture
+        mixture,
+        "pore"
     )
 );
-surfaceScalarField phir(fvc::flux(UdmModelPtr->Udm()));
+autoPtr<relativeVelocityModel> fUdmModelPtr
+(
+    relativeVelocityModel::New
+    (
+        transportProperties,
+        mixture,
+        "free"
+    )
+);
+
 
 
 
@@ -279,20 +317,7 @@ volScalarField Ue
 	),
 	mesh
 );
-Info << "Reading or preparing transfer current field J \n" << endl;
-volScalarField J
-(
-	IOobject
-	(
-		"J",
-		runTime.timeName(),
-		mesh,
-		IOobject::READ_IF_PRESENT,
-		IOobject::AUTO_WRITE
-	),
-	mesh,
-	dimensionSet(0,-3,0,0,0,1,0)
-);
+
 
 Info << "Reading or preparing overpotential field eta \n" << endl;
 volScalarField eta
@@ -388,4 +413,49 @@ autoPtr<concentrationLossModel> CLModelPtr
         mSTaPtr
     )
 );
+//mixture.correct(mSTaPtr->p_water());
+Info<<"Creating Darcy drag field"<<endl;
+//Info<<min(poroM.K())<<endl;
+//Info<<max(poroM.K())<<endl;
+volScalarField Drd
+(
+        IOobject
+        (
+            "Drd",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimMass/dimTime/dimLength/dimLength/dimLength,1)
+);
 
+    //Labeling the places that have porous media
+    forAll(poroM.eps(),celli)
+    {
+        if(poroM.eps()[celli]>0.99)
+        {
+            Solid[celli]=0;
+        }
+        else
+        {
+            Solid[celli]=1;
+        }
+    }
+
+    forAll(mesh.boundary(), patchi)
+    {
+        forAll(Solid.boundaryField()[patchi],facei)
+        {
+            if(poroM.eps().boundaryField()[patchi][facei]>0.99)
+            {
+                Solid.boundaryFieldRef()[patchi][facei]=0;
+            }
+            else
+            {
+                Solid.boundaryFieldRef()[patchi][facei]=1;
+            }
+        }
+    }
+surfaceScalarField phir(fvc::flux((1-Solid)*fUdmModelPtr->Udm()+Solid*UdmModelPtr->Udm()));

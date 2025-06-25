@@ -45,10 +45,11 @@ namespace coverageModels
 Foam::coverageModels::linearCoverage::linearCoverage
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const word& modelName 
 )
 :
-    coverageModel(dict,mesh),
+    coverageModel(dict,mesh,modelName),
     alphad_
     (
         mesh.lookupObject<volScalarField>

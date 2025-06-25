@@ -70,8 +70,11 @@ protected:
 
         word name_;
         List<word> species1;
+        List<word> porousRegions;
         dictionary viscosityPropertiesSub1_;
         dictionary viscosityPropertiesSub2_;
+        const dimensionedScalar muc_;
+	    const dimensionedScalar rhoc_;
 
         const volVectorField& U_;
         const surfaceScalarField& phi_;
@@ -85,6 +88,8 @@ protected:
         const volScalarField& PeC_;
         const volScalarField& NeC_;
         const volScalarField& Mem_;
+        
+	    volScalarField kr_;
 
     // Private Member Functions
 
@@ -158,15 +163,30 @@ public:
         }
         //- Return the mixture viscosity
         //  given the viscosity of the continuous phase
-        virtual tmp<volScalarField> mu(const volScalarField& muc, const volScalarField& rhod) const = 0;
+        virtual tmp<volScalarField> mu(const volScalarField& rhod) const = 0;
         
-        virtual const PtrList<volScalarField>& mud() = 0;
+        virtual const PtrList<volScalarField>& mud() const = 0;
+        
+        virtual const volScalarField& mud_m() const = 0;
 
 	//correting mud_m 
 	virtual void mud_m_correct(const volScalarField& p_water, const dimensionedScalar& p_num) = 0;
 	
         //- Read transportProperties dictionary
         virtual bool read(const dictionary& viscosityPropertiesSub1) = 0;
+        
+    const volScalarField& kr() const
+    {
+        return kr_;
+    }    
+    const dimensionedScalar nuc() const
+    {
+        return muc_/rhoc_;
+    }
+    const dimensionedScalar muc() const
+    {
+        return muc_;
+    }
 };
 
 

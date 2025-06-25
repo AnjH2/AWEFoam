@@ -78,7 +78,8 @@ public:
         simple
         (
             const dictionary& dict,
-            const incompressibleTwoPhaseInteractingMixture& mixture
+            const incompressibleTwoPhaseInteractingMixture& mixture,
+            const word& modelName = ""
         );
 
 

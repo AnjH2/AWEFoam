@@ -65,7 +65,7 @@ Foam::sherwoodModel::sherwoodModel
             Udm_(
     	mixture_.rhod().mesh().lookupObject<volVectorField>
         	(
-            		"Udm"
+            		"poreUdm"
         	)
         ), 
         PeC_(
@@ -100,7 +100,7 @@ Foam::sherwoodModel::sherwoodModel
 	)
 	
 {
-
+Info<<"rembember we have added new driftModel!"<<endl;
 }
 
 

@@ -1,0 +1,9 @@
+phaseDiffusionModel/phaseDiffusionModel.C
+simple/simple.C
+constant/constant.C
+Ishii/Ishii.C
+Schillings/Schillings.C
+noDiffusion/noDiffusion.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxPhaseDiffusionModels

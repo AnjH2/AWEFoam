@@ -7,8 +7,10 @@ EXE_INC = \
     -IspeciesProperties \
     -IspeciesTransport \
     -ImixtureViscosityModels/lnInclude \
+    -IcapillaryPressureModels/lnInclude \
     -IsherwoodModels/lnInclude \
     -I./relativeVelocityModels/lnInclude \
+    -I./phaseDiffusionModels/lnInclude \
     -I./coverageModels/lnInclude \
     -I./concentrationLossModels/lnInclude \
     -I./massAndSpeciesTransferModels/lnInclude \
@@ -32,7 +34,9 @@ EXE_LIBS = \
     -lincompressibleTransportModels \
     -ltwoPhaseMixture \
     -lHisDriftFluxTransportModels \
+    -lHisDriftFluxCapillaryPressureModels \
     -lHisDriftFluxRelativeVelocityModels \
+    -lHisDriftFluxPhaseDiffusionModels \
     -lHisDriftFluxCoverageModels \
     -lHisDriftFluxConcentrationLossModels \
     -lHisDriftFluxMassAndSpeciesTransferModels \

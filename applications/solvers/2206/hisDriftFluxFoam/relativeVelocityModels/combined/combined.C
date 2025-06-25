@@ -45,10 +45,11 @@ namespace relativeVelocityModels
 Foam::relativeVelocityModels::combined::combined
 (
     const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName
 )
 :
-    relativeVelocityModel(dict, mixture),
+    relativeVelocityModel(dict, mixture,modelName),
     mixture_(mixture),
     electrodes({"Ne","Pe"}),
     dict_(dict),
@@ -64,8 +65,6 @@ Foam::relativeVelocityModels::combined::combined
     minAlphad_("minAlphad",dimless,dict),
     rhoc_(mixture.rhoc()),
     rhod_(mixture.rhod()),
-   
-    D_(electrodes.size()),//("D", dimVelocity*dimLength, dict),
     
     CW_(electrodes.size()),//("CW", dimless, dict),
     ULub_
@@ -123,11 +122,6 @@ forAll(electrodes,i)
         	i,
         	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
         );
-        D_.set
-        (
-        	i,
-        	new dimensionedTensor("D_"+electrodes[i], dimless,dict_)
-        );
         CW_.set
         (
         	i,
@@ -164,10 +158,10 @@ volScalarField Foam::relativeVelocityModels::combined::f()
 	return pow(1-min(alphad_,minAlphad_),n_);
 }
 
-volVectorField Foam::relativeVelocityModels::combined::vStokes(int j)
+dimensionedVector Foam::relativeVelocityModels::combined::vStokes(int j)
 {
 	
-	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nucModel().nu())*eg_;
+	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nuc())*eg_;
 }
 
 
@@ -188,7 +182,7 @@ volVectorField Foam::relativeVelocityModels::combined::ULub(int j)
 				alphad_[celli]*CW_[j].value()*2/(2*rd_[j].value())*pow(mag(UStokes(j)[celli]),2)*pow(2*rd_[j].value()/(2*yNormal_[celli]),2)*alphac_.mesh().V()[celli]
 		)
 		/(
-				3*Foam::constant::mathematical::pi*mixture_.nucModel().nu()()[celli]*2*rd_[j].value()
+				3*Foam::constant::mathematical::pi*mixture_.nuc()()[celli]*2*rd_[j].value()
 		)
 			*vector(0.0,1.0,0.0);
 	}
@@ -200,7 +194,7 @@ volVectorField Foam::relativeVelocityModels::combined::ULub(int j)
 				alphad_*CW_[j]*2/(2*rd_[j])*pow(mag(UStokes(j)),2)*pow(2*rd_[j]/(2*yNormal_),2)
 			)
 			/(
-				3*Foam::constant::mathematical::pi*mixture_.nucModel().nu()*2*rd_[j]
+				3*Foam::constant::mathematical::pi*mixture_.nuc()*2*rd_[j]
 			)
 			*dimensionedVector(dimless,vector(0.0,1.0,0.0));
 				//Force/(3*pi*mu_L*D_db)*/
@@ -209,7 +203,7 @@ ULub_=sign(yNormal_)*
 				alphad_*CW_[j]*2/(2*rd_[j])*pow(mag(UStokes(j)),2)*pow(2*rd_[j]/(2*yNormal_),2)*V_
 		)
 		/(
-				3*Foam::constant::mathematical::pi*mixture_.nucModel().nu()*2*rd_[j]
+				3*Foam::constant::mathematical::pi*mixture_.nuc()*2*rd_[j]
 		)
 			*dimensionedVector(dimless,vector(0.0,1.0,0.0));
 return ULub_;
@@ -222,7 +216,7 @@ return ULub_;
 
 void Foam::relativeVelocityModels::combined::correct()
 {    
-
+    dModel_->correct();
     Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0)+ULub(0))*(Ne_+NeC_)+(UStokes(1)+ULub(1))*(Pe_+PeC_));
 
     /*
@@ -234,8 +228,8 @@ void Foam::relativeVelocityModels::combined::correct()
     Info<<Udm_.component(2)<<endl;
     Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
     
-    Ddm_=(rhoc_/rho())*(rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))*f()/alphad_;
-    Ddm_.correctBoundaryConditions();
+    //Ddm_=(rhoc_/rho())*(rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))*f()/alphad_;
+    //Ddm_.correctBoundaryConditions();
 }
 
 

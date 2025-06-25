@@ -63,7 +63,6 @@ class Schillings
 	const dimensionedScalar n_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
-	dimensionedScalar D_;
 	const volScalarField& V1_;
 	const volScalarField& eps_;
 	const volVectorField& U_;
@@ -82,8 +81,6 @@ class Schillings
     
     volVectorField UStokes();
     volVectorField USaff();
-    volScalarField UHdiff();
-    volScalarField USdiff();
     volVectorField USmig();
     
 public:

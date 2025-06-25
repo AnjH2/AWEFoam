@@ -149,14 +149,14 @@ public:
     
     
 	tmp<volScalarField> Re(const dimensionedScalar d)const{
-		return (mag(mixture_.U())*d/mixture_.nucModel().nu());
+		return (mag(mixture_.U())*d/mixture_.nuc());
 	}
 	tmp<volScalarField> ReR(const dimensionedScalar d)const{
-		return (mag(mixture_.rho()/(mixture_.rhoc()*mixture_.alpha2())*Udm_)*d/mixture_.nucModel().nu());
+		return (mag(mixture_.rho()/(mixture_.rhoc()*mixture_.alpha2())*Udm_)*d/mixture_.nuc());
 	}
 	
 	tmp<volScalarField> Sc(const int i)const{
-		return (mixture_.nucModel().nu()/D2_[i]);
+		return (mixture_.nuc()/D2_[i]);
 	}
 	virtual const tmp<volScalarField> sh(const int i) = 0;
 	

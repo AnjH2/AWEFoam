@@ -46,7 +46,8 @@ namespace Foam
 Foam::coverageModel::coverageModel
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const word& modelName 
 )
 :
 	coverageModelDict_(dict),
@@ -55,7 +56,7 @@ Foam::coverageModel::coverageModel
     	(
         	IOobject
         	(
-            	"theta",
+            	modelName+"theta",
             	mesh.time().timeName(),
             	mesh,
             	IOobject::NO_READ,
@@ -73,7 +74,8 @@ Foam::coverageModel::coverageModel
 Foam::autoPtr<Foam::coverageModel> Foam::coverageModel::New
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+     const word& modelName
 )
 {
     const word modelType(dict.get<word>(typeName));
@@ -99,7 +101,8 @@ Foam::autoPtr<Foam::coverageModel> Foam::coverageModel::New
             ctorPtr
             (
                 dict.optionalSubDict(modelType + "Coeffs"),
-                mesh
+                mesh,
+                modelName
             )
         );
 }

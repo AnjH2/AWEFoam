@@ -65,7 +65,7 @@ solvers
     "(UPe|UNe)"
     {
         solver          PBiCGStab;
-        preconditioner  FDIC;
+        preconditioner	none;
         tolerance       1e-7;
         relTol          0.1;
         minIter         1;
@@ -74,6 +74,7 @@ solvers
     {
         $UPe;
         relTol          0;
+        
     }
     Ue
     {
@@ -126,9 +127,9 @@ relaxationFactors
     {
         ".*"           0.75;
         "C*"		0.5;
-        UNe		0.75;
-        UPe		0.75;
-        Ue		0.75;
+        UNe		0.25;
+        UPe		0.25;
+        Ue		0.25;
         p		0.3;
         p_rgh		0.3;
         U		0.7;

@@ -82,7 +82,8 @@ public:
         vogt
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const word& modelName = ""
         );
 
 

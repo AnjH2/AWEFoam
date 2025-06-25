@@ -47,10 +47,11 @@ namespace coverageModels
 Foam::coverageModels::vogt::vogt
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const word& modelName 
 )
 :
-    coverageModel(dict,mesh),
+    coverageModel(dict,mesh,modelName),
     J_
     (
         mesh.lookupObject<volScalarField>

@@ -45,10 +45,11 @@ namespace relativeVelocityModels
 Foam::relativeVelocityModels::simple::simple
 (
     const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName
 )
 :
-    relativeVelocityModel(dict, mixture),
+    relativeVelocityModel(dict, mixture,modelName),
     a_("a", dimless, dict),
     V0_("V0", dimVelocity, dict),
     residualAlpha_("residualAlpha", dimless, dict)
@@ -65,7 +66,7 @@ Foam::relativeVelocityModels::simple::~simple()
 
 void Foam::relativeVelocityModels::simple::correct()
 {
-
+    dModel_->correct();
     Udm_ = (rhoc_/rho())*V0_*pow(scalar(10), -a_*max(alphad_, scalar(0)));
 }
 

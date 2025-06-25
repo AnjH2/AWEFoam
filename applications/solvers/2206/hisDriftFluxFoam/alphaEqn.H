@@ -11,7 +11,7 @@
     {
         fvScalarMatrix alpha1Eqn
         (
-            epsilon1*fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+        fv::EulerDdtScheme<scalar>(mesh).fvmDdt(epsilon1,alpha1)
           + fv::gaussConvectionScheme<scalar>
             (
                 mesh,
@@ -47,14 +47,14 @@
         (
             fvc::flux
             (
-                phi*fvc::interpolate(1/epsilon1),
+                phi,
                 alpha1,
                 alphaScheme
             )
           + fvc::flux
             (
                 phir,
-                alpha1,
+                max(alpha1-dimensionedScalar(dimless,1e-6),Zero),
                 alpharScheme
             )
         );
@@ -62,20 +62,16 @@
         if (MULESCorr)
         {
             tmp<surfaceScalarField> talphaPhiCorr(talphaPhiUn() - alphaPhi);
-            volScalarField alpha100("alpha100", alpha10);
             alpha10 = alpha1;
 
             MULES::correct
             (
-                geometricOneField(),
+                epsilon1,
                 alpha1,
                 talphaPhiUn(),
                 talphaPhiCorr.ref(),
                 vDotvmcAlphal,
-                (
-                    (alpha10 - alpha100)
-                  - vDotvmcAlphal*alpha10
-                )(),
+                (-vDotvmcAlphal*alpha1)(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
             );
@@ -97,12 +93,12 @@
 		
             MULES::explicitSolve
             (
-                geometricOneField(),
+                epsilon1,
                 alpha1,
-                phi*fvc::interpolate(1/epsilon1),
+                phi,
                 alphaPhi,
                 vDotvmcAlphal,
-                vDoteAlphal,
+                (vDoteAlphal)(),
                 UniformField<scalar>(mixture.alphaMax()),
                 zeroField()
             );

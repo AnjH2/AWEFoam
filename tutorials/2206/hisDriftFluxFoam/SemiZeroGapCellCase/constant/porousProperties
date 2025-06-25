@@ -17,8 +17,8 @@ FoamFile
 
 as_Ne		4280;//120;
 as_Pe		4280;//120;
-D_pore_Ne		0.075e-3;
-D_pore_Pe		0.075e-3;
+D_pore_Ne		0.06e-3;
+D_pore_Pe		0.06e-3;
 sigma_s_ref	1.43e7;
 
 

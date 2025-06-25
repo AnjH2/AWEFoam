@@ -49,6 +49,7 @@ Foam::porousProperties::porousProperties
     electrodes({"Ne","Pe"}),
     as_(electrodes.size()),
     D_pore_(electrodes.size()),
+    KL_(electrodes.size()+1),
     epsilon_
     (
         IOobject
@@ -156,6 +157,19 @@ Foam::porousProperties::porousProperties
             IOobject::NO_WRITE
         ),
         (Pe_+Ne_+VSMALL)*sigma_s_ref_*pow(1-epsilon_,tau_)//supress solid conductivity in all regions but electrode regions.
+    ),
+    K_
+    (
+    	IOobject
+        (
+            "permeabilityField",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("K", dimensionSet (  0, 2, 0, 0, 0, 0, 0),1)
     )
 {
 forAll(electrodes,i)
@@ -170,8 +184,18 @@ forAll(electrodes,i)
         	i,
         	new dimensionedScalar("D_pore_"+electrodes[i], dimensionSet (  0, 1, 0, 0, 0, 0, 0),*this)
         );
+        KL_.set
+    	(
+        	i,
+        	new dimensionedScalar("K_"+electrodes[i], dimensionSet (  0, 2, 0, 0, 0, 0, 0),*this)
+        );
 	}
-
+        KL_.set
+    	(
+        	2,
+        	new dimensionedScalar("K_Mem", dimensionSet (  0, 2, 0, 0, 0, 0, 0),*this)
+        );
+    K_=Pe_*KL_[1]+Ne_*KL_[0]+Mem_*KL_[2]+(PeC_+NeC_)*dimensionedScalar(dimensionSet(  0, 2, 0, 0, 0, 0, 0),1e6);
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 

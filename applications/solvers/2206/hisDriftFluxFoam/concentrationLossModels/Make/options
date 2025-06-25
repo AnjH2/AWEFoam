@@ -2,6 +2,7 @@ EXE_INC = \
     -I../massAndSpeciesTransferModels/lnInclude \
     -I../incompressibleTwoPhaseInteractingMixture \
     -I../mixtureViscosityModels/lnInclude \
+    -I../capillaryPressureModels/lnInclude \
     -I../sherwoodModels/lnInclude \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \

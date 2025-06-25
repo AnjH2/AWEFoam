@@ -41,6 +41,7 @@ SourceFiles
 #include "incompressibleTwoPhaseInteractingMixture.H"
 #include "runTimeSelectionTables.H"
 
+#include "phaseDiffusionModel.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -89,7 +90,6 @@ protected:
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
         
-        volTensorField Ddm_;
         
         const scalar y0_;
         const scalar y1_;
@@ -97,7 +97,6 @@ protected:
 	const scalar y3_;
 	volScalarField yNormal_;
 	
-	const scalar dF_;
 	const scalar hF_;
 	
 	const volScalarField& Pe_;
@@ -109,6 +108,9 @@ protected:
 	
 	const volScalarField& Mem_;
 	
+	const word modelName_;
+	
+	autoPtr<phaseDiffusionModel> dModel_;
 
 public:
 
@@ -122,8 +124,9 @@ public:
         relativeVelocityModel,
         dictionary,
         (const dictionary& dict,
-         const incompressibleTwoPhaseInteractingMixture& mixture),
-        (dict, mixture)
+         const incompressibleTwoPhaseInteractingMixture& mixture,
+         const word& modelName),
+        (dict, mixture, modelName)
     );
 
 
@@ -133,7 +136,8 @@ public:
         relativeVelocityModel
         (
             const dictionary& dict,
-            const incompressibleTwoPhaseInteractingMixture& mixture
+            const incompressibleTwoPhaseInteractingMixture& mixture,
+            const word& modelName = ""
         );
 
 
@@ -141,7 +145,8 @@ public:
     static autoPtr<relativeVelocityModel> New
     (
         const dictionary& dict,
-        const incompressibleTwoPhaseInteractingMixture& mixture
+        const incompressibleTwoPhaseInteractingMixture& mixture,
+        const word& modelName = ""
     );
 
 
@@ -156,7 +161,10 @@ public:
         {
             return mixture_;
         }
-
+        bool runDiffusion()
+        {
+        	return dModel_->runDiffusion();
+        }
         //- Return the mixture mean density
         tmp<volScalarField> rho() const;
 
@@ -174,10 +182,9 @@ public:
 	//- Return the relative diffusion of the dispersed phase, volumesentric
 	const volTensorField& Ddm() const
         {
-            return Ddm_;
+            return dModel_->D();
         }
-	//- Return the relative diffusion of the continues phase
-	tmp<volTensorField> Dcm() const;
+
         //- Return the stress tensor due to the phase transport
         tmp<volTensorField> tauDm() const;
 

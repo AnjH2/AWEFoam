@@ -73,7 +73,8 @@ public:
         linearCoverage
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const word& modelName = ""
         );
 
 

@@ -43,6 +43,7 @@ SourceFiles
 #include "compressibleTransportModel.H"
 #include "incompressible/viscosityModels/viscosityModel/viscosityModel.H"
 #include "mixtureViscosityModel.H"
+#include "capillaryPressureModel.H"
 #include "twoPhaseMixture.H"
 //#include "IOdictionary.H"
 #include "physicoChemicalConstants.H"
@@ -70,6 +71,7 @@ protected:
 
 
 	autoPtr<mixtureViscosityModel> muModel_;
+	autoPtr<capillaryPressureModel> pCapModel_;
         autoPtr<viscosityModel> nucModel_;
         
         
@@ -96,6 +98,7 @@ protected:
         const volScalarField& Mem_;
         const volScalarField& PeC_;
         const volScalarField& NeC_;
+        const volScalarField& eps_;
 
 
 public:
@@ -136,6 +139,12 @@ public:
         const viscosityModel& nucModel() const
         {
             return *nucModel_;
+        }
+        
+                //- Return const-access to the continuous-phase viscosityModel
+        const capillaryPressureModel& pCapModel() const
+        {
+            return *pCapModel_;
         }
 
         //- Return const-access to the dispersed-phase density
@@ -179,14 +188,40 @@ public:
             return mu_;
         }
         
-             const PtrList<volScalarField>& mud()
+        const PtrList<volScalarField>& mud() const
         {
             return muModel_->mud();
         }
-	
-	virtual tmp<volScalarField> muc() const
+        const volScalarField& mud_m() const
+        {
+            return muModel_->mud_m();
+        }
+	    const volScalarField& kr() const
+        {
+            return muModel_->kr();
+        }
+	    const volScalarField rhoS()
+	    {
+	        return nu_*(rhod_*alpha1_*pow(alpha1_,muModel_->kr())/(muModel_->mud_m()/rhod_)+rhoc_*alpha2_*pow(alpha2_,muModel_->kr())/nuc());
+	    }
+	    
+	    const volScalarField& pc() const
+	    {
+	        return pCapModel_->pc();
+	    }
+	    
+	    const volScalarField& pcCoeff()
+	    {
+	        return pCapModel_->pc();
+	    }
+	    const volScalarField pcScale() const
+	    {
+	        return eps_*nu_*alpha1_*alpha2_*(-pow(alpha1_,muModel_->kr())/(muModel_->mud_m()/rhod_)+pow(alpha2_,muModel_->kr())/nuc());
+	    }
+	    
+	dimensionedScalar muc() const
 	{
-		return rhoc_*nucModel_->nu();
+		return muModel_->muc();
 	} 
 
         //- Return the dynamic mixture viscosity for patch
@@ -218,7 +253,10 @@ public:
             return mu_/rho();
         }
 
-
+	virtual dimensionedScalar nuc() const
+	{
+		return muModel_->nuc();
+	}
         //- Return the mixture viscosity for patch
         virtual tmp<scalarField> nu(const label patchi) const
         {
@@ -228,10 +266,11 @@ public:
         //- Correct the laminar viscosity
         virtual void correct(const volScalarField& p_water)
         {
-
+        
+            pCapModel_->correct();
             muModel_->mud_m_correct(p_water,p_num_);
 
-            mu_ = muModel_->mu(rhoc_*nucModel_->nu(), rhod_);
+            mu_ = muModel_->mu(rhod_);
 
         }
 
@@ -250,7 +289,7 @@ public:
         {
         	rhoc_=C2_[0]*MW_[0]+C2_[1]*MW_[1]+C2_[2]*MW_[2]+C2_[3]*MW_[3]+C2_[3]*MW_[4];
         }*/
-
+        
         
         
 //	virtual void correct();

@@ -73,7 +73,8 @@ Foam::wordList Foam::relativeVelocityModel::UdmPatchFieldTypes() const
 Foam::relativeVelocityModel::relativeVelocityModel
 (
     const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName
 )
 :
     mixture_(mixture),
@@ -86,7 +87,7 @@ Foam::relativeVelocityModel::relativeVelocityModel
     (
         IOobject
         (
-            "Udm",
+            modelName+"Udm",
             alphac_.time().timeName(),
             alphac_.mesh(),
             IOobject::READ_IF_PRESENT,
@@ -95,19 +96,6 @@ Foam::relativeVelocityModel::relativeVelocityModel
         alphac_.mesh(),
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
-    ),
-    Ddm_
-    (
-        IOobject
-        (
-            "Ddm",
-            alphac_.time().timeName(),
-            alphac_.mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        alphac_.mesh(),
-        dimensionedTensor(dimVelocity*dimLength, Zero)
     ),
     
     y0_(
@@ -138,9 +126,6 @@ Foam::relativeVelocityModel::relativeVelocityModel
     hF_(
     	dict.lookupOrDefault<scalar>("hF", 0) //how much the velocity is reduced, 0 is free rasing bubble, only active in Pe and Ne
     ),
-    dF_(
-    	dict.lookupOrDefault<scalar>("dF", 1) //how much the dispersion is incressed, 1 is defined dispersion, only active in Pe and Ne
-    ),
         Pe_(
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
@@ -170,7 +155,16 @@ Foam::relativeVelocityModel::relativeVelocityModel
         	(
             		"Mem"
         	)
-	)
+	),
+	modelName_(modelName),
+    dModel_
+    (
+        phaseDiffusionModel::New
+        (
+            dict,
+            mixture
+        )
+    )
 {
 forAll ( alphac_.mesh().C(), celli) //loop through cell centres
 {
@@ -211,11 +205,12 @@ forAll ( alphac_.mesh().C(), celli) //loop through cell centres
 Foam::autoPtr<Foam::relativeVelocityModel> Foam::relativeVelocityModel::New
 (
     const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName 
 )
 {
-    const word modelType(dict.get<word>(typeName));
-
+    //const word modelType(dict.get<word>(typeName));
+    const word modelType(dict.get<word>(modelName+"RelativeVelocityModel"));
     Info<< "Selecting relative velocity model " << modelType << endl;
 
     auto* ctorPtr = dictionaryConstructorTable(modelType);
@@ -236,8 +231,9 @@ Foam::autoPtr<Foam::relativeVelocityModel> Foam::relativeVelocityModel::New
         (
             ctorPtr
             (
-                dict.optionalSubDict(modelType + "Coeffs"),
-                mixture
+                dict.optionalSubDict(modelName+":"+modelType + "Coeffs"),
+                mixture,
+                modelName
             )
         );
 }
@@ -273,21 +269,7 @@ Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Ucm() const
     );*/
     
 }
-// Calculate the relative velocity of the continuous phase w.r.t the mean
-Foam::tmp<Foam::volTensorField> Foam::relativeVelocityModel::Dcm() const
-{
-    volScalarField betac(alphac_*rhoc_);
-    volScalarField betad(alphad_*rhod_);
-    return tmp<volTensorField>
-    (
-        new volTensorField
-        (
-            "Dcm",
-            -betad*Ddm_/betac
-        )
-    );
-    
-}
+
 
 // Calculate the relative velocity of the continuous phase w.r.t the mean
 Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Udj() const

@@ -6,7 +6,11 @@
     (
         (1/epsilon1)*fvm::ddt(rho, U) 
       + (1/pow(epsilon1,2))*fvm::div(rhoPhi, U,"div(rhoPhi,U)")
-      + fvc::div(UdmModel.tauDm())
+      + fvc::div(
+                    Solid*UdmModel.tauDm()
+                    +(1-Solid)*freeUdmModel.tauDm(),
+                    "div(tauDm)"
+                )
       + (1.0/epsilon1)*turbulence->divDevRhoReff(U)
       //- fvm::Sp(fvc::ddt(epsilon1,rho) + (1/pow(epsilon1,2))*fvc::div(rhoPhi), U)
      ==
@@ -17,7 +21,7 @@
 
     fvOptions.constrain(UEqn);
 
-    if (pimple.momentumPredictor())
+   /* if (pimple.momentumPredictor())
     {
         solve
         (
@@ -33,4 +37,4 @@
         );
 
         fvOptions.correct(U);
-    }
+    }*/

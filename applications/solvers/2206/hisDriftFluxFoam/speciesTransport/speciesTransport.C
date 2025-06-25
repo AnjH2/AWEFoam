@@ -123,7 +123,7 @@ forAll(species2,i)
 void Foam::speciesTransport::correct(const int i, const volScalarField& theta_)
 {
 
-		C2_s_[i]=(mSTaPtr_.Psi_BV()[i])/(shModelW_->ki(i)*as_[0]*(1-theta_))+C2_[i]; //original
+		C2_s_[i]=(mSTaPtr_.Psi_BV()[i])/(shModelW_->ki(i)*as_[0]*(1-theta_))+C2_[i]; //final
 		//C2_s_[i]=(mSTaPtr_.Psi_BV()[i])/(shModelW_->ki(i)*as_[0]*(1-theta_))+C2_[i]; // does not have the error
 		//C2_s_[i]=(mSTaPtr_.Psi_BV()[i]-mSTaPtr_.mDot_Wall()[i]/MW_[i])/(shModelW_->ki(i)*as_[0])+C2_[i]; // have less error
 }

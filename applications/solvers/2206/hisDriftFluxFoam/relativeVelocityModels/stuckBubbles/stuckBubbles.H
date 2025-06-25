@@ -40,6 +40,7 @@ SourceFiles
 #define stuckBubbles_H
 
 #include "relativeVelocityModel.H"
+#include "coverageModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -57,25 +58,20 @@ class stuckBubbles
     public relativeVelocityModel
 {
 	const incompressibleTwoPhaseInteractingMixture& mixture_;
-	List<word> electrodes;
+	autoPtr<relativeVelocityModel> baseModel_;
+	autoPtr<coverageModel> covModel_;
 	const dictionary& dict_;
-	//const dimensionedVector g_;
-	const meshObjects::gravity& g_;
-	
-	PtrList <dimensionedScalar> rd_;
-	dimensionedScalar n_;
-	const dimensionedScalar& rhoc_;
-	const volScalarField& rhod_;
-	PtrList <dimensionedTensor> D_;
-	const volScalarField& eps_;
-	const dimensionedVector eg_;
+	const volScalarField& alpha1_;
 	const volVectorField& U_;
-	const dimensionedScalar rU_;
+	const dimensionedScalar n_; //powerlaw that converts coverage to saturation
+	//values to check and print
+	volVectorField Udm_P;
+	volScalarField alphaStatic_;
+	volScalarField alphaMoveing_;
+	
+	
     // Private functions??
     
-    
- 
-    volVectorField vStokes(int j);
     
 
 
@@ -92,7 +88,8 @@ public:
         stuckBubbles
         (
             const dictionary& dict,
-            const incompressibleTwoPhaseInteractingMixture& mixture
+            const incompressibleTwoPhaseInteractingMixture& mixture,
+            const word& modelName = ""
         );
 
 

@@ -67,7 +67,6 @@ class combinedDiffusion
 	const dimensionedScalar minAlphad_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
-	PtrList <dimensionedTensor> D_;
 	const volScalarField& eps_;
 	const dimensionedVector eg_;
 	
@@ -76,7 +75,7 @@ class combinedDiffusion
     
     
     volScalarField f();
-    volVectorField vStokes(int j);
+    dimensionedVector vStokes(int j);
     volVectorField UStokes(int j);
     
 
@@ -94,7 +93,8 @@ public:
         combinedDiffusion
         (
             const dictionary& dict,
-            const incompressibleTwoPhaseInteractingMixture& mixture
+            const incompressibleTwoPhaseInteractingMixture& mixture,
+            const word& modelName = ""
         );
 
 

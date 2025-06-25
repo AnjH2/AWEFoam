@@ -66,7 +66,6 @@ class combined
 	const dimensionedScalar minAlphad_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
-	PtrList <dimensionedTensor> D_;
 	PtrList <dimensionedScalar> CW_;
 	volVectorField ULub_;
 	volScalarField V_;
@@ -81,7 +80,7 @@ class combined
     volScalarField kappa();
     volScalarField beta();
     volScalarField f();
-    volVectorField vStokes(int j);
+    dimensionedVector vStokes(int j);
     volVectorField UStokes(int j);
     
     volVectorField ULub(int j);
@@ -100,7 +99,8 @@ public:
         combined
         (
             const dictionary& dict,
-            const incompressibleTwoPhaseInteractingMixture& mixture
+            const incompressibleTwoPhaseInteractingMixture& mixture,
+            const word& modelName = ""
         );
 
 
