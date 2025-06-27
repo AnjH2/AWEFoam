@@ -30,6 +30,7 @@ const scalar potentialCorrections=fvSolution.subDict("HisDriftFlux").get<scalar>
 const scalar outerChemicalCorrections=fvSolution.subDict("HisDriftFlux").get<scalar>("outerChemicalCorrections");
 //scalar nT=transportProperties.get<scalar>("n_Temp");
 Info<< "Reading field p_rgh\n" << endl;
+
 volScalarField p_rgh
 (
     IOobject
@@ -37,21 +38,7 @@ volScalarField p_rgh
         "p_rgh",
         runTime.timeName(),
         mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
-Info<< "Reading field U\n" << endl;
-volVectorField U
-(
-    IOobject
-    (
-        "U",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
     mesh
@@ -68,6 +55,21 @@ volScalarField p
     ),
     p_rgh
 );
+
+Info<< "Reading field U\n" << endl;
+volVectorField U
+(
+    IOobject
+    (
+        "U",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
 Info << "Reading or preparing transfer current field J \n" << endl;
 volScalarField J
 (
@@ -223,22 +225,10 @@ autoPtr<relativeVelocityModel> fUdmModelPtr
 #include "readhRef.H"
 #include "gh.H"
 
-
-
-    p = p_rgh + rho*gh;
-
 label pRefCell = 0;
 scalar pRefValue = 0.0;
-setRefCell
-(
-    p,
-    p_rgh,
-    pimple.dict(),
-    pRefCell,
-    pRefValue
-);
 
-if (p_rgh.needReference())
+if (p.needReference())
 {
     p += dimensionedScalar
     (
@@ -246,10 +236,9 @@ if (p_rgh.needReference())
         p.dimensions(),
         pRefValue - getRefCellValue(p, pRefCell)
     );
-    p_rgh = p - rho*gh;
 }
 
-mesh.setFluxRequired(p_rgh.name());
+mesh.setFluxRequired(p.name());
 mesh.setFluxRequired(alpha1.name());
 
 

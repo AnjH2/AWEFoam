@@ -85,6 +85,7 @@ protected:
         //- porosity
         const volScalarField& eps_;
         const volScalarField& K_;
+        const volScalarField& Solid_;
         
 
 

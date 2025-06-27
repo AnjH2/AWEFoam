@@ -91,7 +91,7 @@ protected:
         volScalarField mu_;
         volScalarField nu_;
         
-        const volScalarField& prgh_;
+        const volScalarField& p_rgh_;
         
         const volScalarField& Pe_;
         const volScalarField& Ne_;

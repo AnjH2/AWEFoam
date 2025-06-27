@@ -78,6 +78,7 @@ Foam::relativeVelocityModel::relativeVelocityModel
 )
 :
     mixture_(mixture),
+    dict_(dict),
     alphac_(mixture.alpha2()),
     alphad_(mixture.alpha1()),
     rhoc_(mixture.rhoc()),
@@ -161,7 +162,7 @@ Foam::relativeVelocityModel::relativeVelocityModel
     (
         phaseDiffusionModel::New
         (
-            dict,
+            dict_,
             mixture
         )
     )
@@ -231,7 +232,7 @@ Foam::autoPtr<Foam::relativeVelocityModel> Foam::relativeVelocityModel::New
         (
             ctorPtr
             (
-                dict.optionalSubDict(modelName+":"+modelType + "Coeffs"),
+                dict.subDict(modelName+":"+modelType + "Coeffs"),
                 mixture,
                 modelName
             )

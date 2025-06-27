@@ -71,7 +71,7 @@ protected:
 
         //- Mixture properties
         const incompressibleTwoPhaseInteractingMixture& mixture_;
-
+        const dictionary& dict_;
         //- Name of the continuous phase
         const word continuousPhaseName_;
 

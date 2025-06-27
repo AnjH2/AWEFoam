@@ -54,7 +54,7 @@
           + fvc::flux
             (
                 phir,
-                max(alpha1-dimensionedScalar(dimless,1e-6),Zero),
+                max(alpha1-dimensionedScalar(dimless,1e-4),Zero),
                 alpharScheme
             )
         );

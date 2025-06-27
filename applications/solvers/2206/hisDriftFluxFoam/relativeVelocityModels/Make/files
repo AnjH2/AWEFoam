@@ -7,6 +7,7 @@ combinedDiffusion/combinedDiffusion.C
 combinedJJ/combinedJJ.C
 combinedME/combinedME.C
 combinedFixedD/combinedFixedD.C
+capillary/capillary.C
 
 
 LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxRelativeVelocityModels

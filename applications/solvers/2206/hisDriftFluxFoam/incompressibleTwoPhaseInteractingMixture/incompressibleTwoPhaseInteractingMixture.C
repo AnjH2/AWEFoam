@@ -152,7 +152,7 @@ incompressibleTwoPhaseInteractingMixture
         mu_/rho()
     ),
     
-    prgh_
+    p_rgh_
        	(
     		U.mesh().lookupObject<volScalarField>
    	 	(

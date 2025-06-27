@@ -70,7 +70,7 @@ Foam::capillaryPressureModels::leverett::leverett
             alphaWetting.time().timeName(),
             alphaWetting.mesh(),
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),       
         alphaWetting.mesh(),
         dimensionedScalar("alphaEff", dimless, 0)
@@ -92,6 +92,15 @@ Foam::capillaryPressureModels::leverett::leverett
     			//(
     			//)
     		)
+  	),
+  	Solid_
+    (
+    		alphaWetting.mesh().lookupObject<volScalarField>
+   	 	    (
+    			"Solid"
+    			//(
+    			//)
+    		)
   	)
 {
 
@@ -108,14 +117,17 @@ void Foam::capillaryPressureModels::leverett::correct()
 
    // // Calcluate effective saturation for wetting phase
    alphaWetEff_=(alphaWetting_-alphaWetMin_)/(alphaWetMax_-alphaWetMin_);
-   alphaWetEff_.max(1e-4);
-   alphaWetEff_.min(1-1e-4);
+   alphaWetEff_.max(SMALL);
+   alphaWetEff_.min(1-SMALL);
    scalar thetaRad = theta_ * (Foam::constant::mathematical::pi/ 180);
-    
+   if (thetaRad < Foam::constant::mathematical::pi/2.0)
+   {
+        Info<<"useing 1-alphaEff"<<endl;
+   }
    volScalarField sqrtK(sqrt(1/K_));
    pc_=
             //(-1)* ANJ
-            sigma_*cos(thetaRad)*sqrt(eps_)*sqrtK
+            Solid_*sigma_*cos(thetaRad)*sqrt(eps_)*sqrtK
            *(
               thetaRad < Foam::constant::mathematical::pi/2.0
                ? (1.42*(1.0 - alphaWetEff_) - 2.12*pow(1.0 - alphaWetEff_, 2) + 1.26*pow(1.0 - alphaWetEff_, 3))
@@ -128,7 +140,7 @@ void Foam::capillaryPressureModels::leverett::correct()
    dpcds_ =
            //! Change to pc = pl - pg  (For IMPES)
           //(-1) * ANJ
-           sigma_*cos(thetaRad)*sqrt(eps_)*sqrtK
+           Solid_*sigma_*cos(thetaRad)*sqrt(eps_)*sqrtK
            *(
                thetaRad < Foam::constant::mathematical::pi/2.0
                ? (-1.42 + 2.0*2.12*(1.0 - alphaWetEff_) - 3.0*1.26*pow(1.0 - alphaWetEff_, 2))

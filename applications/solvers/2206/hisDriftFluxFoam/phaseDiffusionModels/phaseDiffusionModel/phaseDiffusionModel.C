@@ -154,7 +154,7 @@ Foam::autoPtr<Foam::phaseDiffusionModel> Foam::phaseDiffusionModel::New
         FatalIOErrorInLookup
         (
             dict,
-            "relative velocity",
+            "phase diffusion model",
             modelType,
             *dictionaryConstructorTablePtr_
         ) << abort(FatalIOError);

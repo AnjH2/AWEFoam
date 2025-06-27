@@ -110,6 +110,7 @@
     */
     //rhoPhi = fvc::interpolate(rho)*(fvc::interpolate(1/alpha1)*alphaPhi-phir);; //V755
     if (UdmModel.runDiffusion() or freeUdmModel.runDiffusion()) {
+        Info<<"Running phase diffusion equation"<<endl;
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(alpha1) - fvc::ddt(alpha1)
