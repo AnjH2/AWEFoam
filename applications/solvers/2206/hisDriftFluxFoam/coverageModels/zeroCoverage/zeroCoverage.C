@@ -46,10 +46,11 @@ Foam::coverageModels::zeroCoverage::zeroCoverage
 (
     const dictionary& dict,
     const fvMesh& mesh,
+    const incompressibleTwoPhaseInteractingMixture& mixture,
     const word& modelName 
 )
 :
-    coverageModel(dict,mesh,modelName),
+    coverageModel(dict,mesh,mixture,modelName),
     alphad_
     (
         mesh.lookupObject<volScalarField>

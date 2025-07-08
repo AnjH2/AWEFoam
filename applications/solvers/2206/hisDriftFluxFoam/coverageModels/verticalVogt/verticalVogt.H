@@ -24,20 +24,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::bubbleNeuclationLinear
+    Foam::verticalVogt
 
 Description
-    bubbleNeuclationLinear coverage model
+    verticalVogt coverage model
 
 SourceFiles
-    bubbleNeuclationLinear.C
+    verticalVogt.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef bubbleNeuclationLinear_H
-#define bubbleNeuclationLinear_H
+#ifndef verticalVogt_H
+#define verticalVogt_H
 
 #include "volFields.H"
+#include "unitConversion.H"
 #include "coverageModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -51,54 +52,60 @@ namespace coverageModels
                          Class linear Declaration
 \*---------------------------------------------------------------------------*/
 
-class bubbleNeuclationLinear
+class verticalVogt
 :
     public coverageModel
 {
     // Private data
 
-        //- volume fraction of gas -> read
-        const volScalarField& Psi_gas_;	//mass transfer from bubble neucelation 
+        //- exchange current density -> read
+        const volScalarField& J_;
+        const volScalarField& T_;
+        const dimensionedScalar J_lim_;
+        const dimensionedScalar J_scale_;
+        const dimensionedScalar T_ref_;
+        const dimensionedScalar CD_;    //drag coefficient for bubbles
+        const dimensionedScalar beta_;   // bubble contact angle
+        const dimensionedScalar sigma_;  //surface tension coefficient
+        const dimensionedScalar K2_;     //fitting parameter for bubble adheison force to electrode surface
+        
+        
+        
+        // references
+        const PtrList <dimensionedScalar>& as_;
         const volScalarField& Pe_;
         const volScalarField& Ne_;
-        const volScalarField& J_;        
-        volScalarField 	nb_;		//number of bubbles detaching
-        volScalarField 	d_b_;
-        volScalarField 	V_b_;
-        volScalarField 	tau_d_;	//neucleation frequency
-        volScalarField 	h_sb_;	//section height removed from sphere
-        volScalarField 	V_sb_;	//volume of section removed frin sphere
-        volScalarField 	A_sb_;	//surface area covered by a single bubble
+        const volVectorField& U_;
+        const dimensionedScalar& rhoc_;
+        const volScalarField& rhod_;
+        const meshObjects::gravity& g_;
         
-        const PtrList <dimensionedScalar>& as_;		//specific surface area
-        dimensionedScalar alpha_b_;	//contact angle
-        
-        dimensionedScalar d_ba_;
-        dimensionedScalar d_bb_;
-        
-        dimensionedScalar tau_da_;
-        dimensionedScalar tau_db_;
-        label PI;
+        // functions
+        volScalarField Cc();    //function to describe bubble adhesion force
+        volScalarField Cb();    //function to describe drag force on bubble
+        volScalarField correction();
         
         
 public:
 
     //- Runtime type information
-    TypeName("bubbleNeuclationLinear");
+    TypeName("verticalVogt");
 
 
     // Constructors
 
         //- Construct from components
-        bubbleNeuclationLinear
+        verticalVogt
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const incompressibleTwoPhaseInteractingMixture& mixture,
+            const word& modelName = ""
         );
 
 
     //- Destructor
-    ~bubbleNeuclationLinear();
+    ~verticalVogt();
 
 
     // Member Functions

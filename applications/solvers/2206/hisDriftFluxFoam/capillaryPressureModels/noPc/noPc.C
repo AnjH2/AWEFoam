@@ -5,7 +5,8 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2015 OpenFOAM Foundation
+    Copyright (C) 2014-2017 OpenFOAM Foundation
+    Copyright (C) 2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,55 +26,65 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "simple.H"
+#include "noPc.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace relativeVelocityModels
+namespace capillaryPressureModels
 {
-    defineTypeNameAndDebug(simple, 0);
-    addToRunTimeSelectionTable(relativeVelocityModel, simple, dictionary);
+    defineTypeNameAndDebug(noPc, 0);
+
+    addToRunTimeSelectionTable
+    (
+        capillaryPressureModel,
+        noPc,
+        dictionary
+    );
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::relativeVelocityModels::simple::simple
+Foam::capillaryPressureModels::noPc::noPc
 (
+    const volScalarField& alphaWetting,
     const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture,
-    const word& modelName
+    const word modelName
 )
 :
-    relativeVelocityModel(dict, mixture,modelName),
-    a_("a", dimless, dict),
-    V0_("V0", dimVelocity, dict),
-    residualAlpha_("residualAlpha", dimless, dict)
-{}
+    capillaryPressureModel(alphaWetting,dict)
+{
 
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::relativeVelocityModels::simple::~simple()
-{}
+}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::relativeVelocityModels::simple::correct()
+
+void Foam::capillaryPressureModels::noPc::correct()
 {
-    dModel_->correct();
-    
-    //volVectorField gAlphad_(fvc::grad(alphad_));
-    //Udm_.component(vector::X) = -1*Mem_*pos0(gAlphad_.component(vector::X))*mixture_.U().component(vector::X);
-    //Udm_.component(vector::Y) = -1*Mem_*pos0(gAlphad_.component(vector::Y))*mixture_.U().component(vector::Y);
-    //Udm_.component(vector::Z) = -1*Mem_*pos0(gAlphad_.component(vector::Z))*mixture_.U().component(vector::Z);  
-    
-    Udm_ += (1-Mem_)*(rhoc_/rho())*V0_*pow(scalar(10), -a_*max(alphad_, scalar(0)))-Mem_*mixture_.U();
+
+
+}
+
+bool Foam::capillaryPressureModels::noPc::read
+(
+    const dictionary& dict
+)
+{
+    capillaryPressureModel::read(dict);
+
+    noPcCoeffsSub_ = dict.optionalSubDict(typeName + "Coeffs");
+
+    //noPcCoeffsSub1_.readEntry("mu", mud_);
+  //  noPcCoeffs_.readEntry("n", noPcViscosityExponent_);
+   // noPcCoeffs_.readEntry("muMax", muMax_);
+
+    return true;
 }
 
 

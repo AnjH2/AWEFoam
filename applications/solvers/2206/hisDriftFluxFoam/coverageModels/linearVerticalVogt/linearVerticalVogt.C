@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "linearVogt.H"
+#include "linearVerticalVogt.H"
 #include "addToRunTimeSelectionTable.H"
 #include "../../porousProperties/porousProperties.H"
 
@@ -35,15 +35,15 @@ namespace Foam
 {
 namespace coverageModels
 {
-    defineTypeNameAndDebug(linearVogt, 0);
-    addToRunTimeSelectionTable(coverageModel, linearVogt, dictionary);
+    defineTypeNameAndDebug(linearVerticalVogt, 0);
+    addToRunTimeSelectionTable(coverageModel, linearVerticalVogt, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coverageModels::linearVogt::linearVogt
+Foam::coverageModels::linearVerticalVogt::linearVerticalVogt
 (
     const dictionary& dict,
     const fvMesh& mesh,
@@ -85,6 +85,30 @@ Foam::coverageModels::linearVogt::linearVogt
 		dimTemperature,
 		dict
 	),
+	CD_
+	(
+		"bubbleDragCoeffient",
+		dimless,
+		dict
+	),
+	beta_
+	(
+		"bubbleContactAngle",
+		dimless,
+		dict
+	),
+	sigma_
+	(
+		"surfaceTension",
+		dimForce/dimLength,
+		dict
+	),
+	K2_
+	(
+		"correctionCoefficient",
+		dimMass/dimLength/dimTime/dimTime,
+		dict
+	),
     as_(
 	mesh.lookupObject<porousProperties>
         (
@@ -105,6 +129,16 @@ Foam::coverageModels::linearVogt::linearVogt
             "Ne"
         )
     ),
+        U_
+    (
+        mesh.lookupObject<volVectorField>
+        (
+            "U"
+        )
+    ),
+    rhoc_(mixture_.rhoc()),
+    rhod_(mixture_.rhod()),
+    g_(meshObjects::gravity::New(mixture.U().time())),
     alphad_
     (
         mesh.lookupObject<volScalarField>
@@ -122,16 +156,28 @@ Foam::coverageModels::linearVogt::linearVogt
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coverageModels::linearVogt::~linearVogt()
+Foam::coverageModels::linearVerticalVogt::~linearVerticalVogt()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-void Foam::coverageModels::linearVogt::correct()
+volScalarField Foam::coverageModels::linearVerticalVogt::Cc()
+{
+    return  -6/(mag(g_)*(rhoc_-rhod_))*sin(degToRad()*beta_)*K2_;
+}
+volScalarField Foam::coverageModels::linearVerticalVogt::Cb()
+{
+    return  3.0/4.0*CD_*rhoc_/(mag(g_)*(rhoc_-rhod_))*pow(mag(U_),2)*(1-(degToRad()*beta_-cos(degToRad()*beta_)*sin(degToRad()*beta_))/(Foam::constant::mathematical::pi));
+}
+volScalarField Foam::coverageModels::linearVerticalVogt::correction()
 {
 
-    theta_ =max(pow(min(alphad_,0.999),n_),(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
+    return pow((sqrt(-4*Cc()*dimensionedScalar(dimLength,1)+pow(Cb(),2))-Cb())/(2*sqrt(-Cc()*dimensionedScalar(dimLength,1))),4);
+}
+void Foam::coverageModels::linearVerticalVogt::correct()
+{
+
+    theta_ =max(pow(min(alphad_,0.999),n_),correction()*(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
 
     theta_.correctBoundaryConditions();
 }

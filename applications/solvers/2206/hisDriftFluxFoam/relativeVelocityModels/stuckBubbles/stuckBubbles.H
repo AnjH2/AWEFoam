@@ -65,7 +65,7 @@ class stuckBubbles
 	const volVectorField& U_;
 	const dimensionedScalar n_; //powerlaw that converts coverage to saturation
 	//values to check and print
-	volVectorField Udm_P;
+	volTensorField Ddm_;
 	volScalarField alphaStatic_;
 	volScalarField alphaMoveing_;
 	
@@ -101,6 +101,15 @@ public:
 
         //- Update the diffusion velocity
         virtual void correct();
+        
+        	virtual const volTensorField& Ddm() const
+        {
+            return Ddm_;
+        }
+        virtual bool runDiffusion()
+        {
+        	return dModel_->runDiffusion() or baseModel_->runDiffusion();
+        }
 };
 
 

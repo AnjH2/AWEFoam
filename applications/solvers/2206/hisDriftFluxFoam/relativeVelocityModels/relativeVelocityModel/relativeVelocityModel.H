@@ -161,7 +161,7 @@ public:
         {
             return mixture_;
         }
-        bool runDiffusion()
+        virtual bool runDiffusion()
         {
         	return dModel_->runDiffusion();
         }
@@ -180,7 +180,7 @@ public:
 	tmp<volVectorField> Udj() const;
 	
 	//- Return the relative diffusion of the dispersed phase, volumesentric
-	const volTensorField& Ddm() const
+	virtual const volTensorField& Ddm() const
         {
             return dModel_->D();
         }

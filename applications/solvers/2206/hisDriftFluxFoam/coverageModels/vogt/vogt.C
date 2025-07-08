@@ -48,10 +48,11 @@ Foam::coverageModels::vogt::vogt
 (
     const dictionary& dict,
     const fvMesh& mesh,
+    const incompressibleTwoPhaseInteractingMixture& mixture,
     const word& modelName 
 )
 :
-    coverageModel(dict,mesh,modelName),
+    coverageModel(dict,mesh,mixture,modelName),
     J_
     (
         mesh.lookupObject<volScalarField>

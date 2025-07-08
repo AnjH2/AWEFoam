@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2015 OpenFOAM Foundation
+    Copyright (C) 2014 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,75 +24,86 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::linearCoverage
+    Foam::capillaryPressureModels::noPc
 
 Description
-    linearCoverage coverage model
-
+     noPc J function for capillary pressure
+     large portions of the model implementation is taken from openFuelCell2 
 SourceFiles
-    linearCoverage.C
+    noPc.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef linearCoverage_H
-#define linearCoverage_H
+#ifndef noPc_H
+#define noPc_H
 
+#include "capillaryPressureModel.H"
+#include "dimensionedScalar.H"
 #include "volFields.H"
-#include "coverageModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coverageModels
+
+class incompressibleTwoPhaseInteractingMixture;
+
+namespace capillaryPressureModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class linear Declaration
+                           Class noPc Declaration
 \*---------------------------------------------------------------------------*/
 
-class linearCoverage
+class noPc
 :
-    public coverageModel
+    public capillaryPressureModel
 {
-    // Private data
+protected:
 
-        //- volume fraction of gas -> read
-        const volScalarField& alphad_;
-        const dimensionedScalar n_;
+    // Protected data
+
+        //- Dictionary
+        dictionary noPcCoeffsSub_;
+
         
+
+
 public:
 
     //- Runtime type information
-    TypeName("linearCoverage");
+    TypeName("noPc");
 
 
     // Constructors
 
         //- Construct from components
-        linearCoverage
+        noPc
         (
+            const volScalarField& alphaWetting,
             const dictionary& dict,
-            const fvMesh& mesh,
-            const incompressibleTwoPhaseInteractingMixture& mixture,
-            const word& modelName = ""
+            const word modelName=typeName
         );
 
 
     //- Destructor
-    ~linearCoverage();
+    ~noPc()
+    {}
 
 
     // Member Functions
-
-        //- Update coverage
+        //updates pc
         virtual void correct();
+        
+        
+        //- Read transportProperties dictionary
+        bool read(const dictionary& viscosityPropertiesSub1);
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coverageModels
+} // End namespace capillaryPressureModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

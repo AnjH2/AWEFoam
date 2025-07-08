@@ -38,6 +38,7 @@ SourceFiles
 
 #include "fvCFD.H"
 #include "dictionary.H"
+#include "incompressibleTwoPhaseInteractingMixture.H"
 #include "runTimeSelectionTables.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -65,6 +66,7 @@ protected:
     // Protected data
 	const dictionary coverageModelDict_;
 	const dictionary transportPropertiesDict_;
+	const incompressibleTwoPhaseInteractingMixture& mixture_;
 	volScalarField	theta_;
 	dimensionedScalar p_num_;
 
@@ -81,8 +83,9 @@ public:
         dictionary,
         (const dictionary& dict,
          const fvMesh& mesh,
+         const incompressibleTwoPhaseInteractingMixture& mixture,
          const word& modelName ),
-        (dict, mesh, modelName)
+        (dict, mesh, mixture, modelName)
     );
 
 
@@ -93,6 +96,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
+    const incompressibleTwoPhaseInteractingMixture& mixture,
     const word& modelName = ""
         );
 
@@ -102,6 +106,7 @@ public:
     (
         const dictionary& dict,
         const fvMesh& mesh,
+        const incompressibleTwoPhaseInteractingMixture& mixture,
         const word& modelName = ""
     );
 

@@ -47,11 +47,13 @@ Foam::coverageModel::coverageModel
 (
     const dictionary& dict,
     const fvMesh& mesh,
+    const incompressibleTwoPhaseInteractingMixture& mixture,
     const word& modelName 
 )
 :
 	coverageModelDict_(dict),
 	transportPropertiesDict_(dict),
+	mixture_(mixture),
     	theta_
     	(
         	IOobject
@@ -75,7 +77,8 @@ Foam::autoPtr<Foam::coverageModel> Foam::coverageModel::New
 (
     const dictionary& dict,
     const fvMesh& mesh,
-     const word& modelName
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName
 )
 {
     const word modelType(dict.get<word>(typeName));
@@ -102,6 +105,7 @@ Foam::autoPtr<Foam::coverageModel> Foam::coverageModel::New
             (
                 dict.optionalSubDict(modelType + "Coeffs"),
                 mesh,
+                mixture,
                 modelName
             )
         );

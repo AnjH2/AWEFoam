@@ -389,7 +389,8 @@ autoPtr<coverageModel> thetaModelPtr
     coverageModel::New
     (
         transportProperties,
-        mesh
+        mesh,
+        mixture
     )
 );
 // concentrationloss
@@ -448,3 +449,140 @@ volScalarField Drd
         }
     }
 surfaceScalarField phir(fvc::flux((1-Solid)*fUdmModelPtr->Udm()+Solid*UdmModelPtr->Udm()));
+
+//create constant fields for rdrPiso and correction of phir
+volScalarField chi1
+(
+        IOobject
+        (
+            "chi1",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,1)
+);
+surfaceScalarField theta1
+(
+        IOobject
+        (
+            "theta1",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,1)
+);
+surfaceScalarField w1
+(
+        IOobject
+        (
+            "w1",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        1.0/Foam::mag(mesh.delta())
+);
+//starts with rdrPiso
+{
+const surfaceScalarField absDEpsf = Foam::mag(fvc::snGrad(poroM.eps())*mesh.magSf());  // φ_nb - φ_P  with correct sign
+// owner–neighbour addressing
+
+
+// final normalisation χₚ = Σ_f |Δφ| / max(Σ_f |Δφ|, ξ)
+chi1=fvc::surfaceSum(absDEpsf)*dimensionedScalar(dimless/dimLength,1);
+forAll(chi1, cellI)
+{
+    const scalar sum = chi1[cellI];
+    chi1[cellI] = sum/(max(sum,VSMALL));          // VSMALL ≈ 1e-15
+}
+
+surfaceScalarField absOmegaf(Foam::mag(fvc::snGrad(chi1*poroM.eps())*mesh.magSf()));  // Δ(Δφ)_f  := dPhi_nb − dPhi_P
+
+forAll(absOmegaf, fI)
+{
+    theta1[fI] = absOmegaf[fI]/(max(absOmegaf[fI], VSMALL));
+}
+
+}
+// prepare for phir or Udm
+volScalarField chi2
+(
+        IOobject
+        (
+            "chi2",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,1)
+);
+
+surfaceScalarField theta2
+(
+        IOobject
+        (
+            "theta2",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,1)
+);
+
+
+{
+const surfaceScalarField absDSolidf = Foam::mag(fvc::snGrad(Solid)*mesh.magSf());  // φ_nb - φ_P  with correct sign
+// owner–neighbour addressing
+
+// final normalisation χₚ = Σ_f |Δφ| / max(Σ_f |Δφ|, ξ)
+chi2=fvc::surfaceSum(absDSolidf)*dimensionedScalar(dimless/dimLength,1);
+forAll(chi2, cellI)
+{
+    const scalar sum = chi2[cellI];
+    chi2[cellI] = sum/(max(sum,VSMALL));          // VSMALL ≈ 1e-15
+}
+
+surfaceScalarField absOmegaf(Foam::mag(fvc::snGrad(chi2*Solid)*mesh.magSf()));  // Δ(Δφ)_f  := dPhi_nb − dPhi_P
+
+forAll(absOmegaf, fI)
+{
+    theta2[fI] = absOmegaf[fI]/(max(absOmegaf[fI], VSMALL));
+}
+}
+//Info<<"before List"<<endl;
+static labelList activeCells2;
+if (activeCells2.empty())
+{
+    DynamicList<label> tmp;
+    forAll(chi2, cellI)
+    {
+        if (chi2[cellI] >= 0.5) tmp.append(cellI);
+    }
+    activeCells2.transfer(tmp);   // shrink-to-fit
+    Info<< "Active-cell list size : " << activeCells2.size() << nl << endl;
+}
+static labelList activeCells1;
+if (activeCells1.empty())
+{
+    DynamicList<label> tmp;
+    forAll(chi1, cellI)
+    {
+        if (chi1[cellI] >= 0.5) tmp.append(cellI);
+    }
+    activeCells1.transfer(tmp);   // shrink-to-fit
+    Info<< "Active-cell list size : " << activeCells1.size() << nl << endl;
+}
+//Info<<"after List"<<endl;
+
+

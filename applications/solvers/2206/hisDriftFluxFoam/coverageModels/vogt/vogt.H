@@ -83,6 +83,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
+            const incompressibleTwoPhaseInteractingMixture& mixture,
             const word& modelName = ""
         );
 

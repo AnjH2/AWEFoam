@@ -125,8 +125,9 @@
         	
         	volScalarField sigmae
 		(
-		calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(max(alpha2,SMALL),1.5))
+		calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(max(1-Mem*alpha1,SMALL),1.5))
 		);
+		//Info<<"calculates average sigma_ref_L -> "<<average(calKappa(T,C2[3]/1000))<<endl;
         	fvScalarMatrix UeEqn
         	(
         	fvm::laplacian(sigmae, Ue)//+fvc::laplacian(-1*z[3]*F*poroM.eps()*rho*max(alpha2,SMALL)*speciesP.D2_eff()[3]/rho2,C2[3])	
