@@ -28,7 +28,7 @@ License
 #include "surfaceFields.H"
 #include "fvc.H"
 #include "../incompressibleTwoPhaseInteractingMixture/incompressibleTwoPhaseInteractingMixture.H"
-#include "../gammaOH.H"
+#include "../KOH_prop.H"
 
 
 
@@ -274,6 +274,18 @@ void Foam::reactionProperties::correct(const volScalarField& p_water_,const volS
 			}
 		}
 	}
-
+Foam::volScalarField Foam::reactionProperties::mKOH(const volScalarField& T, const volScalarField& M)
+{
+    return cal_mKOH(T,M);
+}
+	    
+Foam::volScalarField Foam::reactionProperties::dlnGOH_dlnCOH(const volScalarField& T, const volScalarField& COH)
+{
+    return dlnGammaOH_dlnCOH(T,COH);
+}
+Foam::volScalarField Foam::reactionProperties::dlnGOH_dlnmKOH(const volScalarField& T, const volScalarField& mKOH)
+{
+    return dlnGammaOH_dlnmKOH(T,mKOH);
+}	    	    
 
 // ************************************************************************* //

@@ -35,6 +35,7 @@ SourceFiles
 #ifndef speciesProperties_H
 #define speciesProperties_H
 
+#include "fvCFD.H"
 #include "volFields.H"
 #include "physicoChemicalConstants.H"
 #include "IOdictionary.H"
@@ -70,6 +71,10 @@ protected:
 	PtrList <volScalarField> C2_;
 	PtrList <volScalarField> D2_;
 	PtrList <volScalarField> D2_eff_;
+	PtrList <volScalarField> t_;
+	volScalarField  D2_ambi_;
+	volScalarField  C2_T_;
+	volScalarField  C2_0_;
 	//PtrList <volScalarField> D1_eff_;
 	
 	//
@@ -92,6 +97,7 @@ protected:
 	//volScalarField			dummy_; //need a dummy who is equal 0.5
 	//volScalarField			D1_eff_;
 	//making an object from class
+	volScalarField tp_Merenkov();
 	
 public:
 
@@ -131,16 +137,28 @@ public:
         {
             return u_OH_;
         }
-        const dimensionedScalar& z_K() const
+        const dimensionedScalar& u_K() const
         {
             return u_K_;
         }
+        
+        //transference numbers
+        const PtrList <volScalarField>& t() const
+        {
+            return t_;
+        }
+        //conductivity
+        
+        
         //molarweight
         const PtrList <dimensionedScalar>& MW() const
         {
             return MW_;
         }
-
+        const volScalarField kappa() const
+        {
+            return -1*pow(Foam::constant::physicoChemical::F,2)/(Foam::constant::physicoChemical::R*T_)*(z_[4]*D2_[4]-z_[3]*D2_[3])*z_[3]*C2_[3];
+        }
 
         //make access for fields__________________________________
         const volScalarField& T() const
@@ -161,8 +179,14 @@ public:
         {
             return C2_;
         }
-        
-        
+        const volScalarField& C2_T() const
+        {
+            return C2_T_;
+        }
+        const volScalarField& C2_0() const
+        {
+            return C2_0_;
+        }        
         const PtrList <volScalarField>& D2_eff() const
         {
             return D2_eff_;
@@ -171,9 +195,16 @@ public:
         {
             return D2_;
         }
+        const volScalarField& D2_ambi() const
+        {
+            return D2_ambi_;
+        }
         void correct_DOH(volScalarField kappa)
         {
-        	D2_[3]=kappa*Foam::constant::physicoChemical::R*T_/(2*C2_[3]*pow(Foam::constant::physicoChemical::F*z_[3],2));
+        	t_[3]=1-tp_Merenkov();
+        	D2_[3]=kappa*Foam::constant::physicoChemical::R*T_/(C2_[3]*pow(Foam::constant::physicoChemical::F*z_[3],2))*t_[3];
+        	t_[4]=1-t_[3];
+        	D2_[4]=kappa*Foam::constant::physicoChemical::R*T_/(C2_[3]*pow(Foam::constant::physicoChemical::F*z_[3],2))*t_[4];
         	
         }
 	void correct_D2_eff(volScalarField alphad_)
@@ -183,7 +214,9 @@ public:
         			D2_eff_[i]=Foam::pow(epsilon_,tau_)*Foam::pow(1-min(alphad_,0.99),1.5)*D2_[i];
         		}
 
+            D2_ambi_=Foam::pow(epsilon_,tau_)*Foam::pow(1-min(alphad_,0.99),1.5)*(z_[4]-z_[3])*D2_[3]*D2_[4]/(-1*z_[3]*D2_[3]+z_[4]*D2_[4]);
         }
+     void correct();   
 
 };
 

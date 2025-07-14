@@ -61,7 +61,7 @@ Description
 #include "IOobjectList.H"
 #include "loopControl.H"
 #include "condKOH.H"
-#include "m_KOH.H"
+//#include "KOH_prop.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         
         
         Info<< "Time = " << runTime.timeName() << nl << endl;
-        mSTa.correct_waterPartialPressure(cal_mKOH(T,C2[3]/1000)*dimensionedScalar(dimensionSet(1,0,0,0,-1,0,0),1));
+        mSTa.correct_waterPartialPressure(react.mKOH(T,C2[3]/1000)*dimensionedScalar(dimensionSet(1,0,0,0,-1,0,0),1));
         
         // --- initialising mixture velocity
        
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
             
             speciesP.correct_D2_eff(1-alpha2);
             
-            react.correct(mSTa.p_water(),mSTa.p_water_pure(),mixture.p_num(),cal_mKOH(T,C2[3]/1000));
+            react.correct(mSTa.p_water(),mSTa.p_water_pure(),mixture.p_num(),react.mKOH(T,C2[3]/1000));
             
             for (int k=0; k<=outerChemicalCorrections; k++)
             {
@@ -220,10 +220,15 @@ int main(int argc, char *argv[])
         	INe.correctBoundaryConditions();
         	IPe = poroM.sigma_s_eff()*fvc::grad(UPe);
 
-        	Ie = 	(Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T)*fvc::grad(Ue)
-        		-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2*fvc::grad(C2[3]);
+        	//Ie =// 	(Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T)*fvc::grad(Ue)
+        		//-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2*fvc::grad(C2[3]);
         		//-1*mag(z[3])*F*mSTa.Psi_BV()[3]*dimensionedVector(dimless,vector (1,1,1));	// electrochemcial source term ***********; //unit does not work
 	}
+	/*Info<<"calculates Ie"<<endl;
+	dimensionedScalar dummy(C2[3].dimensions(),1);
+	volScalarField resistance((pow(epsilon1,poroM.tau())*pow(max(1-Mem*alpha1,SMALL),1.5)));
+	    Ie = -resistance*speciesP.kappa()*fvc::grad(Ue)-R*T/F*resistance*speciesP.kappa()*(speciesP.t()[4]/z[4]+speciesP.t()[3]/z[3])*fvc::grad(log(C2[3]/dummy));
+	    Info<<"calculates Ie END"<<endl;*/
         runTime.write();
 
         runTime.printExecutionTime(Info);

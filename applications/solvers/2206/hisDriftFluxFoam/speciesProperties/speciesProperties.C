@@ -28,6 +28,9 @@ License
 #include "surfaceFields.H"
 #include "fvc.H"
 
+
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::speciesProperties::speciesProperties
@@ -51,16 +54,56 @@ Foam::speciesProperties::speciesProperties
     	phase2NamE_(dict.get<wordList>("phases")[1]),
     	species2Coeffs_(this->optionalSubDict(phase2NamE_)),
     	species1Coeffs_(this->optionalSubDict(phase1NamE_)),
-    	species2({"H2","O2","H2O","OH"}),
+    	species2({"H2","O2","H2O","OH","K"}),
     	species1({"H2","O2","H2O"}),
 	z_(species2.size()),
 	Ea2_(species2.size()),
 	D2_ref_(species2.size()),
 	T2_ref_(species2.size()),
-	MW_(species2.size()+1),
+	MW_(species2.size()),
 	C2_(species2.size()),
 	D2_(species2.size()),
 	D2_eff_(species2.size()),
+	t_(species2.size()),
+	D2_ambi_
+    (
+    	    IOobject
+    	    (
+     	       "D2_ambi",
+    	       mesh.time().timeName(),
+     	       mesh,
+     	       IOobject::NO_READ,
+    	       IOobject::AUTO_WRITE
+    	    ),
+    	    mesh,
+    	    dimensionedScalar(dimVelocity*dimLength,Zero)
+    ),
+    C2_T_
+    (
+    	    IOobject
+    	    (
+     	       "C2_T",
+    	       mesh.time().timeName(),
+     	       mesh,
+     	       IOobject::NO_READ,
+    	       IOobject::NO_WRITE
+    	    ),
+    	    mesh,
+    	    dimensionedScalar(dimMoles/dimVolume,Zero)
+    ),
+    C2_0_
+    (
+    	    IOobject
+    	    (
+     	       "C2_0",
+    	       mesh.time().timeName(),
+     	       mesh,
+     	       IOobject::NO_READ,
+    	       IOobject::AUTO_WRITE
+    	    ),
+    	    mesh,
+    	    dimensionedScalar(dimMoles/dimVolume,Zero)
+    ),
 	//Mobility
 	u_OH_("u_OH",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
 	u_K_("u_K",dimensionSet ( 0, -1, 0, 0, 0, 0, 0),species2Coeffs_),
@@ -184,20 +227,79 @@ forAll(species2,i)
             			Foam::pow(epsilon_,tau_)*D2_[i]
         		)
     		);
+    }
+    forAll(species2,i)
+	{
+    	if (i==3){
+    	    t_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+                			"t_"+species2[i],
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			-1*z_[i]*D2_[i]/(z_[4]*D2_[4]-z_[3]*D2_[3])
+        		)
+    		);
     	
+    	}else if (i==4){
+    	    t_.set
+    		(
+        		i,
+        		new volScalarField
+        		(
+            			IOobject
+            			(
+                			"t_"+species2[i],
+                			mesh.time().timeName(),
+                			mesh,
+                			IOobject::NO_READ,
+                			IOobject::NO_WRITE
+            			),
+            			mag(z_[i])*D2_[i]/(z_[4]*D2_[4]-z_[3]*D2_[3])
+        		)
+    		);
+    	
+    	}
 	}
-	Info<< "*** Reading molar weight for K***"<<" size:"<<MW_.size()<< nl << endl;
+/*	Info<< "*** Reading molar weight for K***"<<" size:"<<MW_.size()<< nl << endl;
 MW_.set
 	(
         MW_.size()-1,
         new dimensionedScalar("MW_K", dimensionSet ( 1, 0, 0, 0, -1, 0, 0),dict)
         );
-
+*/
+D2_ambi_=(z_[4]-z_[3])*D2_[3]*D2_[4]/(-1*z_[3]*D2_[3]+z_[4]*D2_[4]);
 
 }
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+volScalarField Foam::speciesProperties::tp_Merenkov()
+{
+    return 0.26-0.047*(sqrt(C2_[3]/dimensionedScalar(dimMoles/dimVolume,1000))+1);
+}
 
+
+void Foam::speciesProperties::correct()
+{
+    C2_[4]=C2_[3];
+    C2_T_=dimensionedScalar(dimMoles/dimVolume,Zero);
+    C2_0_=dimensionedScalar(dimMoles/dimVolume,Zero);
+    forAll(species2,i)
+    {
+        C2_T_+=C2_[i];
+        if (i<3)
+        {
+            C2_0_+=C2_[i];
+        }
+    }    
+}
 
 
 

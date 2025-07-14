@@ -146,8 +146,14 @@ public:
             return k_H_;
         }
 	
-	void correct(const volScalarField& p_water_,const volScalarField& p_water_pure_,const dimensionedScalar p_num_, const volScalarField& m_KOH);
+	    volScalarField mKOH(const volScalarField& T, const volScalarField& M);
+	    volScalarField dlnGOH_dlnCOH(const volScalarField& T, const volScalarField& COH);
+	    volScalarField dlnGOH_dlnmKOH(const volScalarField& T, const volScalarField& mKOH);
 
+	
+	void correct(const volScalarField& p_water_,const volScalarField& p_water_pure_,const dimensionedScalar p_num_, const volScalarField& m_KOH);
+        
+        
 };
 
 

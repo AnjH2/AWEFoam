@@ -122,15 +122,17 @@
         	fvm::laplacian((Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T), Ue)+fvc::laplacian(-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2,C2[3])	
         	==-1*(Je_Pe+Je_Ne)
         	);*/
-        	
-        	volScalarField sigmae
+        dimensionedScalar dummy(C2[3].dimensions(),1);
+	    volScalarField resistance((pow(epsilon1,poroM.tau())*pow(max(1-Mem*alpha1,SMALL),1.5)));
+	    Ie = -resistance*speciesP.kappa()*fvc::grad(Ue)-R*T/F*resistance*speciesP.kappa()*(speciesP.t()[4]/z[4]+speciesP.t()[3]/z[3])*fvc::grad(log(C2[3]/dummy));	
+        volScalarField sigmae
 		(
 		calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(max(1-Mem*alpha1,SMALL),1.5))
 		);
 		//Info<<"calculates average sigma_ref_L -> "<<average(calKappa(T,C2[3]/1000))<<endl;
         	fvScalarMatrix UeEqn
         	(
-        	fvm::laplacian(sigmae, Ue)//+fvc::laplacian(-1*z[3]*F*poroM.eps()*rho*max(alpha2,SMALL)*speciesP.D2_eff()[3]/rho2,C2[3])	
+        	fvm::laplacian(resistance*speciesP.kappa(), Ue)-fvc::laplacian(R*T/F*resistance*speciesP.kappa()*(speciesP.t()[4]/z[4]+speciesP.t()[3]/z[3]),log(C2[3]/dummy))//+fvc::laplacian(-1*z[3]*F*poroM.eps()*rho*max(alpha2,SMALL)*speciesP.D2_eff()[3]/rho2,C2[3])	
         	==-1*(Je_Pe+Je_Ne)
         	);
 		
@@ -165,3 +167,4 @@
         	Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne*exp(C3Ne*eta)-CRc_Ne*exp(C4Ne*eta))
     		;
 		J.correctBoundaryConditions();
+		Ie=fvc::reconstruct(UeEqn.flux());
