@@ -232,7 +232,7 @@ Foam::autoPtr<Foam::relativeVelocityModel> Foam::relativeVelocityModel::New
         (
             ctorPtr
             (
-                dict.subDict(modelName+":"+modelType + "Coeffs"),
+                dict.subDict(modelName+modelType + "Coeffs"),
                 mixture,
                 modelName
             )

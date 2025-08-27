@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2015 OpenFOAM Foundation
+    Copyright (C) 2011-2013 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,55 +25,44 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Ishii.H"
-#include "addToRunTimeSelectionTable.H"
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-namespace Foam
-{
-namespace phaseDiffusionModels
-{
-    defineTypeNameAndDebug(Ishii, 0);
-    addToRunTimeSelectionTable(phaseDiffusionModel, Ishii, dictionary);
-}
-}
+#include "twoPhaseMixture.H"
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::phaseDiffusionModels::Ishii::Ishii
+Foam::twoPhaseMixture::twoPhaseMixture
 (
-    const dictionary& dict,
-    const incompressibleTwoPhaseInteractingMixture& mixture,
-    const word& modelName
+    const fvMesh& mesh,
+    const dictionary& dict
 )
 :
-    phaseDiffusionModel(dict, mixture,modelName),
-    D_("DiffusionConstant", dimLength*dimLength/dimTime, dict),
-    DT_(dimLength*dimLength/dimTime, Zero)
-{
-    Ddm_.replace(tensor::XX,D_);
-    Ddm_.replace(tensor::YY,D_);
-    Ddm_.replace(tensor::ZZ,D_);
-    DT_.replace(tensor::XX,D_);
-    DT_.replace(tensor::YY,D_);
-    DT_.replace(tensor::ZZ,D_);
-}
+    phase1Name_(dict.get<wordList>("phases")[0]),
+    phase2Name_(dict.get<wordList>("phases")[1]),
 
+    alpha2_
+    (
+        IOobject
+        (
+            IOobject::groupName("alpha", phase2Name_),
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    ),
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::phaseDiffusionModels::Ishii::~Ishii()
+    alpha1_
+    (
+        IOobject
+        (
+            IOobject::groupName("alpha", phase1Name_),
+            mesh.time().timeName(),
+            mesh
+        ),
+        1.0 - alpha2_
+    )
 {}
-
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-void Foam::phaseDiffusionModels::Ishii::correct()
-{
-    Ddm_=dF_*(1-Mem_)*VToM()*DT_/alphad_;
-}
 
 
 // ************************************************************************* //

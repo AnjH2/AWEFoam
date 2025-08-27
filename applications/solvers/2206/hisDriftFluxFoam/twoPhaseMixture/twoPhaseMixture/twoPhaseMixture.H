@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2015 OpenFOAM Foundation
+    Copyright (C) 2011-2014 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,90 +24,100 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::simple
+    Foam::twoPhaseMixture
 
 Description
-    simple relative velocity model
+    A two-phase mixture model
 
 SourceFiles
-    simple.C
+    twoPhaseMixture.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef simple_H
-#define simple_H
+#ifndef twoPhaseMixture_H
+#define twoPhaseMixture_H
 
-#include "phaseDiffusionModel.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace phaseDiffusionModels
-{
 
 /*---------------------------------------------------------------------------*\
-                         Class simple Declaration
+                      Class twoPhaseMixture Declaration
 \*---------------------------------------------------------------------------*/
 
-class simple
-:
-    public phaseDiffusionModel
+class twoPhaseMixture
 {
-    // Private data
-    
-        
-        const meshObjects::gravity& g_;
-        dimensionedScalar Dp_;
-        dimensionedScalar Dn_;
-        const dimensionedScalar n_;
-        const dimensionedScalar rb_;
-        vector ep_; //unit vector parallel to g
-        vector t_; //test vector
-        vector en1_; //unit vector normal to g
-        vector en2_; //unit vector normal to g
-        volTensorField D_;
-	dimensionedVector DVn1_;
-	dimensionedVector DVn2_;
-	dimensionedVector DVp_;
-        
-    	volScalarField f(); //hindering fuunnnnctiiion
-    	dimensionedVector vStokes(); //Terminal velocity model
-    	
-    	volTensorField UHdiff();
+protected:
+
+    // Protected data
+
+        word phase1Name_;
+        word phase2Name_;
+
+        volScalarField alpha2_;
+        volScalarField alpha1_;
 
 
 public:
 
-    //- Runtime type information
-    TypeName("simple");
-
-
     // Constructors
 
         //- Construct from components
-        simple
+        twoPhaseMixture
         (
-            const dictionary& dict,
-            const incompressibleTwoPhaseInteractingMixture& mixture,
-            const word& modelName = ""
+            const fvMesh& mesh,
+            const dictionary& dict
         );
 
 
     //- Destructor
-    ~simple();
+    ~twoPhaseMixture()
+    {}
 
 
     // Member Functions
 
-        //- Update the diffusion velocity
-        virtual void correct();
+        const word& phase1Name() const
+        {
+            return phase1Name_;
+        }
+
+        const word& phase2Name() const
+        {
+            return phase2Name_;
+        }
+
+        //- Return the phase-fraction of phase 1
+        const volScalarField& alpha1() const
+        {
+            return alpha1_;
+        }
+
+        //- Return the phase-fraction of phase 1
+        volScalarField& alpha1()
+        {
+            return alpha1_;
+        }
+
+        //- Return the phase-fraction of phase 2
+        const volScalarField& alpha2() const
+        {
+            return alpha2_;
+        }
+
+        //- Return the phase-fraction of phase 2
+        volScalarField& alpha2()
+        {
+            return alpha2_;
+        }
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace phaseDiffusionModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

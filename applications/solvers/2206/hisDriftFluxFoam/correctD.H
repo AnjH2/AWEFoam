@@ -41,7 +41,7 @@ forAll(Drd, cellI)
     }
 
     Drd[cellI] = (den > VSMALL) ? num/den : D[cellI];
-}*/
+}
 forAll(activeCells1, idx)
 {
     //if (chi2[cellI] < 0.5) continue;     // keep original value
@@ -64,9 +64,14 @@ forAll(activeCells1, idx)
      //Info<<"num:"<<num<<"    den:"<<den<<endl;
     if (den > VSMALL)
         Drd[cellI] = (den > VSMALL) ? num/den : D[cellI];
+}*/
+
+volScalarField numP (fvc::surfaceSum(wgtf * Df));
+forAll(activeCells1, idx)
+{
+    const label cellI = activeCells1[idx];
+    Drd[cellI] = numP[cellI] / denP[cellI];
 }
-
-
 
 
 

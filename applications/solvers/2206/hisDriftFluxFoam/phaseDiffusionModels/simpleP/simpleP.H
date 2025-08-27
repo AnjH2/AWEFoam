@@ -24,89 +24,88 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::Schillings
+    Foam::simpleP
 
 Description
-    Schillings relative velocity model
+    simpleP relative velocity model
 
 SourceFiles
-    Schillings.C
+    simpleP.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Schillings_H
-#define Schillings_H
+#ifndef simpleP_H
+#define simpleP_H
 
-#include "relativeVelocityModel.H"
+#include "phaseDiffusionModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace relativeVelocityModels
+namespace phaseDiffusionModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class Schillings Declaration
+                         Class simpleP Declaration
 \*---------------------------------------------------------------------------*/
 
-class Schillings
+class simpleP
 :
-    public relativeVelocityModel
+    public phaseDiffusionModel
 {
     // Private data
-	const incompressibleTwoPhaseInteractingMixture& mixture_;
-	//const dimensionedVector g_;
-	const meshObjects::gravity& g_;
-	
-	const dimensionedScalar rd_;
-	const dimensionedScalar n_;
-	const dimensionedScalar& rhoc_;
-	const volScalarField& rhod_;
-	const volScalarField& V1_;
-	const volScalarField& eps_;
-	const volVectorField& U_;
-	const dimensionedVector eg_;
-	const dimensionedVector en_;
-	const dimensionedVector em_;
-	
-	
-    // Private functions??
     
-    volScalarField kappa();
-    volScalarField beta();
-    volScalarField f();
-    volVectorField vStokes();
-    volScalarField gamma(const dimensionedVector i);
-    
-    volVectorField UStokes();
-    volVectorField USaff();
-    volVectorField USmig();
-    
+        
+        const meshObjects::gravity& g_;
+        dimensionedScalar Dp_;
+        dimensionedScalar Dn_;
+        //const dimensionedScalar n_;
+        const dimensionedScalar rb_;
+        vector ep_; //unit vector parallel to g
+        vector t_; //test vector
+        vector en1_; //unit vector normal to g
+        vector en2_; //unit vector normal to g
+        volTensorField D_;
+	dimensionedVector DVn1_;
+	dimensionedVector DVn2_;
+	dimensionedVector DVp_;
+	    
+	    const scalar aL_;
+	    const scalar bP_;
+	    const scalar cL_;
+	    const scalar dP_;
+
+        
+    	volScalarField f(); //hindering fuunnnnctiiion
+    	dimensionedVector vStokes(); //Terminal velocity model
+    	
+    	volTensorField UHdiff();
+
+
 public:
 
     //- Runtime type information
-    TypeName("Schillings");
+    TypeName("simpleP");
 
 
     // Constructors
 
         //- Construct from components
-        Schillings
+        simpleP
         (
             const dictionary& dict,
-            const incompressibleTwoPhaseInteractingMixture& mixture
+            const incompressibleTwoPhaseInteractingMixture& mixture,
+            const word& modelName = ""
         );
 
 
     //- Destructor
-    ~Schillings();
+    ~simpleP();
 
 
     // Member Functions
 
-	
-	
         //- Update the diffusion velocity
         virtual void correct();
 };
@@ -114,7 +113,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace relativeVelocityModels
+} // End namespace phaseDiffusionModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

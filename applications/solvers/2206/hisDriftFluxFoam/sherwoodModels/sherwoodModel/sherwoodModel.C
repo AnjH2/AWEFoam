@@ -65,7 +65,7 @@ Foam::sherwoodModel::sherwoodModel
             Udm_(
     	mixture_.rhod().mesh().lookupObject<volVectorField>
         	(
-            		"poreUdm"
+            		"pore:Udm"
         	)
         ), 
         PeC_(

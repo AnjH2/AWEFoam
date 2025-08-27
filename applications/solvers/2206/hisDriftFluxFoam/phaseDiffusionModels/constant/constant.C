@@ -72,7 +72,7 @@ Foam::phaseDiffusionModels::constant::~constant()
 
 void Foam::phaseDiffusionModels::constant::correct()
 {
-    Ddm_=VToM()*DT_;
+    Ddm_=dF_*VToM()*DT_;
 }
 
 

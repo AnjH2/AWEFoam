@@ -145,7 +145,7 @@ Foam::autoPtr<Foam::phaseDiffusionModel> Foam::phaseDiffusionModel::New
 {
     //const word modelType(dict.get<word>(typeName));
     const word modelType(dict.get<word>(modelName+"phaseDiffusionModel"));
-    Info<< "Selecting phase diffusion model " << modelType << endl;
+    Info<< "Selecting "<< modelName <<" phase diffusion model " << modelType << endl;
 
     auto* ctorPtr = dictionaryConstructorTable(modelType);
 

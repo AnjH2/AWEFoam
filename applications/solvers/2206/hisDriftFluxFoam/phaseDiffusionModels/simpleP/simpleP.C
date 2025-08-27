@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "simple.H"
+#include "simpleP.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -34,15 +34,15 @@ namespace Foam
 {
 namespace phaseDiffusionModels
 {
-    defineTypeNameAndDebug(simple, 0);
-    addToRunTimeSelectionTable(phaseDiffusionModel, simple, dictionary);
+    defineTypeNameAndDebug(simpleP, 0);
+    addToRunTimeSelectionTable(phaseDiffusionModel, simpleP, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::phaseDiffusionModels::simple::simple
+Foam::phaseDiffusionModels::simpleP::simpleP
 (
     const dictionary& dict,
     const incompressibleTwoPhaseInteractingMixture& mixture,
@@ -55,7 +55,7 @@ Foam::phaseDiffusionModels::simple::simple
     //dimensionedScalar
     Dp_("diffCoeffGravity", dimless, dict),
     Dn_("diffCoeffGravityNormal", dimless, dict),
-    n_("n",dimless,dict),
+    //n_("n",dimless,dict),
     rb_("bubbleRadius",dimLength,dict),
 ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector::Y)),mag(g_.value().component(vector::Z)))/mag(g_.value())),
     t_((mag(ep_.x()) < 0.9) ? vector(1,0,0) : vector(0,1,0)),
@@ -76,7 +76,11 @@ ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector:
     ),
     DVn1_(Dn_*en1_),
     DVn2_(Dn_*en2_),
-    DVp_(Dp_*ep_)
+    DVp_(Dp_*ep_),
+    aL_(dict.lookupOrDefault<scalar>("aL", 1)),
+    bP_(dict.lookupOrDefault<scalar>("bP", 5)),
+    cL_(dict.lookupOrDefault<scalar>("cL", 1)),
+    dP_(dict.lookupOrDefault<scalar>("dP", 5))
 {
 
     	D_.replace(tensor::XX,mag(DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X)));
@@ -88,19 +92,19 @@ ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector:
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::phaseDiffusionModels::simple::~simple()
+Foam::phaseDiffusionModels::simpleP::~simpleP()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 
-volScalarField Foam::phaseDiffusionModels::simple::f()
+volScalarField Foam::phaseDiffusionModels::simpleP::f()
 {
 	
-	return pow(1-alphad_,n_);
+	return aL_*pow(1-alphad_,bP_)+cL_*pow(alphad_,dP_);
 }
 
-dimensionedVector Foam::phaseDiffusionModels::simple::vStokes()
+dimensionedVector Foam::phaseDiffusionModels::simpleP::vStokes()
 {
 	
 	return -g_.value()*(sqr(2*rb_)/(18*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
@@ -110,7 +114,7 @@ dimensionedVector Foam::phaseDiffusionModels::simple::vStokes()
 
 //------	Diffusion coefficient functions 	------//
 
-volTensorField Foam::phaseDiffusionModels::simple::UHdiff()
+volTensorField Foam::phaseDiffusionModels::simpleP::UHdiff()
 {
     	//D_.replace(tensor::XX,DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X));
     	//D_.replace(tensor::YY,DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y));
@@ -124,7 +128,7 @@ volTensorField Foam::phaseDiffusionModels::simple::UHdiff()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::phaseDiffusionModels::simple::correct()
+void Foam::phaseDiffusionModels::simpleP::correct()
 {
     Ddm_=dF_*(1-Mem_)*VToM()*UHdiff();
 }

@@ -70,12 +70,13 @@ class Schillings
 	dimensionedVector DVn1_;
 	dimensionedVector DVn2_;
 	dimensionedVector DVp_;
+		const volVectorField& U_;
         
 	volScalarField kappa();
     	volScalarField beta();
     	volScalarField f(); //hindering fuunnnnctiiion
     	dimensionedVector vStokes(); //Terminal velocity model
-    	volScalarField gamma(); //shear rate function
+    	volTensorField gamma(); //shear rate function
     	
     	volTensorField UHdiff();
     	volTensorField USdiff();

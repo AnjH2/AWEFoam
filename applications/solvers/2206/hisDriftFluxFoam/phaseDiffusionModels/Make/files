@@ -1,5 +1,6 @@
 phaseDiffusionModel/phaseDiffusionModel.C
 simple/simple.C
+simpleP/simpleP.C
 constant/constant.C
 Ishii/Ishii.C
 Schillings/Schillings.C

@@ -112,31 +112,12 @@ volVectorField Foam::relativeVelocityModels::stokes::UStokes(int j)
 	return f()*mag(vStokes(j))*(1-hF_)*eg_;
 }
 
-
-
-
-
-
-
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 void Foam::relativeVelocityModels::stokes::correct()
 {    
     dModel_->correct();
     Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0))*(Ne_+NeC_)+(UStokes(1))*(Pe_+PeC_));
-    
-
-    /*
-    Udm_.component(0) = pow(2,0.5)*pow((sigma_*g_.component(0)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
-    Info<<Udm_.component(0)<<endl;
-    Udm_.component(1) = pow(2,0.5)*pow((sigma_*g_.component(1)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
-    Info<<Udm_.component(1)<<endl;
-    Udm_.component(2) = pow(2,0.5)*pow((sigma_*g_.component(2)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
-    Info<<Udm_.component(2)<<endl;
-    Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
-    
-    //Ddm_=(rhoc_/rho())*(rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))*f()/alphad_;
-    //Ddm_.correctBoundaryConditions();
 }
 
 

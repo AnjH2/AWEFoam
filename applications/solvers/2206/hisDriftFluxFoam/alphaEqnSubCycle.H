@@ -1,6 +1,6 @@
 
-    //phir=fvc::flux((1-Solid)*freeUdmModel.Udm()+Solid*UdmModel.Udm());
-    #include "correctUdm.H" 
+    phir=fvc::flux((1-Solid)*freeUdmModel.Udm()+Solid*UdmModel.Udm());
+    //#include "correctUdm.H" 
       Pair<tmp<volScalarField>> mDot =
         mSTa.mDot();
     const volScalarField& mDotc = mDot[0]();

@@ -64,6 +64,7 @@ class stuckBubbles
 	const volScalarField& alpha1_;
 	const volVectorField& U_;
 	const dimensionedScalar n_; //powerlaw that converts coverage to saturation
+	const dimensionedScalar c_; //linearScale that converts coverage to saturation
 	//values to check and print
 	volTensorField Ddm_;
 	volScalarField alphaStatic_;

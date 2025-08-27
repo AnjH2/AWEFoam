@@ -105,7 +105,9 @@
     }
 	#include "continuityErrs.H"
     p = p_rgh + rho*gh;
-
+    p = -min(p,dimensionedScalar(dimPressure,0))+p;
+    p_rgh=p - rho*gh;
+    
     if (p_rgh.needReference())
     {
         p_rgh += dimensionedScalar

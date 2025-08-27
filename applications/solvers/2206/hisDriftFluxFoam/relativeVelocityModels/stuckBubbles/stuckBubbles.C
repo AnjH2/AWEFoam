@@ -51,7 +51,7 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
 :
     relativeVelocityModel(dict, mixture,modelName),
     mixture_(mixture),
-    baseModel_(relativeVelocityModel::New(dict.subDict("baseModel"),mixture_,"base:")),
+    baseModel_(relativeVelocityModel::New(dict.subDict("baseModel"),mixture_,modelName+"base:")),
     covModel_(coverageModel::New(dict.subDict("covModel"),mixture_.alpha2().mesh(),mixture_,"base:")),
     dict_(dict),
     alpha1_(mixture_.alpha1()),
@@ -66,7 +66,13 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
 	(
 		"n",
 		dimless,
-		dict
+		 dict.lookupOrDefault<scalar>("n", 1.0)
+	),
+	c_
+	(
+		"c",
+		dimless,
+		dict.lookupOrDefault<scalar>("c", 4.0/3.0)
 	),
 	Ddm_
     (
@@ -128,7 +134,7 @@ void Foam::relativeVelocityModels::stuckBubbles::correct()
     covModel_->correct();
     
     //volScalarField alphaStatic_(pow(covModel_->theta(),1/n_));
-    alphaStatic_=pow(covModel_->theta(),1/n_);
+    alphaStatic_=c_*pow(covModel_->theta(),1/n_);
     //volScalarField alphaMoveing_(max(alpha1_-alphaStatic_,Zero));
     alphaMoveing_=max(alpha1_-alphaStatic_,Zero);
     Udm_ = (-U_*alphaStatic_+alphaMoveing_*baseModel_->Udm())/(alphaMoveing_+alphaStatic_);

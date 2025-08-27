@@ -202,16 +202,16 @@ autoPtr<relativeVelocityModel> UdmModelPtr
     (
         transportProperties,
         mixture,
-        "pore"
+        "pore:"
     )
 );
-autoPtr<relativeVelocityModel> fUdmModelPtr
+autoPtr<relativeVelocityModel> fUdmModelPtr 
 (
     relativeVelocityModel::New
     (
         transportProperties,
         mixture,
-        "free"
+        "free:"
     )
 );
 
@@ -511,6 +511,9 @@ forAll(absOmegaf, fI)
 }
 
 }
+surfaceScalarField wgtf(w1*theta1);
+volScalarField denP(max(fvc::surfaceSum(wgtf),dimensionedScalar(dimless/dimLength,VSMALL)));
+/*
 // prepare for phir or Udm
 volScalarField chi2
 (
@@ -571,7 +574,7 @@ if (activeCells2.empty())
     }
     activeCells2.transfer(tmp);   // shrink-to-fit
     Info<< "Active-cell list size : " << activeCells2.size() << nl << endl;
-}
+}*/
 static labelList activeCells1;
 if (activeCells1.empty())
 {

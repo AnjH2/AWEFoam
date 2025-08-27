@@ -151,7 +151,9 @@
         	//UeEqn.relax();
         	//UPeEqn.relax();
         	//solve eqations.
-        	
+        	fvOptions.constrain(UNeEqn);
+        	fvOptions.constrain(UeEqn);
+        	fvOptions.constrain(UPeEqn);
             	UNeEqn.solve();
 
             	UeEqn.solve();
