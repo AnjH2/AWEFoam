@@ -1,4 +1,0 @@
-massAndSpeciesTransferModel/massAndSpeciesTransferModel.C
-mixedSaturation/mixedSaturation.C
-
-LIB = $(FOAM_USER_LIBBIN)/libHisDriftFluxMassAndSpeciesTransferModels
