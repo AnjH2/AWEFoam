@@ -159,32 +159,6 @@ surfaceScalarField rhoPhi
 
   
     
-volScalarField V1_
-(
-	IOobject
-	(
-		"V1",
-		runTime.timeName(),
-		mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar(dimless,One)
-);
-volScalarField V2_
-(
-	IOobject
-	(
-		"V2",
-		runTime.timeName(),
-		mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar(dimless,One)
-);
 Info<<"Creating Saturation flux"<<endl;
     surfaceScalarField alphaPhi
     (

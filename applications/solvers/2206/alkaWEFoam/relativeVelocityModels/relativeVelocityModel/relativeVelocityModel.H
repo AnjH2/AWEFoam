@@ -90,12 +90,6 @@ protected:
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
         
-        
-        const scalar y0_;
-        const scalar y1_;
-	const scalar y2_;
-	const scalar y3_;
-	volScalarField yNormal_;
 	
 	const scalar hF_;
 	
