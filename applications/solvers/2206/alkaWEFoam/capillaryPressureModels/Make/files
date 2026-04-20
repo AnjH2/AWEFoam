@@ -1,0 +1,7 @@
+capillaryPressureModel/capillaryPressureModel.C
+capillaryPressureModel/capillaryPressureModelNew.C
+leverett/leverett.C
+BrooksAndCorey/BrooksAndCorey.C
+noPc/noPc.C
+
+LIB = $(FOAM_USER_LIBBIN)/libAlkaWECapillaryPressureModels

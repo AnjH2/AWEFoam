@@ -1,0 +1,12 @@
+phaseDiffusionModel/phaseDiffusionModel.C
+simple/simple.C
+constant/constant.C
+Ishii/Ishii.C
+Schillings/Schillings.C
+capillaryD/capillaryD.C
+noDiffusion/noDiffusion.C
+Dahlkild/Dahlkild.C
+BearScheidegger/BearScheidegger.C
+solidPressure/solidPressure.C
+simpleCapillary/simpleCapillary.C
+LIB = $(FOAM_USER_LIBBIN)/libAlkaWEPhaseDiffusionModels

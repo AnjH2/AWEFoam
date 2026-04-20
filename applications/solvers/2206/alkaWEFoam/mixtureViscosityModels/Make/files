@@ -1,0 +1,6 @@
+mixtureViscosityModel/mixtureViscosityModel.C
+mixtureViscosityModel/mixtureViscosityModelNew.C
+Beckermann/Beckermann.C
+linearMu/linearMu.C
+
+LIB = $(FOAM_USER_LIBBIN)/libAlkaWETransportModels

@@ -1,0 +1,91 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     currentTransport;
+
+startFrom       startTime;
+
+startTime       STARTFROM;
+
+stopAt          endTime;
+
+endTime         ENDTIME;
+
+deltaT          DELTAT;
+
+writeControl    adjustableRunTime;
+
+writeInterval   WRITEINTERVAL;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep 	ADJUSTTIME;
+maxCo 		MAXCO;
+maxDeltaT	MAXDT;
+
+libs (myFvOptions);
+functions
+{
+	PWall_Ne
+	{
+	name    PNe;
+	fields  (INe UNe);
+
+	operation areaAverage;
+
+	type            surfaceFieldValue;
+	libs            ("libfieldFunctionObjects.so");
+
+	writeControl    runTime;
+	writeInterval   WRITEINTERVAL;
+
+	writeFields     false;
+	log             false;
+
+	regionType  patch;
+	}
+	PWall_Pe
+	{
+	name    PPe;
+	fields  (IPe UPe);
+
+	operation areaAverage;
+
+	type            surfaceFieldValue;
+	libs            ("libfieldFunctionObjects.so");
+
+	writeControl    runTime;
+	writeInterval   WRITEINTERVAL;
+
+	writeFields     false;
+	log             false;
+
+	regionType  patch;
+	}
+}
+// ************************************************************************* //

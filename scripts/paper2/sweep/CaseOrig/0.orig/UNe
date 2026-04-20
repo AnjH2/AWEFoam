@@ -1,0 +1,141 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      UNe;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 2 -3 0 0 -1 0];
+
+internalField   uniform -1.4;
+
+
+
+boundaryField
+{
+    PNe
+    {
+        type            codedFixedValue;
+        value           uniform -1.4;           // initial guess at t=0
+        name            PID_UNe;
+
+        code
+        #{
+            using namespace Foam;
+
+            // --- User-tunable parameters ---
+            const scalar jGoal = JJGGOOAALL;        // [A/m^2] target current density
+            const scalar Kp    = 1e-2;          // proportional gain  (V per A)
+            const scalar Ki    = 0;           // integral gain      (V per (A*s)), start at 0, add later
+            const scalar dUmax = 0.1;          // [V/step] max ramp per time step (smooths response)
+            const scalar Umin  = -10.0;         // [V] lower clamp
+            const scalar Umax  =  10.0;         // [V] upper clamp
+
+            // --- State (persists across calls) ---
+            static scalar U      = -1.4;        // controlled potential (starts at value)
+            static scalar eInt   = 0.0;         // integral of error
+
+            // --- Time step ---
+            const scalar dt = this->db().time().deltaTValue();
+
+            // --- Geometry and fields on this patch ---
+            const vectorField& Sf = patch().Sf();                                              // [m^2] face area vectors
+            const vectorField& J  = patch().lookupPatchField<volVectorField, vector>("INe");   // [A/m^2] current density vector on patch
+
+            // --- Totals (global) ---
+            const scalar I      = mag(gSum(J & Sf));            // [A] net current through patch
+            const scalar Aproj  = 30e-3*100e-3;   // or use '#calc "30e-3*100e-3"' in the dict and read it
+            const scalar Igoal  = jGoal * Aproj;
+
+        
+            // --- Error and PI update ---
+            const scalar e = Igoal - I;                    // [A] current error
+        
+            // simple anti-windup: only integrate when not saturated in the "wrong" direction
+            /*
+            if ( !((U <= Umin && e < 0) || (U >= Umax && e > 0)) )
+            {
+                eInt += e*dt;
+            }
+            
+            scalar dU = Kp*e + Ki*eInt;                    // proposed change this step [V]
+            // ramp limit for smoothness
+            dU = max(-dUmax, min(dUmax, dU));
+
+            U -= dU;
+            U  = max(Umin, min(Umax, U));                  // clamp
+            */
+            static int k = 23;            // nOuterCorrectors*(potentialCorrections+1)*(outerChemicalCorrections+1)-1;
+            const int Nupdate = 24;       // try 3–10 nOuterCorrectors*(potentialCorrections+1)*(outerChemicalCorrections+1);
+            if (++k % Nupdate == 0)
+            {
+                if ( !((U <= Umin && e < 0) || (U >= Umax && e > 0)) )
+                {
+                    eInt += e*dt;
+                }
+                Info<<"****** Potential ramping status     :INe total : "<<I<<"   error: "<<e<<"   Integral error: "<<eInt<<" ******"<<endl;
+                // compute e (possibly filtered), then:
+                scalar dU = Kp*e + Ki*eInt;
+                dU = max(-dUmax, min(dUmax, dU));
+                U -= dU;
+                U  = max(Umin, min(Umax, U)); 
+            }
+            else
+            {
+                Info<<"Potential ramping status     :INe total : "<<I<<"   error: "<<e<<"   Integral error: "<<eInt<<endl;
+                U  = max(Umin, min(Umax, U)); 
+            }
+
+            // --- Write uniform value on the patch ---
+            scalarField newVals(patch().size(), U);
+            operator==(newVals);
+        #};
+    }
+    PPe
+    {
+	type		zeroGradient;
+    }
+
+    frontAndBack
+    {
+	type		empty;
+    }
+    Inlet1
+    {
+    	type		zeroGradient;
+    }
+    Inlet2
+    {
+    	type		zeroGradient;
+    }
+    Outlet1
+    {
+        type            zeroGradient;
+    }
+    Outlet2
+    {
+        type            zeroGradient;
+    }
+        OWall
+    {
+	type 		zeroGradient;
+        
+    }
+    Walls
+    {
+	type 		zeroGradient;
+    }
+    
+}
+
+
+// ************************************************************************* //

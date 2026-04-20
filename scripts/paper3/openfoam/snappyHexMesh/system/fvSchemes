@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(U)	 	Gauss linear;
+    grad(phi)	 	Gauss linear;
+    grad(Ue)		Gauss linear;
+    grad(pc)		cellLimited Gauss linear 0.5;
+}
+
+divSchemes
+{
+    div(rhoPhi,U)       Gauss linearUpwind default;
+    div(rhoalpha2*Uc,C_H2.electrolyte)	Gauss upwind;
+    div(rhoalpha2*Uc,C_O2.electrolyte)	Gauss upwind;
+    div(rhoalpha2*Uc,C_H2O.electrolyte)	Gauss upwind;
+    div(rhoalpha2*Uc,C_OH.electrolyte)	Gauss upwind;
+    div(phirb,alpha) Gauss linearUpwind default;
+    div(phi,alpha)  Gauss linearUpwind default;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    div(tauDm)          Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+    snGrad(pc) limited 0.5;
+    laplacian(D,alpha1) Gauss linear corrected;
+    laplacian(D,C_H2.electrolyte) Gauss linear corrected;
+    laplacian(D,C_O2.electrolyte) Gauss linear corrected;
+    laplacian(D,C_H2O.electrolyte) Gauss linear corrected;
+    laplacian(D,C_OH.electrolyte) Gauss linear corrected;
+    //laplacian(D,alpha1) Gauss linear corrected;
+    laplacian(diffusivity,cellDisplacement) Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+    snGrad(D,alpha1) corrected;
+    //snGrad(D,C[i]) uncorrected;
+}
+fluxRequired
+{
+    default         no;
+    p_rgh;
+    Ue;
+}
+
+// ************************************************************************* //

@@ -1,0 +1,131 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright held by the original author
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "$FOAM_CASE/foamPara.in"
+actions
+(
+  
+  
+    {
+        // Mandatory (inherited) entries
+        name        boundarySet;
+        type        faceSet;
+        action      new;
+
+        // Mandatory entries
+        source      boundaryToFace;
+    }  
+    {
+        // Mandatory (inherited) entries
+        name        cathodeSet;
+        type        faceSet;
+        action      new;
+
+        // Mandatory entries
+        source      patchToFace;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2
+        patch    cathode;
+    }
+    {
+        // Mandatory (inherited) entries
+        name        intermidiateSet;
+        type        faceSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToFace;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        box (#eval{$xMin*0.99e-3} #eval{-50e-3} #eval{$zMin*1e-3}) (#eval{$xMax*0.99e-3}   #eval{50*0.99e-3} -0.55e-3);
+    }
+    {
+        // Mandatory (inherited) entries
+        name        dummySet;
+        type        faceSet;
+        action      new;
+
+        // Mandatory entries
+        source      faceToFace;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        set intermidiateSet;
+        
+    }
+    {
+        // Mandatory (inherited) entries
+        name        intermidiateSet;
+        type        faceSet;
+        action      subtract;
+
+        // Mandatory entries
+        source      faceToFace;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        sets
+        (     
+            cathodeSet
+            boundarySet
+        );
+    }
+        {
+        // Mandatory (inherited) entries
+        name        dummySet;
+        type        faceSet;
+        action      subtract;
+
+        // Mandatory entries
+        source      faceToFace;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        set intermidiateSet;
+        
+    }
+        {
+        // Mandatory (inherited) entries
+        name        cathodeSet;
+        type        faceSet;
+        action      add;
+
+        // Mandatory entries
+        source      faceToFace;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        set     dummySet;
+    }
+
+
+);
+// ************************************************************************* //

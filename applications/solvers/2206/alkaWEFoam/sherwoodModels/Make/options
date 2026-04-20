@@ -1,0 +1,21 @@
+EXE_INC = \
+    -I../incompressibleTwoPhaseInteractingMixture \
+    -I../speciesProperties \
+    -I../relativeVelocityModels/lnInclude \
+    -I../mixtureViscosityModels/lnInclude \
+    -I../capillaryPressureModels/lnInclude \
+    -I../phaseDiffusionModels/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \
+    -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude 
+
+LIB_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -ltwoPhaseMixture \
+    -lincompressibleTransportModels \
+    -lcompressibleTransportModels \
+    -lfiniteVolume \
+    -lmeshTools

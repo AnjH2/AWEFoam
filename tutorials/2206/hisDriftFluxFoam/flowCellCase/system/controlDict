@@ -22,13 +22,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         175;
+endTime         20;
 
 deltaT          0.0005;
 
 writeControl    adjustableRunTime;
 
-writeInterval   12.5;
+writeInterval   0.5;
 
 purgeWrite      0;
 
@@ -51,6 +51,8 @@ maxDeltaT	0.05;
 
 functions
 {
+ #includeFunc conversionRatioH2
+  #includeFunc conversionRatioO2
 	PWall_Ne
 	{
 	name    PNe;
@@ -62,7 +64,7 @@ functions
 	libs            ("libfieldFunctionObjects.so");
 
 	writeControl    runTime;
-	writeInterval   12.5;
+	writeInterval   0.5;
 
 	writeFields     false;
 	log             false;
@@ -80,7 +82,7 @@ functions
 	libs            ("libfieldFunctionObjects.so");
 
 	writeControl    runTime;
-	writeInterval   12.5;
+	writeInterval   0.5;
 
 	writeFields     false;
 	log             false;

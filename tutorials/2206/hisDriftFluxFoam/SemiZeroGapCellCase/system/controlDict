@@ -16,19 +16,19 @@ FoamFile
 
 application     currentTransport;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
 stopAt          endTime;
 
-endTime         210;
+endTime         50;
 
 deltaT          0.0005;
 
 writeControl    adjustableRunTime;//timeStep;
 
-writeInterval   5;//250;
+writeInterval   1;//250;
 
 purgeWrite      0;
 
@@ -36,7 +36,7 @@ writeFormat     ascii;
 
 writePrecision  6;
 
-writeCompression off;
+writeCompression on;
 
 timeFormat      general;
 
@@ -45,7 +45,7 @@ timePrecision   6;
 runTimeModifiable true;
 
 adjustTimeStep 	yes;
-maxCo 		0.75;
+maxCo 		0.5;
 maxDeltaT	0.05;
 
 
@@ -62,7 +62,7 @@ functions
 	libs            ("libfieldFunctionObjects.so");
 
 	writeControl    runTime;
-	writeInterval   5;
+	writeInterval   1;
 
 	writeFields     false;
 	log             false;
@@ -80,7 +80,7 @@ functions
 	libs            ("libfieldFunctionObjects.so");
 
 	writeControl    runTime;
-	writeInterval   5;
+	writeInterval   1;
 
 	writeFields     false;
 	log             false;

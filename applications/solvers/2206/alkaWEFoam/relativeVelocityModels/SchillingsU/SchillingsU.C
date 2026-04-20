@@ -1,0 +1,194 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2014-2015 OpenFOAM Foundation
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "SchillingsU.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace relativeVelocityModels
+{
+    defineTypeNameAndDebug(SchillingsU, 0);
+    addToRunTimeSelectionTable(relativeVelocityModel, SchillingsU, dictionary);
+}
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::relativeVelocityModels::SchillingsU::SchillingsU
+(
+    const dictionary& dict,
+    const incompressibleTwoPhaseInteractingMixture& mixture,
+    const word& modelName
+)
+:
+    relativeVelocityModel(dict, mixture,modelName),
+    mixture_(mixture),
+    electrodes({"Ne","Pe"}),
+    dict_(dict),
+    g_(meshObjects::gravity::New(mixture.U().time())),
+    
+    rd_(electrodes.size()),
+    n_("n",dimless,dict),
+    rhoc_(mixture.rhoc()),
+    rhod_(mixture.rhod()),
+    
+        V1_(
+	alphac_.mesh().lookupObject<volScalarField>
+        (
+            	"V1"
+        )
+        ),
+    eps_(
+	    alphac_.mesh().lookupObject<volScalarField>
+            (
+            	"eps"
+            )
+        ),
+    U_(
+	    alphac_.mesh().lookupObject<volVectorField>
+            (
+            	"U"
+            )
+        ),
+    eg_("eg",(-1*g_)/mag(g_))
+{
+forAll(electrodes,i)
+	{
+	rd_.set
+    	(
+        	i,
+        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
+        );
+        }
+}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::relativeVelocityModels::SchillingsU::~SchillingsU()
+{}
+
+
+// * * * * * * * * * * * * * * Private Functions  * * * * * * * * * * * * * * //
+
+volSymmTensorField Foam::relativeVelocityModels::SchillingsU::S()
+{
+    return dev(symm(fvc::grad(U_)));
+}
+
+
+volVectorField Foam::relativeVelocityModels::SchillingsU::omega()
+{
+    return fvc::curl(U_);
+}
+
+
+
+volScalarField Foam::relativeVelocityModels::SchillingsU::kappa()
+{
+	
+	return 0.6*pow(alphad_,2);
+}
+
+volScalarField Foam::relativeVelocityModels::SchillingsU::beta()
+{
+	
+	return (1/3)*pow(alphad_,2)*(1.0+0.5*exp(8.8*alphad_));
+}
+
+volScalarField Foam::relativeVelocityModels::SchillingsU::f()
+{
+	
+	return pow(1.0-alphad_,n_);
+}
+volVectorField Foam::relativeVelocityModels::SchillingsU::n()
+{
+    
+    volVectorField nL (omega()^(eg_.value())*dimensionedScalar(dimTime,1));
+    return nL/(mag(nL)+SMALL);
+}
+
+volVectorField Foam::relativeVelocityModels::SchillingsU::vStokes()
+{
+	
+	return -g_.value()*(sqr(2*(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_)))/(18.0*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+}
+
+volScalarField Foam::relativeVelocityModels::SchillingsU::gamma()
+{
+    
+    return sqrt(2.0)*mag(S());                          // scalar shear rate magnitude [1/s]
+}
+
+volScalarField Foam::relativeVelocityModels::SchillingsU::tau()
+{
+
+	return sqrt(0.5)*mag(2*S()*mixture_.mu());
+}
+
+volVectorField Foam::relativeVelocityModels::SchillingsU::UStokes()
+{
+	
+	return f()*mag(vStokes())*eg_*(1-Mem_+VSMALL);
+}
+
+volVectorField Foam::relativeVelocityModels::SchillingsU::USaff()
+{
+
+
+    return
+        - f()
+        * mag(vStokes())
+        * (6.46/(6.0*Foam::constant::mathematical::pi))
+        * sqrt( sqr(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_)) * mag(omega()) / mixture_.nuc() )
+        * n()
+        * (1 - Mem_ + VSMALL);
+}
+
+
+volVectorField Foam::relativeVelocityModels::SchillingsU::USmig()
+{
+	return -1/alphad_*sqr(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_))*mag(gamma())*kappa()*fvc::grad(mag(tau()))/(tau()+dimensionedScalar(dimPressure,SMALL));
+}
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::relativeVelocityModels::SchillingsU::correct()
+{
+    dModel_->correct();
+    Udm_ = (UStokes()+USaff()+USmig())*((alphac_)*rhoc_/rho());    
+    Udm_.correctBoundaryConditions();
+    
+    
+
+}
+
+
+// ************************************************************************* //

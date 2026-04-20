@@ -1,0 +1,16 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      UNeParameters;
+}
+jGoal   3000;
+Kp      0.31e-2;
+Ki      0;
+dUmax   0.2;
+Umin   -10;
+Umax    -1.45;
+verbose true;
+

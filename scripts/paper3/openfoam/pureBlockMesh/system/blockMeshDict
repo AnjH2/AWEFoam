@@ -1,0 +1,1421 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+
+#include "$FOAM_CASE/system/meshSharedDict";
+scale $bmScale;
+
+// ---------------------------------
+// symmetric layers: ratio-controlled
+// ---------------------------------
+
+gradZ23
+(
+    (0.5 0.5 $rMid23)
+    (0.5 0.5 #eval{1.0/$rMid23})
+);
+
+gradZ01
+(
+    (0.5 0.5 $rMid01)
+    (0.5 0.5 #eval{1.0/$rMid01})
+);
+
+gradZ45 $gradZ01;
+
+// ---------------------------------
+// half-block sizes for symmetric layers
+// ---------------------------------
+
+mZ01 #eval{$n_z01/2};
+mZ23 #eval{$n_z23/2};
+
+cr0 #eval{pow($rMid01,1.0/($mZ01-1))};
+wA0 #eval{0.5*$L_z01*(1-$cr0)/(1-pow($cr0,$mZ01))};
+
+cr2 #eval{pow($rMid23,1.0/($mZ23-1))};
+wA2 #eval{0.5*$L_z23*(1-$cr2)/(1-pow($cr2,$mZ23))};
+
+r1 #eval{$wA0/$wA2};
+c12 #eval{pow($r1,1.0/($n_z12-1))};
+L12check #eval{$wA0*(1-pow($c12,$n_z12))/(1-$c12)};
+err12 #eval{$L12check/$L_z12};
+
+c34 #eval{pow(1.0/$r1,1.0/($n_z34-1))};
+L34check #eval{$wA2*(1-pow($c34,$n_z34))/(1-$c34)};
+err34 #eval{$L34check/$L_z34};
+
+gradZ12
+(
+    (0.5 0.5 $r1)
+    (0.5 0.5 #eval{1.0/$r1})
+);
+gradZ34
+(
+    (0.5 0.5 $r1)
+    (0.5 0.5 #eval{1.0/$r1})
+    
+);
+
+
+
+vertices
+(
+    // =========================
+    // z0 layer
+    // =========================
+
+    // (+x, +y)
+    ($x0  $y0   $z0)   // 0
+    ($x1  $y1   $z0)   // 1
+    ($x2  $y2   $z0)   // 2
+    ($x3  $y3   $z0)   // 3
+    ($x4  $y4   $z0)   // 4
+    ($x5  $y5   $z0)   // 5
+    ($x6  $y6   $z0)   // 6
+    ($x7  $y7   $z0)   // 7
+    ($x8  $y8   $z0)   // 8
+    ($x9  $y9   $z0)   // 9
+    ($x10 $yout $z0)   // 10
+    ($x11 $yout $z0)   // 11
+    ($x12 $yout $z0)   // 12
+    ($x13 $yout $z0)   // 13
+
+    // (-x, +y)
+    (-$x0  $y0   $z0)  // 14
+    (-$x1  $y1   $z0)  // 15
+    (-$x2  $y2   $z0)  // 16
+    (-$x3  $y3   $z0)  // 17
+    (-$x4  $y4   $z0)  // 18
+    (-$x5  $y5   $z0)  // 19
+    (-$x6  $y6   $z0)  // 20
+    (-$x7  $y7   $z0)  // 21
+    (-$x8  $y8   $z0)  // 22
+    (-$x9  $y9   $z0)  // 23
+    (-$x10 $yout $z0)  // 24
+    (-$x11 $yout $z0)  // 25
+    (-$x12 $yout $z0)  // 26
+    (-$x13 $yout $z0)  // 27
+
+    // (+x, -y)
+    ($x0  -$y0   $z0)  // 28
+    ($x1  -$y1   $z0)  // 29
+    ($x2  -$y2   $z0)  // 30
+    ($x3  -$y3   $z0)  // 31
+    ($x4  -$y4   $z0)  // 32
+    ($x5  -$y5   $z0)  // 33
+    ($x6  -$y6   $z0)  // 34
+    ($x7  -$y7   $z0)  // 35
+    ($x8  -$y8   $z0)  // 36
+    ($x9  -$y9   $z0)  // 37
+    ($x10 -$yout $z0)  // 38
+    ($x11 -$yout $z0)  // 39
+    ($x12 -$yout $z0)  // 40
+    ($x13 -$yout $z0)  // 41
+
+    // (-x, -y)
+    (-$x0  -$y0   $z0) // 42
+    (-$x1  -$y1   $z0) // 43
+    (-$x2  -$y2   $z0) // 44
+    (-$x3  -$y3   $z0) // 45
+    (-$x4  -$y4   $z0) // 46
+    (-$x5  -$y5   $z0) // 47
+    (-$x6  -$y6   $z0) // 48
+    (-$x7  -$y7   $z0) // 49
+    (-$x8  -$y8   $z0) // 50
+    (-$x9  -$y9   $z0) // 51
+    (-$x10 -$yout $z0) // 52
+    (-$x11 -$yout $z0) // 53
+    (-$x12 -$yout $z0) // 54
+    (-$x13 -$yout $z0) // 55
+
+    // =========================
+    // z1 layer
+    // =========================
+
+    // (+x, +y)
+    ($x0  $y0   $z1)   // 56
+    ($x1  $y1   $z1)   // 57
+    ($x2  $y2   $z1)   // 58
+    ($x3  $y3   $z1)   // 59
+    ($x4  $y4   $z1)   // 60
+    ($x5  $y5   $z1)   // 61
+    ($x6  $y6   $z1)   // 62
+    ($x7  $y7   $z1)   // 63
+    ($x8  $y8   $z1)   // 64
+    ($x9  $y9   $z1)   // 65
+    ($x10 $yout $z1)   // 66
+    ($x11 $yout $z1)   // 67
+    ($x12 $yout $z1)   // 68
+    ($x13 $yout $z1)   // 69
+
+    // (-x, +y)
+    (-$x0  $y0   $z1)  // 70
+    (-$x1  $y1   $z1)  // 71
+    (-$x2  $y2   $z1)  // 72
+    (-$x3  $y3   $z1)  // 73
+    (-$x4  $y4   $z1)  // 74
+    (-$x5  $y5   $z1)  // 75
+    (-$x6  $y6   $z1)  // 76
+    (-$x7  $y7   $z1)  // 77
+    (-$x8  $y8   $z1)  // 78
+    (-$x9  $y9   $z1)  // 79
+    (-$x10 $yout $z1)  // 80
+    (-$x11 $yout $z1)  // 81
+    (-$x12 $yout $z1)  // 82
+    (-$x13 $yout $z1)  // 83
+
+    // (+x, -y)
+    ($x0  -$y0   $z1)  // 84
+    ($x1  -$y1   $z1)  // 85
+    ($x2  -$y2   $z1)  // 86
+    ($x3  -$y3   $z1)  // 87
+    ($x4  -$y4   $z1)  // 88
+    ($x5  -$y5   $z1)  // 89
+    ($x6  -$y6   $z1)  // 90
+    ($x7  -$y7   $z1)  // 91
+    ($x8  -$y8   $z1)  // 92
+    ($x9  -$y9   $z1)  // 93
+    ($x10 -$yout $z1)  // 94
+    ($x11 -$yout $z1)  // 95
+    ($x12 -$yout $z1)  // 96
+    ($x13 -$yout $z1)  // 97
+
+    // (-x, -y)
+    (-$x0  -$y0   $z1) // 98
+    (-$x1  -$y1   $z1) // 99
+    (-$x2  -$y2   $z1) // 100
+    (-$x3  -$y3   $z1) // 101
+    (-$x4  -$y4   $z1) // 102
+    (-$x5  -$y5   $z1) // 103
+    (-$x6  -$y6   $z1) // 104
+    (-$x7  -$y7   $z1) // 105
+    (-$x8  -$y8   $z1) // 106
+    (-$x9  -$y9   $z1) // 107
+    (-$x10 -$yout $z1) // 108
+    (-$x11 -$yout $z1) // 109
+    (-$x12 -$yout $z1) // 110
+    (-$x13 -$yout $z1) // 111
+
+    // =========================
+    // z2 layer
+    // =========================
+
+    // (+x, +y)
+    ($x0  $y0   $z2)   // 112
+    ($x1  $y1   $z2)   // 113
+    ($x2  $y2   $z2)   // 114
+    ($x3  $y3   $z2)   // 115
+    ($x4  $y4   $z2)   // 116
+    ($x5  $y5   $z2)   // 117
+    ($x6  $y6   $z2)   // 118
+    ($x7  $y7   $z2)   // 119
+    ($x8  $y8   $z2)   // 120
+    ($x9  $y9   $z2)   // 121
+    ($x10 $yout $z2)   // 122
+    ($x11 $yout $z2)   // 123
+    ($x12 $yout $z2)   // 124
+    ($x13 $yout $z2)   // 125
+
+    // (-x, +y)
+    (-$x0  $y0   $z2)  // 126
+    (-$x1  $y1   $z2)  // 127
+    (-$x2  $y2   $z2)  // 128
+    (-$x3  $y3   $z2)  // 129
+    (-$x4  $y4   $z2)  // 130
+    (-$x5  $y5   $z2)  // 131
+    (-$x6  $y6   $z2)  // 132
+    (-$x7  $y7   $z2)  // 133
+    (-$x8  $y8   $z2)  // 134
+    (-$x9  $y9   $z2)  // 135
+    (-$x10 $yout $z2)  // 136
+    (-$x11 $yout $z2)  // 137
+    (-$x12 $yout $z2)  // 138
+    (-$x13 $yout $z2)  // 139
+
+    // (+x, -y)
+    ($x0  -$y0   $z2)  // 140
+    ($x1  -$y1   $z2)  // 141
+    ($x2  -$y2   $z2)  // 142
+    ($x3  -$y3   $z2)  // 143
+    ($x4  -$y4   $z2)  // 144
+    ($x5  -$y5   $z2)  // 145
+    ($x6  -$y6   $z2)  // 146
+    ($x7  -$y7   $z2)  // 147
+    ($x8  -$y8   $z2)  // 148
+    ($x9  -$y9   $z2)  // 149
+    ($x10 -$yout $z2)  // 150
+    ($x11 -$yout $z2)  // 151
+    ($x12 -$yout $z2)  // 152
+    ($x13 -$yout $z2)  // 153
+
+    // (-x, -y)
+    (-$x0  -$y0   $z2) // 154
+    (-$x1  -$y1   $z2) // 155
+    (-$x2  -$y2   $z2) // 156
+    (-$x3  -$y3   $z2) // 157
+    (-$x4  -$y4   $z2) // 158
+    (-$x5  -$y5   $z2) // 159
+    (-$x6  -$y6   $z2) // 160
+    (-$x7  -$y7   $z2) // 161
+    (-$x8  -$y8   $z2) // 162
+    (-$x9  -$y9   $z2) // 163
+    (-$x10 -$yout $z2) // 164
+    (-$x11 -$yout $z2) // 165
+    (-$x12 -$yout $z2) // 166
+    (-$x13 -$yout $z2) // 167
+    
+        // =========================
+    // z3 layer
+    // =========================
+
+    // (+x, +y)
+    ($x0  $y0   $z3)   // 168
+    ($x1  $y1   $z3)   // 169
+    ($x2  $y2   $z3)   // 170
+    ($x3  $y3   $z3)   // 171
+    ($x4  $y4   $z3)   // 172
+    ($x5  $y5   $z3)   // 173
+    ($x6  $y6   $z3)   // 174
+    ($x7  $y7   $z3)   // 175
+    ($x8  $y8   $z3)   // 176
+    ($x9  $y9   $z3)   // 177
+    ($x10 $yout $z3)   // 178
+    ($x11 $yout $z3)   // 179
+    ($x12 $yout $z3)   // 180
+    ($x13 $yout $z3)   // 181
+
+    // (-x, +y)
+    (-$x0  $y0   $z3)  // 182
+    (-$x1  $y1   $z3)  // 183
+    (-$x2  $y2   $z3)  // 184
+    (-$x3  $y3   $z3)  // 185
+    (-$x4  $y4   $z3)  // 186
+    (-$x5  $y5   $z3)  // 187
+    (-$x6  $y6   $z3)  // 188
+    (-$x7  $y7   $z3)  // 189
+    (-$x8  $y8   $z3)  // 190
+    (-$x9  $y9   $z3)  // 191
+    (-$x10 $yout $z3)  // 192
+    (-$x11 $yout $z3)  // 193
+    (-$x12 $yout $z3)  // 194
+    (-$x13 $yout $z3)  // 195
+
+    // (+x, -y)
+    ($x0  -$y0   $z3)  // 196
+    ($x1  -$y1   $z3)  // 197
+    ($x2  -$y2   $z3)  // 198
+    ($x3  -$y3   $z3)  // 199
+    ($x4  -$y4   $z3)  // 200
+    ($x5  -$y5   $z3)  // 201
+    ($x6  -$y6   $z3)  // 202
+    ($x7  -$y7   $z3)  // 203
+    ($x8  -$y8   $z3)  // 204
+    ($x9  -$y9   $z3)  // 205
+    ($x10 -$yout $z3)  // 206
+    ($x11 -$yout $z3)  // 207
+    ($x12 -$yout $z3)  // 208
+    ($x13 -$yout $z3)  // 209
+
+    // (-x, -y)
+    (-$x0  -$y0   $z3) // 210
+    (-$x1  -$y1   $z3) // 211
+    (-$x2  -$y2   $z3) // 212
+    (-$x3  -$y3   $z3) // 213
+    (-$x4  -$y4   $z3) // 214
+    (-$x5  -$y5   $z3) // 215
+    (-$x6  -$y6   $z3) // 216
+    (-$x7  -$y7   $z3) // 217
+    (-$x8  -$y8   $z3) // 218
+    (-$x9  -$y9   $z3) // 219
+    (-$x10 -$yout $z3) // 220
+    (-$x11 -$yout $z3) // 221
+    (-$x12 -$yout $z3) // 222
+    (-$x13 -$yout $z3) // 223
+
+    // =========================
+    // z4 layer
+    // =========================
+
+    // (+x, +y)
+    ($x0  $y0   $z4)   // 224
+    ($x1  $y1   $z4)   // 225
+    ($x2  $y2   $z4)   // 226
+    ($x3  $y3   $z4)   // 227
+    ($x4  $y4   $z4)   // 228
+    ($x5  $y5   $z4)   // 229
+    ($x6  $y6   $z4)   // 230
+    ($x7  $y7   $z4)   // 231
+    ($x8  $y8   $z4)   // 232
+    ($x9  $y9   $z4)   // 233
+    ($x10 $yout $z4)   // 234
+    ($x11 $yout $z4)   // 235
+    ($x12 $yout $z4)   // 236
+    ($x13 $yout $z4)   // 237
+
+    // (-x, +y)
+    (-$x0  $y0   $z4)  // 238
+    (-$x1  $y1   $z4)  // 239
+    (-$x2  $y2   $z4)  // 240
+    (-$x3  $y3   $z4)  // 241
+    (-$x4  $y4   $z4)  // 242
+    (-$x5  $y5   $z4)  // 243
+    (-$x6  $y6   $z4)  // 244
+    (-$x7  $y7   $z4)  // 245
+    (-$x8  $y8   $z4)  // 246
+    (-$x9  $y9   $z4)  // 247
+    (-$x10 $yout $z4)  // 248
+    (-$x11 $yout $z4)  // 249
+    (-$x12 $yout $z4)  // 250
+    (-$x13 $yout $z4)  // 251
+
+    // (+x, -y)
+    ($x0  -$y0   $z4)  // 252
+    ($x1  -$y1   $z4)  // 253
+    ($x2  -$y2   $z4)  // 254
+    ($x3  -$y3   $z4)  // 255
+    ($x4  -$y4   $z4)  // 256
+    ($x5  -$y5   $z4)  // 257
+    ($x6  -$y6   $z4)  // 258
+    ($x7  -$y7   $z4)  // 259
+    ($x8  -$y8   $z4)  // 260
+    ($x9  -$y9   $z4)  // 261
+    ($x10 -$yout $z4)  // 262
+    ($x11 -$yout $z4)  // 263
+    ($x12 -$yout $z4)  // 264
+    ($x13 -$yout $z4)  // 265
+
+    // (-x, -y)
+    (-$x0  -$y0   $z4) // 266
+    (-$x1  -$y1   $z4) // 267
+    (-$x2  -$y2   $z4) // 268
+    (-$x3  -$y3   $z4) // 269
+    (-$x4  -$y4   $z4) // 270
+    (-$x5  -$y5   $z4) // 271
+    (-$x6  -$y6   $z4) // 272
+    (-$x7  -$y7   $z4) // 273
+    (-$x8  -$y8   $z4) // 274
+    (-$x9  -$y9   $z4) // 275
+    (-$x10 -$yout $z4) // 276
+    (-$x11 -$yout $z4) // 277
+    (-$x12 -$yout $z4) // 278
+    (-$x13 -$yout $z4) // 279
+
+    // =========================
+    // z5 layer
+    // =========================
+
+    // (+x, +y)
+    ($x0  $y0   $z5)   // 280
+    ($x1  $y1   $z5)   // 281
+    ($x2  $y2   $z5)   // 282
+    ($x3  $y3   $z5)   // 283
+    ($x4  $y4   $z5)   // 284
+    ($x5  $y5   $z5)   // 285
+    ($x6  $y6   $z5)   // 286
+    ($x7  $y7   $z5)   // 287
+    ($x8  $y8   $z5)   // 288
+    ($x9  $y9   $z5)   // 289
+    ($x10 $yout $z5)   // 290
+    ($x11 $yout $z5)   // 291
+    ($x12 $yout $z5)   // 292
+    ($x13 $yout $z5)   // 293
+
+    // (-x, +y)
+    (-$x0  $y0   $z5)  // 294
+    (-$x1  $y1   $z5)  // 295
+    (-$x2  $y2   $z5)  // 296
+    (-$x3  $y3   $z5)  // 297
+    (-$x4  $y4   $z5)  // 298
+    (-$x5  $y5   $z5)  // 299
+    (-$x6  $y6   $z5)  // 300
+    (-$x7  $y7   $z5)  // 301
+    (-$x8  $y8   $z5)  // 302
+    (-$x9  $y9   $z5)  // 303
+    (-$x10 $yout $z5)  // 304
+    (-$x11 $yout $z5)  // 305
+    (-$x12 $yout $z5)  // 306
+    (-$x13 $yout $z5)  // 307
+
+    // (+x, -y)
+    ($x0  -$y0   $z5)  // 308
+    ($x1  -$y1   $z5)  // 309
+    ($x2  -$y2   $z5)  // 310
+    ($x3  -$y3   $z5)  // 311
+    ($x4  -$y4   $z5)  // 312
+    ($x5  -$y5   $z5)  // 313
+    ($x6  -$y6   $z5)  // 314
+    ($x7  -$y7   $z5)  // 315
+    ($x8  -$y8   $z5)  // 316
+    ($x9  -$y9   $z5)  // 317
+    ($x10 -$yout $z5)  // 318
+    ($x11 -$yout $z5)  // 319
+    ($x12 -$yout $z5)  // 320
+    ($x13 -$yout $z5)  // 321
+
+    // (-x, -y)
+    (-$x0  -$y0   $z5) // 322
+    (-$x1  -$y1   $z5) // 323
+    (-$x2  -$y2   $z5) // 324
+    (-$x3  -$y3   $z5) // 325
+    (-$x4  -$y4   $z5) // 326
+    (-$x5  -$y5   $z5) // 327
+    (-$x6  -$y6   $z5) // 328
+    (-$x7  -$y7   $z5) // 329
+    (-$x8  -$y8   $z5) // 330
+    (-$x9  -$y9   $z5) // 331
+    (-$x10 -$yout $z5) // 332
+    (-$x11 -$yout $z5) // 333
+    (-$x12 -$yout $z5) // 334
+    (-$x13 -$yout $z5) // 335
+);
+
+blocks
+(                         //x y z
+    hex (0 5 6 1 56 61 62 57) ($n_r $n_a01  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (1 6 7 2 57 62 63 58) ($n_r $n_a12  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (2 7 8 3 58 63 64 59) ($n_r $n_a23  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (3 8 9 4 59 64 65 60) ($n_r $n_a34  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (0 1 11 10 56 57 67 66) ($n_a01 $n_io1 $n_z01) simpleGrading (1 1 $gradZ01) //outlet1 upper right
+    hex (2 3 13 12 58 59 69 68) ($n_a23 $n_io2 $n_z01) simpleGrading (1 1 $gradZ01) //outlet2 upper right
+    
+        // -------------------------
+    // upper left
+    // -------------------------
+    hex (15 20 19 14 71 76 75 70) ($n_r $n_a01  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (16 21 20 15 72 77 76 71) ($n_r $n_a12  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (17 22 21 16 73 78 77 72) ($n_r $n_a23  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (18 23 22 17 74 79 78 73) ($n_r $n_a34  $n_z01) simpleGrading (1 1 $gradZ01)
+
+    hex (29 34 33 28 85 90 89 84) ($n_r $n_a01  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (30 35 34 29 86 91 90 85) ($n_r $n_a12  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (31 36 35 30 87 92 91 86) ($n_r $n_a23  $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (32 37 36 31 88 93 92 87) ($n_r $n_a34  $n_z01) simpleGrading (1 1 $gradZ01)
+
+    hex (42 47 48 43 98 103 104 99)   ($n_r $n_a01 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (43 48 49 44 99 104 105 100)  ($n_r $n_a12 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (44 49 50 45 100 105 106 101) ($n_r $n_a23 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (45 50 51 46 101 106 107 102) ($n_r $n_a34 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (42 43 53 52 98 99 109 108)   ($n_a01 $n_io1 $n_z01) simpleGrading (1 1 $gradZ01) // inlet lower left
+    
+    // quadrant coupling
+    hex (14 19 5 0 70 75 61 56)    ($n_r    $n_a140 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (28 33 47 42 84 89 103 98) ($n_r    $n_a140 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (19 47 33 5 75 103 89 61)  ($n_a432 $n_a140 $n_z01) simpleGrading (1 1 $gradZ01)
+    
+    hex (5 33 34 6 61 89 90 62)    ($n_a432 $n_a01 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (6 34 35 7 62 90 91 63)    ($n_a432 $n_a12 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (7 35 36 8 63 91 92 64)    ($n_a432 $n_a23 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (8 36 37 9 64 92 93 65)    ($n_a432 $n_a34 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (9 37 32 4 65 93 88 60)    ($n_a432 $n_r   $n_z01) simpleGrading (1 1 $gradZ01)
+
+    hex (20 48 47 19 76 104 103 75) ($n_a432 $n_a01 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (21 49 48 20 77 105 104 76) ($n_a432 $n_a12 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (22 50 49 21 78 106 105 77) ($n_a432 $n_a23 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (23 51 50 22 79 107 106 78) ($n_a432 $n_a34 $n_z01) simpleGrading (1 1 $gradZ01)
+    hex (18 46 51 23 74 102 107 79) ($n_a432 $n_r   $n_z01) simpleGrading (1 1 $gradZ01)
+        // =========================
+    // z1 -> z2
+    // =========================
+
+    hex (56 61 62 57 112 117 118 113) ($n_r $n_a01 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (57 62 63 58 113 118 119 114) ($n_r $n_a12 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (58 63 64 59 114 119 120 115) ($n_r $n_a23 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (59 64 65 60 115 120 121 116) ($n_r $n_a34 $n_z12) simpleGrading (1 1 $gradZ12)
+
+    //hex (56 57 67 66 112 113 123 122) ($n_a01 $n_io1 $n_z12) simpleGrading (1 1 $gradZ12) // outlet1 upper right
+    //hex (58 59 69 68 114 115 125 124) ($n_a23 $n_io2 $n_z12) simpleGrading (1 1 $gradZ12) // outlet2 upper right
+
+    // upper left
+    hex (71 76 75 70 127 132 131 126) ($n_r $n_a01 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (72 77 76 71 128 133 132 127) ($n_r $n_a12 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (73 78 77 72 129 134 133 128) ($n_r $n_a23 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (74 79 78 73 130 135 134 129) ($n_r $n_a34 $n_z12) simpleGrading (1 1 $gradZ12)
+
+    //hex (80 81 71 70 136 137 127 126) ($n_a01 $n_io1 $n_z12) simpleGrading (1 1 $gradZ12) // outlet1 upper left
+    //hex (82 83 73 72 138 139 129 128) ($n_a23 $n_io2 $n_z12) simpleGrading (1 1 $gradZ12) // outlet2 upper left
+
+    // lower right
+    hex (85 90 89 84 141 146 145 140) ($n_r $n_a01 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (86 91 90 85 142 147 146 141) ($n_r $n_a12 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (87 92 91 86 143 148 147 142) ($n_r $n_a23 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (88 93 92 87 144 149 148 143) ($n_r $n_a34 $n_z12) simpleGrading (1 1 $gradZ12)
+
+    //hex (94 95 85 84 150 151 141 140) ($n_a01 $n_io1 $n_z12) simpleGrading (1 1 $gradZ12) // inlet lower right
+    //hex (96 97 87 86 152 153 143 142) ($n_a23 $n_io2 $n_z12) simpleGrading (1 1 $gradZ12) // outlet2 lower right
+
+    // lower left
+    hex (98 103 104 99 154 159 160 155)   ($n_r $n_a01 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (99 104 105 100 155 160 161 156)  ($n_r $n_a12 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (100 105 106 101 156 161 162 157) ($n_r $n_a23 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (101 106 107 102 157 162 163 158) ($n_r $n_a34 $n_z12) simpleGrading (1 1 $gradZ12)
+
+    //hex (98 99 109 108 154 155 165 164)   ($n_a01 $n_io1 $n_z12) simpleGrading (1 1 $gradZ12) // inlet lower left
+    //hex (100 101 111 110 156 157 167 166) ($n_a23 $n_io2 $n_z12) simpleGrading (1 1 $gradZ12) // outlet2 lower left
+
+    // quadrant coupling
+    hex (75 103 89 61 131 159 145 117)   ($n_a432 $n_a140 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (70 75 61 56 126 131 117 112)    ($n_r    $n_a140 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (84 89 103 98 140 145 159 154)   ($n_r    $n_a140 $n_z12) simpleGrading (1 1 $gradZ12)
+
+    hex (61 89 90 62 117 145 146 118)    ($n_a432 $n_a01 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (62 90 91 63 118 146 147 119)    ($n_a432 $n_a12 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (63 91 92 64 119 147 148 120)    ($n_a432 $n_a23 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (64 92 93 65 120 148 149 121)    ($n_a432 $n_a34 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (65 93 88 60 121 149 144 116)    ($n_a432 $n_r   $n_z12) simpleGrading (1 1 $gradZ12)
+
+    hex (76 104 103 75 132 160 159 131)  ($n_a432 $n_a01 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (77 105 104 76 133 161 160 132)  ($n_a432 $n_a12 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (78 106 105 77 134 162 161 133)  ($n_a432 $n_a23 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (79 107 106 78 135 163 162 134)  ($n_a432 $n_a34 $n_z12) simpleGrading (1 1 $gradZ12)
+    hex (74 102 107 79 130 158 163 135)  ($n_a432 $n_r   $n_z12) simpleGrading (1 1 $gradZ12)
+
+    // =========================
+    // z2 -> z3
+    // =========================
+
+    hex (112 117 118 113 168 173 174 169) ($n_r $n_a01 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (113 118 119 114 169 174 175 170) ($n_r $n_a12 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (114 119 120 115 170 175 176 171) ($n_r $n_a23 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (115 120 121 116 171 176 177 172) ($n_r $n_a34 $n_z23) simpleGrading (1 1 $gradZ23)
+
+    //hex (112 113 123 122 168 169 179 178) ($n_a01 $n_io1 $n_z23) simpleGrading (1 1 $gradZ23) // outlet1 upper right
+    //hex (114 115 125 124 170 171 181 180) ($n_a23 $n_io2 $n_z23) simpleGrading (1 1 $gradZ23) // outlet2 upper right
+
+    // upper left
+    hex (127 132 131 126 183 188 187 182) ($n_r $n_a01 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (128 133 132 127 184 189 188 183) ($n_r $n_a12 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (129 134 133 128 185 190 189 184) ($n_r $n_a23 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (130 135 134 129 186 191 190 185) ($n_r $n_a34 $n_z23) simpleGrading (1 1 $gradZ23)
+
+    //hex (136 137 127 126 192 193 183 182) ($n_a01 $n_io1 $n_z23) simpleGrading (1 1 $gradZ23) // outlet1 upper left
+    //hex (138 139 129 128 194 195 185 184) ($n_a23 $n_io2 $n_z23) simpleGrading (1 1 $gradZ23) // outlet2 upper left
+
+    // lower right
+    hex (141 146 145 140 197 202 201 196) ($n_r $n_a01 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (142 147 146 141 198 203 202 197) ($n_r $n_a12 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (143 148 147 142 199 204 203 198) ($n_r $n_a23 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (144 149 148 143 200 205 204 199) ($n_r $n_a34 $n_z23) simpleGrading (1 1 $gradZ23)
+
+    //hex (150 151 141 140 206 207 197 196) ($n_a01 $n_io1 $n_z23) simpleGrading (1 1 $gradZ23) // inlet lower right
+    //hex (152 153 143 142 208 209 199 198) ($n_a23 $n_io2 $n_z23) simpleGrading (1 1 $gradZ23) // outlet2 lower right
+
+    // lower left
+    hex (154 159 160 155 210 215 216 211) ($n_r $n_a01 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (155 160 161 156 211 216 217 212) ($n_r $n_a12 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (156 161 162 157 212 217 218 213) ($n_r $n_a23 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (157 162 163 158 213 218 219 214) ($n_r $n_a34 $n_z23) simpleGrading (1 1 $gradZ23)
+
+    //hex (154 155 165 164 210 211 221 220) ($n_a01 $n_io1 $n_z23) simpleGrading (1 1 $gradZ23) // inlet lower left
+    //hex (156 157 167 166 212 213 223 222) ($n_a23 $n_io2 $n_z23) simpleGrading (1 1 $gradZ23) // outlet2 lower left
+
+    // quadrant coupling
+    hex (131 159 145 117 187 215 201 173) ($n_a432 $n_a140 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (126 131 117 112 182 187 173 168) ($n_r    $n_a140 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (140 145 159 154 196 201 215 210) ($n_r    $n_a140 $n_z23) simpleGrading (1 1 $gradZ23)
+
+    hex (117 145 146 118 173 201 202 174) ($n_a432 $n_a01 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (118 146 147 119 174 202 203 175) ($n_a432 $n_a12 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (119 147 148 120 175 203 204 176) ($n_a432 $n_a23 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (120 148 149 121 176 204 205 177) ($n_a432 $n_a34 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (121 149 144 116 177 205 200 172) ($n_a432 $n_r   $n_z23) simpleGrading (1 1 $gradZ23)
+
+    hex (132 160 159 131 188 216 215 187) ($n_a432 $n_a01 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (133 161 160 132 189 217 216 188) ($n_a432 $n_a12 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (134 162 161 133 190 218 217 189) ($n_a432 $n_a23 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (135 163 162 134 191 219 218 190) ($n_a432 $n_a34 $n_z23) simpleGrading (1 1 $gradZ23)
+    hex (130 158 163 135 186 214 219 191) ($n_a432 $n_r   $n_z23) simpleGrading (1 1 $gradZ23)
+
+    // =========================
+    // z3 -> z4
+    // =========================
+
+    hex (168 173 174 169 224 229 230 225) ($n_r $n_a01 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (169 174 175 170 225 230 231 226) ($n_r $n_a12 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (170 175 176 171 226 231 232 227) ($n_r $n_a23 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (171 176 177 172 227 232 233 228) ($n_r $n_a34 $n_z34) simpleGrading (1 1 $gradZ34)
+
+    //hex (168 169 179 178 224 225 235 234) ($n_a01 $n_io1 $n_z34) simpleGrading (1 1 $gradZ34) // outlet1 upper right
+    //hex (170 171 181 180 226 227 237 236) ($n_a23 $n_io2 $n_z34) simpleGrading (1 1 $gradZ34) // outlet2 upper right
+
+    // upper left
+    hex (183 188 187 182 239 244 243 238) ($n_r $n_a01 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (184 189 188 183 240 245 244 239) ($n_r $n_a12 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (185 190 189 184 241 246 245 240) ($n_r $n_a23 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (186 191 190 185 242 247 246 241) ($n_r $n_a34 $n_z34) simpleGrading (1 1 $gradZ34)
+
+    //hex (192 193 183 182 248 249 239 238) ($n_a01 $n_io1 $n_z34) simpleGrading (1 1 $gradZ34) // outlet1 upper left
+    //hex (194 195 185 184 250 251 241 240) ($n_a23 $n_io2 $n_z34) simpleGrading (1 1 $gradZ34) // outlet2 upper left
+
+    // lower right
+    hex (197 202 201 196 253 258 257 252) ($n_r $n_a01 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (198 203 202 197 254 259 258 253) ($n_r $n_a12 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (199 204 203 198 255 260 259 254) ($n_r $n_a23 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (200 205 204 199 256 261 260 255) ($n_r $n_a34 $n_z34) simpleGrading (1 1 $gradZ34)
+
+    //hex (206 207 197 196 262 263 253 252) ($n_a01 $n_io1 $n_z34) simpleGrading (1 1 $gradZ34) // inlet lower right
+    //hex (208 209 199 198 264 265 255 254) ($n_a23 $n_io2 $n_z34) simpleGrading (1 1 $gradZ34) // outlet2 lower right
+
+    // lower left
+    hex (210 215 216 211 266 271 272 267) ($n_r $n_a01 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (211 216 217 212 267 272 273 268) ($n_r $n_a12 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (212 217 218 213 268 273 274 269) ($n_r $n_a23 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (213 218 219 214 269 274 275 270) ($n_r $n_a34 $n_z34) simpleGrading (1 1 $gradZ34)
+
+    //hex (210 211 221 220 266 267 277 276) ($n_a01 $n_io1 $n_z34) simpleGrading (1 1 $gradZ34) // inlet lower left
+    //hex (212 213 223 222 268 269 279 278) ($n_a23 $n_io2 $n_z34) simpleGrading (1 1 $gradZ34) // outlet2 lower left
+
+    // quadrant coupling
+    hex (187 215 201 173 243 271 257 229) ($n_a432 $n_a140 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (182 187 173 168 238 243 229 224) ($n_r    $n_a140 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (196 201 215 210 252 257 271 266) ($n_r    $n_a140 $n_z34) simpleGrading (1 1 $gradZ34)
+
+    hex (173 201 202 174 229 257 258 230) ($n_a432 $n_a01 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (174 202 203 175 230 258 259 231) ($n_a432 $n_a12 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (175 203 204 176 231 259 260 232) ($n_a432 $n_a23 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (176 204 205 177 232 260 261 233) ($n_a432 $n_a34 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (177 205 200 172 233 261 256 228) ($n_a432 $n_r   $n_z34) simpleGrading (1 1 $gradZ34)
+
+    hex (188 216 215 187 244 272 271 243) ($n_a432 $n_a01 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (189 217 216 188 245 273 272 244) ($n_a432 $n_a12 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (190 218 217 189 246 274 273 245) ($n_a432 $n_a23 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (191 219 218 190 247 275 274 246) ($n_a432 $n_a34 $n_z34) simpleGrading (1 1 $gradZ34)
+    hex (186 214 219 191 242 270 275 247) ($n_a432 $n_r   $n_z34) simpleGrading (1 1 $gradZ34)
+
+    // =========================
+    // z4 -> z5
+    // =========================
+
+    hex (224 229 230 225 280 285 286 281) ($n_r $n_a01 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (225 230 231 226 281 286 287 282) ($n_r $n_a12 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (226 231 232 227 282 287 288 283) ($n_r $n_a23 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (227 232 233 228 283 288 289 284) ($n_r $n_a34 $n_z45) simpleGrading (1 1 $gradZ45)
+
+    //hex (224 225 235 234 280 281 291 290) ($n_a01 $n_io1 $n_z45) simpleGrading (1 1 $gradZ45) // outlet1 upper right
+    //hex (226 227 237 236 282 283 293 292) ($n_a23 $n_io2 $n_z45) simpleGrading (1 1 $gradZ45) // outlet2 upper right
+
+    // upper left
+    hex (239 244 243 238 295 300 299 294) ($n_r $n_a01 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (240 245 244 239 296 301 300 295) ($n_r $n_a12 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (241 246 245 240 297 302 301 296) ($n_r $n_a23 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (242 247 246 241 298 303 302 297) ($n_r $n_a34 $n_z45) simpleGrading (1 1 $gradZ45)
+
+    hex (248 249 239 238 304 305 295 294) ($n_a01 $n_io1 $n_z45) simpleGrading (1 1 $gradZ45) // outlet1 upper left
+    hex (250 251 241 240 306 307 297 296) ($n_a23 $n_io2 $n_z45) simpleGrading (1 1 $gradZ45) // outlet2 upper left
+
+    // lower right
+    hex (253 258 257 252 309 314 313 308) ($n_r $n_a01 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (254 259 258 253 310 315 314 309) ($n_r $n_a12 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (255 260 259 254 311 316 315 310) ($n_r $n_a23 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (256 261 260 255 312 317 316 311) ($n_r $n_a34 $n_z45) simpleGrading (1 1 $gradZ45)
+
+    hex (262 263 253 252 318 319 309 308) ($n_a01 $n_io1 $n_z45) simpleGrading (1 1 $gradZ45) // inlet lower right
+    //hex (264 265 255 254 320 321 311 310) ($n_a23 $n_io2 $n_z45) simpleGrading (1 1 $gradZ45) // outlet2 lower right
+
+    // lower left
+    hex (266 271 272 267 322 327 328 323) ($n_r $n_a01 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (267 272 273 268 323 328 329 324) ($n_r $n_a12 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (268 273 274 269 324 329 330 325) ($n_r $n_a23 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (269 274 275 270 325 330 331 326) ($n_r $n_a34 $n_z45) simpleGrading (1 1 $gradZ45)
+
+    //hex (266 267 277 276 322 323 333 332) ($n_a01 $n_io1 $n_z45) simpleGrading (1 1 $gradZ45) // inlet lower left
+    //hex (268 269 279 278 324 325 335 334) ($n_a23 $n_io2 $n_z45) simpleGrading (1 1 $gradZ45) // outlet2 lower left
+
+    // quadrant coupling
+    hex (243 271 257 229 299 327 313 285) ($n_a432 $n_a140 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (238 243 229 224 294 299 285 280) ($n_r    $n_a140 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (252 257 271 266 308 313 327 322) ($n_r    $n_a140 $n_z45) simpleGrading (1 1 $gradZ45)
+
+    hex (229 257 258 230 285 313 314 286) ($n_a432 $n_a01 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (230 258 259 231 286 314 315 287) ($n_a432 $n_a12 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (231 259 260 232 287 315 316 288) ($n_a432 $n_a23 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (232 260 261 233 288 316 317 289) ($n_a432 $n_a34 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (233 261 256 228 289 317 312 284) ($n_a432 $n_r   $n_z45) simpleGrading (1 1 $gradZ45)
+
+    hex (244 272 271 243 300 328 327 299) ($n_a432 $n_a01 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (245 273 272 244 301 329 328 300) ($n_a432 $n_a12 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (246 274 273 245 302 330 329 301) ($n_a432 $n_a23 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (247 275 274 246 303 331 330 302) ($n_a432 $n_a34 $n_z45) simpleGrading (1 1 $gradZ45)
+    hex (242 270 275 247 298 326 331 303) ($n_a432 $n_r   $n_z45) simpleGrading (1 1 $gradZ45)
+);
+
+edges
+(
+    // =========================
+    // z0
+    // =========================
+
+    // outer radius
+    arc 14 0  origin (0 0 $z0)
+    arc 0 1   origin (0 0 $z0)
+    arc 1 2   origin (0 0 $z0)
+    arc 2 3   origin (0 0 $z0)
+    arc 3 4   origin (0 0 $z0)
+    arc 4 32  origin (0 0 $z0)
+    arc 32 31 origin (0 0 $z0)
+    arc 31 30 origin (0 0 $z0)
+    arc 30 29 origin (0 0 $z0)
+    arc 29 28 origin (0 0 $z0)
+    arc 28 42 origin (0 0 $z0)
+    arc 42 43 origin (0 0 $z0)
+    arc 43 44 origin (0 0 $z0)
+    arc 44 45 origin (0 0 $z0)
+    arc 45 46 origin (0 0 $z0)
+    arc 46 18 origin (0 0 $z0)
+    arc 18 17 origin (0 0 $z0)
+    arc 17 16 origin (0 0 $z0)
+    arc 16 15 origin (0 0 $z0)
+    arc 15 14 origin (0 0 $z0)
+
+    // inner radius
+    arc 19 5  origin (0 0 $z0)
+    arc 5 6   origin (0 0 $z0)
+    arc 6 7   origin (0 0 $z0)
+    arc 7 8   origin (0 0 $z0)
+    arc 8 9   origin (0 0 $z0)
+    //arc 9 37  origin (0 0 $z0)
+    arc 37 36 origin (0 0 $z0)
+    arc 36 35 origin (0 0 $z0)
+    arc 35 34 origin (0 0 $z0)
+    arc 34 33 origin (0 0 $z0)
+    arc 33 47 origin (0 0 $z0)
+    arc 47 48 origin (0 0 $z0)
+    arc 48 49 origin (0 0 $z0)
+    arc 49 50 origin (0 0 $z0)
+    arc 50 51 origin (0 0 $z0)
+    //arc 51 23 origin (0 0 $z0)
+    arc 23 22 origin (0 0 $z0)
+    arc 22 21 origin (0 0 $z0)
+    arc 21 20 origin (0 0 $z0)
+    arc 20 19 origin (0 0 $z0)
+
+    // =========================
+    // z1
+    // =========================
+
+    // outer radius
+    arc 70 56  origin (0 0 $z1)
+    arc 56 57  origin (0 0 $z1)
+    arc 57 58  origin (0 0 $z1)
+    arc 58 59  origin (0 0 $z1)
+    arc 59 60  origin (0 0 $z1)
+    arc 60 88  origin (0 0 $z1)
+    arc 88 87  origin (0 0 $z1)
+    arc 87 86  origin (0 0 $z1)
+    arc 86 85  origin (0 0 $z1)
+    arc 85 84  origin (0 0 $z1)
+    arc 84 98  origin (0 0 $z1)
+    arc 98 99  origin (0 0 $z1)
+    arc 99 100 origin (0 0 $z1)
+    arc 100 101 origin (0 0 $z1)
+    arc 101 102 origin (0 0 $z1)
+    arc 102 74 origin (0 0 $z1)
+    arc 74 73  origin (0 0 $z1)
+    arc 73 72  origin (0 0 $z1)
+    arc 72 71  origin (0 0 $z1)
+    arc 71 70  origin (0 0 $z1)
+
+    // inner radius
+    arc 75 61  origin (0 0 $z1)
+    arc 61 62  origin (0 0 $z1)
+    arc 62 63  origin (0 0 $z1)
+    arc 63 64  origin (0 0 $z1)
+    arc 64 65  origin (0 0 $z1)
+    //arc 65 93  origin (0 0 $z1)
+    arc 93 92  origin (0 0 $z1)
+    arc 92 91  origin (0 0 $z1)
+    arc 91 90  origin (0 0 $z1)
+    arc 90 89  origin (0 0 $z1)
+    arc 89 103 origin (0 0 $z1)
+    arc 103 104 origin (0 0 $z1)
+    arc 104 105 origin (0 0 $z1)
+    arc 105 106 origin (0 0 $z1)
+    arc 106 107 origin (0 0 $z1)
+    //arc 107 79 origin (0 0 $z1)
+    arc 79 78  origin (0 0 $z1)
+    arc 78 77  origin (0 0 $z1)
+    arc 77 76  origin (0 0 $z1)
+    arc 76 75  origin (0 0 $z1)
+
+    // =========================
+    // z2
+    // =========================
+
+    // outer radius
+    arc 126 112 origin (0 0 $z2)
+    arc 112 113 origin (0 0 $z2)
+    arc 113 114 origin (0 0 $z2)
+    arc 114 115 origin (0 0 $z2)
+    arc 115 116 origin (0 0 $z2)
+    arc 116 144 origin (0 0 $z2)
+    arc 144 143 origin (0 0 $z2)
+    arc 143 142 origin (0 0 $z2)
+    arc 142 141 origin (0 0 $z2)
+    arc 141 140 origin (0 0 $z2)
+    arc 140 154 origin (0 0 $z2)
+    arc 154 155 origin (0 0 $z2)
+    arc 155 156 origin (0 0 $z2)
+    arc 156 157 origin (0 0 $z2)
+    arc 157 158 origin (0 0 $z2)
+    arc 158 130 origin (0 0 $z2)
+    arc 130 129 origin (0 0 $z2)
+    arc 129 128 origin (0 0 $z2)
+    arc 128 127 origin (0 0 $z2)
+    arc 127 126 origin (0 0 $z2)
+
+    // inner radius
+    arc 131 117 origin (0 0 $z2)
+    arc 117 118 origin (0 0 $z2)
+    arc 118 119 origin (0 0 $z2)
+    arc 119 120 origin (0 0 $z2)
+    arc 120 121 origin (0 0 $z2)
+    //arc 121 149 origin (0 0 $z2)
+    arc 149 148 origin (0 0 $z2)
+    arc 148 147 origin (0 0 $z2)
+    arc 147 146 origin (0 0 $z2)
+    arc 146 145 origin (0 0 $z2)
+    arc 145 159 origin (0 0 $z2)
+    arc 159 160 origin (0 0 $z2)
+    arc 160 161 origin (0 0 $z2)
+    arc 161 162 origin (0 0 $z2)
+    arc 162 163 origin (0 0 $z2)
+    //arc 163 135 origin (0 0 $z2)
+    arc 135 134 origin (0 0 $z2)
+    arc 134 133 origin (0 0 $z2)
+    arc 133 132 origin (0 0 $z2)
+    arc 132 131 origin (0 0 $z2)
+
+    // =========================
+    // z3
+    // =========================
+
+    // outer radius
+    arc 182 168 origin (0 0 $z3)
+    arc 168 169 origin (0 0 $z3)
+    arc 169 170 origin (0 0 $z3)
+    arc 170 171 origin (0 0 $z3)
+    arc 171 172 origin (0 0 $z3)
+    arc 172 200 origin (0 0 $z3)
+    arc 200 199 origin (0 0 $z3)
+    arc 199 198 origin (0 0 $z3)
+    arc 198 197 origin (0 0 $z3)
+    arc 197 196 origin (0 0 $z3)
+    arc 196 210 origin (0 0 $z3)
+    arc 210 211 origin (0 0 $z3)
+    arc 211 212 origin (0 0 $z3)
+    arc 212 213 origin (0 0 $z3)
+    arc 213 214 origin (0 0 $z3)
+    arc 214 186 origin (0 0 $z3)
+    arc 186 185 origin (0 0 $z3)
+    arc 185 184 origin (0 0 $z3)
+    arc 184 183 origin (0 0 $z3)
+    arc 183 182 origin (0 0 $z3)
+
+    // inner radius
+    arc 187 173 origin (0 0 $z3)
+    arc 173 174 origin (0 0 $z3)
+    arc 174 175 origin (0 0 $z3)
+    arc 175 176 origin (0 0 $z3)
+    arc 176 177 origin (0 0 $z3)
+    //arc 177 205 origin (0 0 $z3)
+    arc 205 204 origin (0 0 $z3)
+    arc 204 203 origin (0 0 $z3)
+    arc 203 202 origin (0 0 $z3)
+    arc 202 201 origin (0 0 $z3)
+    arc 201 215 origin (0 0 $z3)
+    arc 215 216 origin (0 0 $z3)
+    arc 216 217 origin (0 0 $z3)
+    arc 217 218 origin (0 0 $z3)
+    arc 218 219 origin (0 0 $z3)
+    //arc 219 191 origin (0 0 $z3)
+    arc 191 190 origin (0 0 $z3)
+    arc 190 189 origin (0 0 $z3)
+    arc 189 188 origin (0 0 $z3)
+    arc 188 187 origin (0 0 $z3)
+
+    // =========================
+    // z4
+    // =========================
+
+    // outer radius
+    arc 238 224 origin (0 0 $z4)
+    arc 224 225 origin (0 0 $z4)
+    arc 225 226 origin (0 0 $z4)
+    arc 226 227 origin (0 0 $z4)
+    arc 227 228 origin (0 0 $z4)
+    arc 228 256 origin (0 0 $z4)
+    arc 256 255 origin (0 0 $z4)
+    arc 255 254 origin (0 0 $z4)
+    arc 254 253 origin (0 0 $z4)
+    arc 253 252 origin (0 0 $z4)
+    arc 252 266 origin (0 0 $z4)
+    arc 266 267 origin (0 0 $z4)
+    arc 267 268 origin (0 0 $z4)
+    arc 268 269 origin (0 0 $z4)
+    arc 269 270 origin (0 0 $z4)
+    arc 270 242 origin (0 0 $z4)
+    arc 242 241 origin (0 0 $z4)
+    arc 241 240 origin (0 0 $z4)
+    arc 240 239 origin (0 0 $z4)
+    arc 239 238 origin (0 0 $z4)
+
+    // inner radius
+    arc 243 229 origin (0 0 $z4)
+    arc 229 230 origin (0 0 $z4)
+    arc 230 231 origin (0 0 $z4)
+    arc 231 232 origin (0 0 $z4)
+    arc 232 233 origin (0 0 $z4)
+    //arc 233 261 origin (0 0 $z4)
+    arc 261 260 origin (0 0 $z4)
+    arc 260 259 origin (0 0 $z4)
+    arc 259 258 origin (0 0 $z4)
+    arc 258 257 origin (0 0 $z4)
+    arc 257 271 origin (0 0 $z4)
+    arc 271 272 origin (0 0 $z4)
+    arc 272 273 origin (0 0 $z4)
+    arc 273 274 origin (0 0 $z4)
+    arc 274 275 origin (0 0 $z4)
+    //arc 275 247 origin (0 0 $z4)
+    arc 247 246 origin (0 0 $z4)
+    arc 246 245 origin (0 0 $z4)
+    arc 245 244 origin (0 0 $z4)
+    arc 244 243 origin (0 0 $z4)
+
+    // =========================
+    // z5
+    // =========================
+
+    // outer radius
+    arc 294 280 origin (0 0 $z5)
+    arc 280 281 origin (0 0 $z5)
+    arc 281 282 origin (0 0 $z5)
+    arc 282 283 origin (0 0 $z5)
+    arc 283 284 origin (0 0 $z5)
+    arc 284 312 origin (0 0 $z5)
+    arc 312 311 origin (0 0 $z5)
+    arc 311 310 origin (0 0 $z5)
+    arc 310 309 origin (0 0 $z5)
+    arc 309 308 origin (0 0 $z5)
+    arc 308 322 origin (0 0 $z5)
+    arc 322 323 origin (0 0 $z5)
+    arc 323 324 origin (0 0 $z5)
+    arc 324 325 origin (0 0 $z5)
+    arc 325 326 origin (0 0 $z5)
+    arc 326 298 origin (0 0 $z5)
+    arc 298 297 origin (0 0 $z5)
+    arc 297 296 origin (0 0 $z5)
+    arc 296 295 origin (0 0 $z5)
+    arc 295 294 origin (0 0 $z5)
+
+    // inner radius
+    arc 299 285 origin (0 0 $z5)
+    arc 285 286 origin (0 0 $z5)
+    arc 286 287 origin (0 0 $z5)
+    arc 287 288 origin (0 0 $z5)
+    arc 288 289 origin (0 0 $z5)
+    //arc 289 317 origin (0 0 $z5)
+    arc 317 316 origin (0 0 $z5)
+    arc 316 315 origin (0 0 $z5)
+    arc 315 314 origin (0 0 $z5)
+    arc 314 313 origin (0 0 $z5)
+    arc 313 327 origin (0 0 $z5)
+    arc 327 328 origin (0 0 $z5)
+    arc 328 329 origin (0 0 $z5)
+    arc 329 330 origin (0 0 $z5)
+    arc 330 331 origin (0 0 $z5)
+    //arc 331 303 origin (0 0 $z5)
+    arc 303 302 origin (0 0 $z5)
+    arc 302 301 origin (0 0 $z5)
+    arc 301 300 origin (0 0 $z5)
+    arc 300 299 origin (0 0 $z5)
+    
+    
+   
+  /*  
+// z0
+polyLine 9 37
+(
+    
+    
+    ($x9    #eval{ 0.95*$y9} $z0)
+    ($xConnP 0 $z0)
+    ($x9    #eval{-0.95*$y9} $z0)
+)
+
+polyLine 23 51
+(
+
+    (-$x9    #eval{ 0.95*$y9} $z0)
+    ($xConnM 0 $z0)
+    (-$x9    #eval{-0.95*$y9} $z0)
+
+)
+
+// z1
+polyLine 65 93
+(
+    ($x9    #eval{ 0.95*$y9} $z1)
+    ($xConnP 0 $z1)
+    ($x9    #eval{-0.95*$y9} $z1)
+)
+polyLine 79 107
+(
+    (-$x9    #eval{ 0.95*$y9} $z1)
+    ($xConnM 0 $z1)
+    (-$x9    #eval{-0.95*$y9} $z1)
+)
+
+// z2
+polyLine 121 149
+(
+    ($x9    #eval{ 0.95*$y9} $z2)
+    ($xConnP 0 $z2)
+    ($x9    #eval{-0.95*$y9} $z2)
+)
+polyLine 135 163
+(
+    (-$x9    #eval{ 0.95*$y9} $z2)
+    ($xConnM 0 $z2)
+    (-$x9    #eval{-0.95*$y9} $z2)
+)
+
+// z3
+polyLine 177 205
+(
+    ($x9    #eval{ 0.95*$y9} $z3)
+    ($xConnP 0 $z3)
+    ($x9    #eval{-0.95*$y9} $z3)
+)
+polyLine 191 219
+(
+    (-$x9    #eval{ 0.95*$y9} $z3)
+    ($xConnM 0 $z3)
+    (-$x9    #eval{-0.95*$y9} $z3)
+)
+
+// z4
+polyLine 233 261
+(
+    ($x9    #eval{ 0.95*$y9} $z4)
+    ($xConnP 0 $z4)
+    ($x9    #eval{-0.95*$y9} $z4)
+)
+polyLine 247 275
+(
+    (-$x9    #eval{ 0.95*$y9} $z4)
+    ($xConnM 0 $z4)
+    (-$x9    #eval{-0.95*$y9} $z4)
+)
+
+// z5
+polyLine 289 317
+(
+    ($x9    #eval{ 0.95*$y9} $z5)
+    ($xConnP 0 $z5)
+    ($x9    #eval{-0.95*$y9} $z5)
+)
+polyLine 303 331
+(
+    (-$x9    #eval{ 0.95*$y9} $z5)
+    ($xConnM 0 $z5)
+    (-$x9    #eval{-0.95*$y9} $z5)
+)*/
+);
+boundary
+(
+
+
+    walls
+    {
+        type wall;
+        faces
+        (
+            (0 56 70 14)
+            (2 58 57 1)
+            (4 60 59 3)
+            (14 70 71 15)
+            (15 71 72 16)
+            (16 72 73 17)
+            (17 73 74 18)
+            (18 74 102 46)
+            (28 84 85 29)
+            (42 98 84 28)
+            (29 85 86 30)
+            (30 86 87 31)
+            (31 87 88 32)
+            (44 100 99 43)
+            (45 101 100 44)
+            (46 102 101 45)
+
+            (57 113 112 56)
+            (56 112 126 70)
+            (58 114 113 57)
+            (59 115 114 58)
+            (60 116 115 59)
+            (70 126 127 71)
+            (71 127 128 72)
+            (72 128 129 73)
+            (73 129 130 74)
+            (74 130 158 102)
+            (84 140 141 85)
+            (98 154 140 84)
+            (85 141 142 86)
+            (86 142 143 87)
+            (87 143 144 88)
+            (99 155 154 98)
+            (100 156 155 99)
+            (101 157 156 100)
+            (102 158 157 101)
+
+            (113 169 168 112)
+            (112 168 182 126)
+            (114 170 169 113)
+            (115 171 170 114)
+            (116 172 171 115)
+            (126 182 183 127)
+            (127 183 184 128)
+            (128 184 185 129)
+            (129 185 186 130)
+            (130 186 214 158)
+            (140 196 197 141)
+            (154 210 196 140)
+            (141 197 198 142)
+            (142 198 199 143)
+            (143 199 200 144)
+            (155 211 210 154)
+            (156 212 211 155)
+            (157 213 212 156)
+            (158 214 213 157)
+
+            (169 225 224 168)
+            (168 224 238 182)
+            (170 226 225 169)
+            (171 227 226 170)
+            (172 228 227 171)
+            (182 238 239 183)
+            (183 239 240 184)
+            (184 240 241 185)
+            (185 241 242 186)
+            (186 242 270 214)
+            (196 252 253 197)
+            (210 266 252 196)
+            (197 253 254 198)
+            (198 254 255 199)
+            (199 255 256 200)
+            (211 267 266 210)
+            (212 268 267 211)
+            (213 269 268 212)
+            (214 270 269 213)
+
+            (225 281 280 224)
+            (224 280 294 238)
+            (226 282 281 225)
+            (227 283 282 226)
+            (228 284 283 227)
+            (239 295 296 240)
+            (241 297 298 242)
+            (242 298 326 270)
+            (266 322 308 252)
+            (253 309 310 254)
+            (254 310 311 255)
+            (255 311 312 256)
+            (267 323 322 266)
+            (268 324 323 267)
+            (269 325 324 268)
+            (270 326 325 269)
+            
+            
+            (4 32 88 60)
+            (60 88 144 116)
+            (116 144 200 172)
+            (172 200 256 228)
+            (228 256 312 284)
+    /*    );
+    }
+    walls.inletOutlet
+    {
+        type wall;
+        faces
+        (*/
+            (238 294 304 248)
+            (249 305 295 239)
+            (240 296 306 250)
+            (251 307 297 241)
+            (252 308 318 262)
+            (263 319 309 253)
+            
+            (52 108 98 42)
+            (43 99 109 53)
+            
+            (10 66 56 0)
+            (1 57 67 11)
+            (12 68 58 2)
+            (3 59 69 13)
+            
+            (56 57 67 66)
+            (58 59 69 68)
+            (98 99 109 108)
+            
+            (248 249 239 238)
+            (250 251 241 240)
+            (262 263 253 252)
+            
+                // from z0
+        (0 1 11 10)
+        (2 3 13 12)
+        (42 43 53 52)
+
+        // from z5
+        (304 305 295 294)
+        (306 307 297 296)
+        (318 319 309 308)
+       /* );
+    }
+        z0
+    {
+        type wall;
+        faces
+        (*/
+            (0 5 6 1)
+            //(0 1 11 10)
+            (14 19 5 0)
+            (1 6 7 2)
+            (2 7 8 3)
+            //(2 3 13 12)
+            (3 8 9 4)
+            (5 33 34 6)
+            (19 47 33 5)
+            (6 34 35 7)
+            (7 35 36 8)
+            (8 36 37 9)
+            (15 20 19 14)
+            (16 21 20 15)
+            (17 22 21 16)
+            (18 23 22 17)
+            (18 46 51 23)
+            (20 48 47 19)
+            (21 49 48 20)
+            (22 50 49 21)
+            (23 51 50 22)
+            (29 34 33 28)
+            (28 33 47 42)
+            (30 35 34 29)
+            (31 36 35 30)
+            (32 37 36 31)
+            (42 47 48 43)
+            //(42 43 53 52)
+            (43 48 49 44)
+            (44 49 50 45)
+            (45 50 51 46)
+            (9 37 32 4)
+     /*   );
+    }
+
+    
+    z5
+    {
+        type wall;
+        faces
+        (
+        */
+            (280 285 286 281)
+            (294 299 285 280)
+            (281 286 287 282)
+            (282 287 288 283)
+            (283 288 289 284)
+            (285 313 314 286)
+            (299 327 313 285)
+            (286 314 315 287)
+            (287 315 316 288)
+            (288 316 317 289)
+            (295 300 299 294)
+            //(304 305 295 294)
+            (296 301 300 295)
+            (297 302 301 296)
+            //(306 307 297 296)
+            (298 303 302 297)
+            (298 326 331 303)
+            (300 328 327 299)
+            (301 329 328 300)
+            (302 330 329 301)
+            (303 331 330 302)
+            (309 314 313 308)
+            //(318 319 309 308)
+            (308 313 327 322)
+            (310 315 314 309)
+            (311 316 315 310)
+            (312 317 316 311)
+            (322 327 328 323)
+            (323 328 329 324)
+            (324 329 330 325)
+            (325 330 331 326)
+            (289 317 312 284)
+        );
+    }
+    
+    
+    inlet_anode
+    {
+        type patch;
+        faces
+        (
+            //(53 109 108 52)
+            (262 318 319 263)
+        );
+    }
+    inlet_cathode
+    {
+        type patch;
+        faces
+        (
+            (53 109 108 52)
+            //(262 318 319 263)
+        );
+    }
+
+    outlet_anode
+    {
+        type patch;
+        faces
+        (
+            //(11 67 66 10)
+            //(13 69 68 12)
+            (248 304 305 249)
+            (250 306 307 251)
+        );
+    }
+    outlet_cathode
+    {
+        type patch;
+        faces
+        (
+            (11 67 66 10)
+            (13 69 68 12)
+            //(248 304 305 249)
+            //(250 306 307 251)
+        );
+    }
+
+
+
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

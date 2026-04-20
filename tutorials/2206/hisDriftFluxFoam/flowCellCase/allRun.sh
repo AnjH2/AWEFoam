@@ -18,7 +18,8 @@ setFields
 decomposePar -force
 
 #Running case
-mpirun -np 4 hisDriftFluxFoam -parallel
+mpirun -np 3 hisDriftFluxFoam -parallel
 
+reconstructPar
 echo "Setup and initial run steps completed."
 

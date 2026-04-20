@@ -1,0 +1,135 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright held by the original author
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "$FOAM_CASE/system/meshSharedDict";
+
+
+actions
+(
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  new;
+        source  cylinderToCell;
+        p1      $outCyl0_p1;
+        p2      $outCyl0_p2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $outCyl1_p1;
+        p2      $outCyl1_p2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $outCyl2_p1;
+        p2      $outCyl2_p2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $outCyl3_p1;
+        p2      $outCyl3_p2;
+        radius  $cornerRefR;
+    }
+
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $outCyl0_pm1;
+        p2      $outCyl0_pm2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $outCyl1_pm1;
+        p2      $outCyl1_pm2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $outCyl2_pm1;
+        p2      $outCyl2_pm2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $outCyl3_pm1;
+        p2      $outCyl3_pm2;
+        radius  $cornerRefR;
+    }
+
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $inCyl0_p1;
+        p2      $inCyl0_p2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $inCyl1_p1;
+        p2      $inCyl1_p2;
+        radius  $cornerRefR;
+    }
+        {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $inCyl0_pm1;
+        p2      $inCyl0_pm2;
+        radius  $cornerRefR;
+    }
+    {
+        name    cornerRefineCells;
+        type    cellSet;
+        action  add;
+        source  cylinderToCell;
+        p1      $inCyl1_pm1;
+        p2      $inCyl1_pm2;
+        radius  $cornerRefR;
+    }
+
+);
+// ************************************************************************* //

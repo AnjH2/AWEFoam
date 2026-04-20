@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+tPe		TPEe-3;
+tDi		TDIe-3;
+tNe		TNEe-3;
+tC      TCCe-3;
+cellLength	LCe-3;
+cellDepth	WCe-3;
+inletL		5e-3;
+outletL		5e-3;
+
+t01 #eval #{ -$tC #};
+t2 #eval #{ $tPe+$tDi #};
+t3 #eval #{ $tPe+$tDi+$tNe #};
+t4 #eval #{ $t3+$tC #};
+inletx #eval #{ -1*$inletL #};
+outletx	#eval #{ $cellLength+$outletL #};
+
+
+actions
+(
+    {
+    // Mandatory (inherited) entries
+    name        NeSource;
+    type        cellZoneSet;
+    action      new;
+
+    // Mandatory entries
+    source      boxToCell;
+    min     (0 #eval{$t3-$tNe*0.05} 0);
+    max     ($cellLength $t3 $cellDepth);
+    }
+    {
+    // Mandatory (inherited) entries
+    name        PeSource;
+    type        cellZoneSet;
+    action      new;
+
+    // Mandatory entries
+    source      boxToCell;
+    min     (0 0 0);
+    max     ($cellLength #eval{$tPe*0.05} $cellDepth);
+    }
+    
+);
+
+// ************************************************************************* //

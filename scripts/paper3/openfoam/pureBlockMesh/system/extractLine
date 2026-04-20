@@ -1,0 +1,106 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      set1;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+extractLine
+{
+        type            sets;
+        libs            (sampling);
+        enabled         true;
+	    writeControl    runTime;
+	    writeInterval   0.1;
+
+        interpolationScheme cell;
+        setFormat       raw;
+        fixedLocations  false;
+
+        fields
+        (
+            U alpha.gas J
+        );
+
+        sets
+        {
+            line0
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( 0 0 -7.5e-3 );
+                end     ( 0 0 7.5e-3 );
+            }
+            line1
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( 10e-3 0 -7.5e-3 );
+                end     ( 10e-3 0 7.5e-3 );
+            }
+            line2
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( 20e-3 0 -7.5e-3 );
+                end     ( 20e-3 0 7.5e-3 );
+            }
+            line3
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( 30e-3 0 -7.5e-3 );
+                end     ( 30e-3 0 7.5e-3 );
+            }
+            line4
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( 40e-3 0 -7.5e-3 );
+                end     ( 40e-3 0 7.5e-3 );
+            }
+            linem1
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( -10e-3 0 -7.5e-3 );
+                end     ( -10e-3 0 7.5e-3 );
+            }
+            linem2
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( -20e-3 0 -7.5e-3 );
+                end     ( -20e-3 0 7.5e-3 );
+            }
+            linem3
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( -30e-3 0 -7.5e-3 );
+                end     ( -30e-3 0 7.5e-3 );
+            }
+            linem4
+            {
+                type    midPoint;
+                axis    xyz;
+                start   ( -40e-3 0 -7.5e-3 );
+                end     ( -40e-3 0 7.5e-3 );
+            }
+        }
+
+}
+
+  
+// ************************************************************************* //
+
+
