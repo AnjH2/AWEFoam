@@ -1,0 +1,135 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     currentTransport;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          0.0005;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.1;
+
+purgeWrite      3;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep 	yes;
+maxCo 		0.9;
+maxDeltaT	0.05;
+
+
+functions
+{
+	
+	
+	
+	planeAvg
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        enabled         true;
+
+        // --- what to compute
+        operation       areaAverage;
+        fields          (Ie Ue);          // U = vector avg; Umag = scalar avg
+
+        // --- define the plane (sampled surface)
+        regionType      sampledSurface;
+        name            midPlane;          // label for the plane in outputs
+
+        sampledSurfaceDict
+        {
+            type                plane;
+            planeType           pointAndNormal;   // other option: pointAndTwoDirs
+            pointAndNormalDict
+            {
+                point   (0 2.225e-3 0);
+                normal (0 1 0);
+            }
+            // expand big bounds to ensure full cut through the domain
+            triangulate         false;
+            interpolate         true;
+        }
+
+        // --- when/how to write
+        writeControl   timeStep;           // or 'time' / 'runTime'
+        writeInterval  1;                  // every step; change as you like
+        surfaceFormat  none;               // no full surface dump, just the stats
+        writeFields    false;              // don’t write sampled fields on the plane
+        writeToFile    true;               // writes values to postProcessing/planeAvg/...
+    }
+    
+    line
+    {
+        type            sets;
+        libs            (sampling);
+        enabled         true;
+	    writeControl    runTime;
+	    writeInterval   0.2;
+
+        interpolationScheme cellPoint;
+        setFormat       raw;
+
+        fields          (alpha.gas);
+
+        sets
+        {
+
+            s6.5
+            {
+                type            midPoint;
+                axis            distance;
+                start           ( 6.5e-3 -1.8e-3 15e-3 );
+                end             ( 6.5e-3 6.25e-3 15e-3 );
+            }
+
+            s19
+            {
+                type            midPoint;
+                axis            distance;
+                start           ( 19e-3 -1.8e-3 15e-3 );
+                end             ( 19e-3 6.25e-3 15e-3 );
+            }
+
+            s32
+            {
+                type            midPoint;
+                axis            distance;
+                start           ( 32e-3 -1.8e-3 15e-3 );
+                end             ( 32e-3 6.25e-3 15e-3 );
+            }
+        }	
+	}
+}
+// ************************************************************************* //

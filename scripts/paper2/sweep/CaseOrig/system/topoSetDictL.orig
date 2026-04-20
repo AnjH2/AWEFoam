@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+D	DIAMETER;//12;	//dimple diameter
+ratio	2;	//how big the center square in circels is
+ratio_  #eval #{ sqrt(2*$ratio*$ratio) #};
+L	LENGTHX;	//cell width
+Lc	CENTERLENGTH;	//distance between center of dimpels. Lc>D!!!
+Dh	DIMPLEHEIGHT;	//dimple height or free flow channel size.
+Neh	NEHEIGHT;	//negativ electrode thickness
+Peh	PEHEIGHT;	//positive electrode thickness
+Dih	DIAPHRAMEHEIGHT;	//membrane thickness.
+
+//z cordinate
+dh	DDH;
+Dh1 #eval #{ ($Dh+$dh)/1000 #};
+Dh2 #eval #{ ($Dh+$Neh+$Peh+$Dih-$dh)/1000 #};
+Dh3 #eval #{ ($Dh*2+$Neh+$Peh+$Dih)/1000 #};
+// x and y
+x1 #eval #{ $L/2000 #};
+y1 $x1;
+y2 #eval #{ ($L/2+$Lc)/1000 #};
+
+
+//radius
+dr 	DDR;//how far out the BC should be made.
+r1 #eval #{ $dr/1000+$D/2000 #};
+
+
+actions
+(
+    {
+    // Mandatory (inherited) entries
+    name        LEVEL;
+    type        cellSet;
+    action      new;
+
+    // Mandatory entries
+    source      cylinderToCell;
+    p1          ($x1 $y2 0);
+    p2          ($x1 $y2 $Dh1);
+    radius      $r1;
+    }
+    {
+    // Mandatory (inherited) entries
+    name        LEVEL;
+    type        cellSet;
+    action      add;
+
+    // Mandatory entries
+    source      cylinderToCell;
+    p1          ($x1 $y1 $Dh2);
+    p2          ($x1 $y1 $Dh3);
+    radius      $r1;
+    }
+);
+
+// ************************************************************************* //

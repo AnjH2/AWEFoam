@@ -1,0 +1,110 @@
+#!/bin/bash
+
+#SBATCH --job-name="CName"
+#SBATCH --partition="q64,q36"
+#SBATCH --ntasks=NPRO
+#SBATCH --mincpus=2
+#SBATCH --ntasks-per-core=1
+#SBATCH --mem-per-cpu=1GB
+#SBATCH --time="HR:00:00"
+#SBATCH --mail-user="anj@mpe.au.dk"
+#SBATCH --mail-type=all
+#SBATCH --output=logs/output_%j.txt
+#SBATCH --error=logs/error_%j.txt
+
+# source ~/.bashrc   # <- enable if you need your env
+
+
+# --- Paths & names ---
+BASE_DIR="$PWD"
+echo $BASE_DIR
+SCRATCH_ROOT="/scratch/${SLURM_JOB_ID}"
+mkdir -p "${SCRATCH_ROOT}"
+
+JOBNUMBER="${SLURM_JOB_ID}"
+CASENAME="CName"               # placeholder; your preprocessor replaces it
+CASE_RUN="${CASENAME}-${JOBNUMBER}"
+PREP_ARCHIVE="${CASE_RUN}.tar.gz"
+RESULT_ARCHIVE="result_${SLURM_JOB_NAME}_${SLURM_JOB_ID}.tar.gz"
+
+echo "==> Job ${SLURM_JOB_NAME} (#${JOBNUMBER})"
+echo "==> Submit dir: ${BASE_DIR}"
+echo "==> Scratch:    ${SCRATCH_ROOT}"
+echo "==> Case:       ${CASE_RUN}"
+
+# --- 1) Prepare case in submit dir ---
+if [[ ! -d "${BASE_DIR}/CaseOrigSemi2" ]]; then
+  echo "ERROR: ${BASE_DIR}/CaseOrigSemi2 not found." >&2
+  exit 1
+fi
+rm -rf "${BASE_DIR:?}/${CASE_RUN}"
+cp -r "${BASE_DIR}/CaseOrigSemi2" "${BASE_DIR}/${CASE_RUN}"
+
+# --- 2) Insert settings (placeholders filled by your Python preprocessor) ---
+sed -i s/TTTT/TEMPERATURE/g   "${BASE_DIR}/${CASE_RUN}/0/T"
+sed -i s/JJGGOOAALL/_JGOAL_/g   "${BASE_DIR}/${CASE_RUN}/constant/fvOptions"
+
+TP="${BASE_DIR}/${CASE_RUN}/constant/transportProperties"
+PP="${BASE_DIR}/${CASE_RUN}/constant/porousProperties"
+sed -i s/_a_L_/aL_/g        "$TP"
+sed -i s/_b_P_/bP_/g        "$TP"
+sed -i s/_c_L_/cL_/g        "$TP"
+sed -i s/_d_P_/dP_/g        "$TP"
+sed -i s/_C_C_NE_/CC_NE_/g  "$TP"
+sed -i s/_C_D_NE_/CD_NE_/g  "$TP"
+sed -i s/_C_C_PE_/CC_PE_/g  "$TP"
+sed -i s/_C_D_PE_/CD_PE_/g  "$TP"
+sed -i s/DDDDPE_/DD_PE_/g   "$TP"
+sed -i s/DDDDNE_/DD_NE_/g   "$TP"
+sed -i s/__NNSSAATT__/nsat_/g   "$TP"
+sed -i s/__AALLPHHAASCALE__/ds_/g   "$TP"
+sed -i s/_KKRR_/KR_/g      "$TP"
+sed -i s/_KKEELL_/KEL_/g   "$PP"
+
+sed -i s/NNPPRROO/NPRO/g "${BASE_DIR}/${CASE_RUN}/system/decomposeParDict"
+
+# --- 3) Ship prepared case to scratch ---
+echo "==> Archiving prepared case -> ${PREP_ARCHIVE}"
+tar -C "${BASE_DIR}" -czf "${PREP_ARCHIVE}" "${CASE_RUN}"
+mv -f "${BASE_DIR}/${PREP_ARCHIVE}" "${SCRATCH_ROOT}/"
+
+cd "${SCRATCH_ROOT}"
+echo "==> Unpacking in scratch..."
+tar -xzf "${PREP_ARCHIVE}"
+rm -f "${PREP_ARCHIVE}"
+
+cd "${SCRATCH_ROOT}/${CASE_RUN}"
+echo "==> Work dir: $(pwd)"
+
+# --- 4) OpenFOAM pipeline on scratch ---
+# source /path/to/OpenFOAM/etc/bashrc   # if needed
+
+blockMesh > log.blockMesh
+topoSet > log.topoSet
+setFields > log.setFields
+decomposePar > log.decomposePar
+# Use SLURM_NTASKS (already equals NPRO after your pre-fill)
+mpirun -np "${SLURM_NTASKS}" alkaWEFoam -parallel > log.alkaWEFoam
+
+reconstructPar   > log.reconstructPar
+find . -maxdepth 1 -type d -name "processor*" -exec rm -rf {} +
+
+# --- 5) Archive results (preserve top-level case folder) ---
+cd "${SCRATCH_ROOT}"
+echo "==> Archiving results -> ${RESULT_ARCHIVE}"
+tar -czf "${RESULT_ARCHIVE}" "${CASE_RUN}"
+
+# --- 6) Move archive back, replace local case with results, and extract ---
+echo "==> Moving results back to submit dir..."
+mv -f "${RESULT_ARCHIVE}" "${BASE_DIR}/"
+
+echo "==> Replacing local case with results..."
+rm -rf "${BASE_DIR:?}/${CASE_RUN}"
+tar -C "${BASE_DIR}" -xzf "${BASE_DIR}/${RESULT_ARCHIVE}"
+
+# (optional) keep or delete the result archive:
+rm -f "${BASE_DIR}/${RESULT_ARCHIVE}"
+
+echo "==> Ready for postProcessing in: ${BASE_DIR}/${CASE_RUN}"
+# (optional) clean scratch:
+# rm -rf "${SCRATCH_ROOT}"

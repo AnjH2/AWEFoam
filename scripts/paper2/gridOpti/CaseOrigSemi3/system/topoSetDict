@@ -1,0 +1,89 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+tPe		1.8e-3;
+tDi		0.85e-3;
+tNe		1.8e-3;
+tC      1.8e-3;
+cellLength	100e-3;
+cellDepth	30e-3;
+inletL		5e-3;
+outletL		5e-3;
+
+t01 #eval #{ -$tC #};
+t2 #eval #{ $tPe+$tDi #};
+t3 #eval #{ $tPe+$tDi+$tNe #};
+t4 #eval #{ $t3+$tC #};
+inletx #eval #{ -1*$inletL #};
+outletx	#eval #{ $cellLength+$outletL #};
+
+
+actions
+(
+    {
+    // Mandatory (inherited) entries
+    name        NeSource;
+    type        cellZoneSet;
+    action      new;
+
+    // Mandatory entries
+    source      boxToCell;
+    min     (0 #eval{$t3-$tNe*0.1} 0);
+    max     ($cellLength $t3 $cellDepth);
+    }
+    {
+    // Mandatory (inherited) entries
+    name        PeSource;
+    type        cellZoneSet;
+    action      new;
+
+    // Mandatory entries
+    source      boxToCell;
+    min     (0 0 0);
+    max     ($cellLength #eval{$tPe*0.1} $cellDepth);
+    }
+
+    {
+        name        midPlaneZone;
+        type        faceZoneSet;
+        action      new;
+        source      planeToFaceZone;
+        point       (0.0 2.3e-3 0.0);
+        normal      (0 1 0);
+        option      closest;
+    }
+{
+    // Mandatory (inherited) entries
+    name        planeCellZone1;
+    type        cellZoneSet;
+    action      new;
+    option      owner;
+
+    // Mandatory entries
+    source      faceToCell;
+
+
+
+    // Option-2 
+    set     midPlaneZone;
+}
+
+
+
+);
+
+// ************************************************************************* //

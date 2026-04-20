@@ -1,0 +1,192 @@
+conversionRatioH2
+    {
+        libs            (utilityFunctionObjects);
+        type            coded;
+        name            conversionRatioH2;
+        writeControl    adjustableRunTime;
+        writeInterval   0.5;
+	postProcess     true;
+	codeInclude
+	#{
+	        #include "volFields.H"
+        #include "surfaceFields.H"
+        #include "IOstreams.H"
+        #include <cmath>
+	using namespace Foam;
+	        inline scalar patchAreaWeightedAverage
+        (
+            const volScalarField& sField,
+            const fvMesh&         mesh,
+            const word&           patchName
+        )
+        {
+            const label patchI = mesh.boundaryMesh().findPatchID(patchName);
+            if (patchI < 0)
+            {
+                FatalErrorInFunction
+                    << "Patch '" << patchName << "' not found!" << exit(FatalError);
+            }
+
+            const scalarField& sPatch = sField.boundaryField()[patchI];
+            const scalarField& magSf  = mesh.magSf().boundaryField()[patchI];
+
+            scalar sumVal  = 0.0;
+            scalar sumArea = 0.0;
+
+            forAll (sPatch, i)
+            {
+                sumVal  += sPatch[i] * magSf[i];
+                sumArea += magSf[i];
+            }
+
+            if (sumArea > SMALL)
+            {
+                return sumVal / sumArea;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 2. Patch area-weighted normal velocity (vector field)
+        //    If 'magnitude' = true, returns |normal velocity|.
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        inline scalar patchAreaWeightedNormalAverage
+        (
+            const volVectorField& vField,
+            const fvMesh&         mesh,
+            const word&           patchName,
+            const bool            magnitude = true
+        )
+        {
+            const label patchI = mesh.boundaryMesh().findPatchID(patchName);
+            if (patchI < 0)
+            {
+                FatalErrorInFunction
+                    << "Patch '" << patchName << "' not found!" << exit(FatalError);
+            }
+
+            const vectorField& vPatch  = vField.boundaryField()[patchI];
+            const vectorField& SfPatch = mesh.Sf().boundaryField()[patchI];
+            const scalarField& magSf   = mesh.magSf().boundaryField()[patchI];
+
+            scalar sumVal  = 0.0;
+            scalar sumArea = 0.0;
+
+            forAll (vPatch, faceI)
+            {
+                // Dot product of velocity with face area vector
+                scalar dotVal = vPatch[faceI] & SfPatch[faceI];
+                if (magnitude)
+                {
+                    dotVal = Foam::mag(dotVal);
+                }
+
+                // Weighted by face area
+                sumVal  += dotVal;
+                sumArea += magSf[faceI];
+            }
+
+            return (sumArea > SMALL) ? sumVal / sumArea : 0.0;
+        }
+        inline volScalarField lookUpVolScalarField
+        (
+            const word& sFieldName,
+            const fvMesh&         mesh
+        )
+        {
+        volScalarField field
+    	(
+        	IOobject
+        	(
+            		sFieldName,
+            		mesh.time().timeName(),
+            		mesh,
+            		IOobject::READ_IF_PRESENT,  // Don’t crash if missing
+            		IOobject::NO_WRITE
+        	),
+        	mesh,
+        	// Default "dimensionedScalar" if not present
+        	dimensionedScalar(dimless, 0.0)
+    	);
+    	return field;
+        }
+        inline volVectorField lookUpVolVectorField
+        (
+            const word& vFieldName,
+            const fvMesh&         mesh
+        )
+        {
+        volVectorField field
+    	(
+        	IOobject
+        	(
+            		vFieldName,
+            		mesh.time().timeName(),
+            		mesh,
+            		IOobject::READ_IF_PRESENT,  // Don’t crash if missing
+            		IOobject::NO_WRITE
+        	),
+        	mesh,
+        	// Default "dimensionedVector" if not present
+        	dimensionedVector(dimless, vector(0,0,0))
+    	);
+    	return field;
+        }
+	#};
+
+        codeWrite
+        #{
+        // patch
+        word patchName = "Outlet2";
+        // define Scalars.
+        scalar P_cell = 101325;
+        scalar rho_KOH = 1231;
+        scalar M_H2 = 2.01568e-3;
+        
+	 // 1. Get read fields Scalar and vector volumeFields
+    const volScalarField alpha = lookUpVolScalarField("alpha.gas",mesh());
+    const volScalarField T = lookUpVolScalarField("T",mesh());
+    const volScalarField& eps = lookUpVolScalarField("eps",mesh());
+    const volScalarField& C2_H2 =lookUpVolScalarField("C_H2.electrolyte",mesh()); 
+    const volVectorField& U = lookUpVolVectorField("U",mesh()); 
+    const volVectorField& Udm = lookUpVolVectorField("Udm",mesh());
+    const volScalarField& p_water = lookUpVolScalarField("p_water",mesh());   
+    
+    
+    scalar alphaPatchAverage = patchAreaWeightedAverage(alpha, mesh(), patchName);
+    scalar p_waterPatchAverage = patchAreaWeightedAverage(p_water, mesh(), patchName);
+    scalar TPatchAverage = patchAreaWeightedAverage(T, mesh(), patchName);
+    scalar epsPatchAverage = patchAreaWeightedAverage(eps, mesh(), patchName);
+    scalar C2_H2PatchAverage = patchAreaWeightedAverage(C2_H2, mesh(), patchName);
+    scalar UPatchAverage = patchAreaWeightedNormalAverage(U, mesh(), patchName, true);
+    scalar UdmPatchAverage = patchAreaWeightedNormalAverage(Udm, mesh(), patchName, true);
+    
+    
+    scalar rho_H2 = P_cell/(TPatchAverage*Foam::constant::physicoChemical::R.value()/M_H2);
+    
+    scalar n_gas = alphaPatchAverage*(P_cell-p_waterPatchAverage)/(TPatchAverage*Foam::constant::physicoChemical::R.value())*epsPatchAverage;
+    scalar n_liquid = (1-alphaPatchAverage)*C2_H2PatchAverage*epsPatchAverage;
+    scalar phi_H2_gas = n_gas*(UPatchAverage+UdmPatchAverage);
+    scalar phi_H2_liquid = n_liquid*((-UdmPatchAverage*(alphaPatchAverage*rho_H2)/((1-alphaPatchAverage)*rho_KOH))+UPatchAverage);
+    scalar conversionRatio = phi_H2_gas/(phi_H2_gas+phi_H2_liquid);
+    Info << "Patch 'outlet2' area-weighted alpha = "
+         << alphaPatchAverage << nl;
+                IOstreamOption streamOpt;
+                const bool append = true;
+		OFstream dataFile2("postProcessing/ConversionRatioH2.dat",  streamOpt,append);
+		if (Pstream::master())
+		{
+    			if(dataFile2.opened())
+    			{
+        			dataFile2 << mesh().time().timeName()
+                  		<< tab
+                  		<< conversionRatio
+                  	 	<< endl;
+    			}
+		}
+        #};
+        
+    }
