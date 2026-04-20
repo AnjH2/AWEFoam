@@ -1,0 +1,254 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright held by the original author
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "$FOAM_CASE/system/meshSharedDict";
+actions
+(
+//*****     MAKEING A BUNCH OF SETS     *****
+    {
+        // Mandatory (inherited) entries
+        name        diaphrameSet;
+        type        cellSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToCell;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        box (#eval{-$yout*1e-3} #eval{-$yout*1e-3} #eval{$z2*1e-3}) (#eval{$yout*1e-3}   #eval{$yout*1e-3} #eval{$z3*1e-3});
+    }
+    
+    {
+        // Mandatory (inherited) entries
+        name        anodeSet;
+        type        cellSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToCell;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+         box (#eval{-$yout*1e-3} #eval{-$yout*1e-3}  #eval{$z3*1e-3}) (#eval{$yout*1e-3}   #eval{$yout*1e-3} #eval{$z4*1e-3});
+    }
+    {
+        // Mandatory (inherited) entries
+        name        anodeSourceSet;
+        type        cellSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToCell;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        box (#eval{-$yout*1e-3} #eval{-$yout*1e-3} #eval{$z4*1e-3*0.9}) (#eval{$yout*1e-3}   #eval{$yout*1e-3} #eval{$z4*1e-3}); 
+    }
+    {
+        // Mandatory (inherited) entries
+        name        cathodeSet;
+        type        cellSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToCell;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        box (#eval{-$yout*1e-3} #eval{-$yout*1e-3}  #eval{$z1*1e-3}) (#eval{$yout*1e-3}   #eval{$yout*1e-3} #eval{$z2*1e-3});
+    }
+    {
+        // Mandatory (inherited) entries
+        name        cathodeSourceSet;
+        type        cellSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToCell;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        box (#eval{-$yout*1e-3} #eval{-$yout*1e-3} #eval{$z1*1e-3}) (#eval{$yout*1e-3}   #eval{$yout*1e-3} #eval{$z1*1e-3*0.9});
+    }
+    
+    
+        {
+        // Mandatory (inherited) entries
+        name        cathodeChannelSet;
+        type        cellSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToCell;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        box (#eval{-$yout*1e-3} #eval{-$yout*1e-3} #eval{$z0*1e-3}) (#eval{$yout*1e-3}   #eval{$yout*1e-3} #eval{$z1*1e-3});
+    }   
+            {
+        // Mandatory (inherited) entries
+        name        anodeChannelSet;
+        type        cellSet;
+        action      new;
+
+        // Mandatory entries
+        source      boxToCell;
+
+        // Conditional mandatory entries
+        // Select either of the below
+
+        // Option-2 
+        box (#eval{-$yout*1e-3} #eval{-$yout*1e-3} #eval{$z4*1e-3}) (#eval{$yout*1e-3}   #eval{$yout*1e-3} #eval{$z5*1e-3});
+    }
+    {
+        // Mandatory (inherited) entries
+        name        anodeChannelSet;
+        type        cellSet;
+        action      subtract;
+
+        // Mandatory entries
+        source      cellToCell;
+
+        sets
+        ( 
+            anodeSet diaphrameSet  
+        );
+    } 
+    {
+        // Mandatory (inherited) entries
+        name        cathodeChannelSet;
+        type        cellSet;
+        action      subtract;
+
+        // Mandatory entries
+        source      cellToCell;
+
+        sets
+        ( 
+            cathodeSet
+            diaphrameSet  
+        );
+    } 
+//*****     MAKEING ZONES FROM SETS     *****
+    {
+        // Mandatory (inherited) entries
+        name        anode;
+        type        cellZoneSet;
+        action      new;
+
+        // Mandatory entries
+        source      setToCellZone;
+
+        set anodeSet;
+    }    
+    {
+        // Mandatory (inherited) entries
+        name        cathode;
+        type        cellZoneSet;
+        action      new;
+
+        // Mandatory entries
+        source      setToCellZone;
+
+        set cathodeSet;
+    } 
+    
+    
+    {
+        // Mandatory (inherited) entries
+        name        anodeSource;
+        type        cellZoneSet;
+        action      new;
+
+        // Mandatory entries
+        source      setToCellZone;
+
+        set anodeSourceSet;
+    }    
+    {
+        // Mandatory (inherited) entries
+        name        cathodeSource;
+        type        cellZoneSet;
+        action      new;
+
+        // Mandatory entries
+        source      setToCellZone;
+
+        set cathodeSourceSet;
+    } 
+    
+    
+    {
+        // Mandatory (inherited) entries
+        name        diaphrame;
+        type        cellZoneSet;
+        action      new;
+
+        // Mandatory entries
+        source      setToCellZone;
+
+        set diaphrameSet;
+    }
+    {
+        // Mandatory (inherited) entries
+        name        cathodeChannel;
+        type        cellZoneSet;
+        action      new;
+
+        // Mandatory entries
+        source      setToCellZone;
+
+        set cathodeChannelSet;
+    }
+    {
+        // Mandatory (inherited) entries
+        name        anodeChannel;
+        type        cellZoneSet;
+        action      new;
+
+        // Mandatory entries
+        source      setToCellZone;
+
+        set anodeChannelSet;
+    }
+    
+        {
+        name        midPlaneZone;
+        type        faceZoneSet;
+        action      new;
+        source      planeToFaceZone;
+        point       (0.0 0.0 0.11e-3);
+        normal      (0 0 1);
+        option      closest;
+    }
+        
+
+);
+// ************************************************************************* //
