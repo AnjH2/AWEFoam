@@ -90,7 +90,7 @@ Foam::phaseDiffusionModel::phaseDiffusionModel
             alphac_.time().timeName(),
             alphac_.mesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         alphac_.mesh(),
         dimensionedTensor(dimVelocity*dimLength, Zero)
@@ -132,6 +132,12 @@ Foam::phaseDiffusionModel::phaseDiffusionModel
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
             		"eps"
+        	)
+	),
+	rb_(
+	        alphad_.mesh().lookupObject<volScalarField>
+        	(
+            		"rb"
         	)
 	),
 	modelName_(modelName)

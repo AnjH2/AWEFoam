@@ -9,22 +9,22 @@
     
 		volScalarField C1Ne
 		(
-		Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Ne*as*react.i0()[0]*(1-theta)*(CRa_Ne) //Foam::pow(((react.Psi()[3]/as)/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
 
 		volScalarField C1Pe
 		(
-		Pe*as[1]*react.i0()[1]*(1-theta)*(CRa_Pe) //Foam::pow(((react.Psi()[3]/as[1])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Pe*as*react.i0()[1]*(1-theta)*(CRa_Pe) //Foam::pow(((react.Psi()[3]/as)/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
 		);
 
 		volScalarField C2Ne
 		(
-		Ne*as[0]*react.i0()[0]*(1-theta)*(CRc_Ne) //Foam::pow(((react.Psi()[2]/as[0])/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
+		Ne*as*react.i0()[0]*(1-theta)*(CRc_Ne) //Foam::pow(((react.Psi()[2]/as)/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
 		);
 
 		volScalarField C2Pe
 		(
-		Pe*as[1]*react.i0()[1]*(1-theta)*(CRc_Pe) //(((react.Psi()[2]/as[1])/(mixture.D2_eff()[2])+C2[2])/C2[2])
+		Pe*as*react.i0()[1]*(1-theta)*(CRc_Pe) //(((react.Psi()[2]/as)/(mixture.D2_eff()[2])+C2[2])/C2[2])
 		);
 		//opdated 1511-2022 fixed error
 		//opdated 0307-2023 removed H2 and O2 fraction, added concentration gradient to the surface of the electrodes.
@@ -159,18 +159,26 @@ volScalarField I2_Pe(C2Pe*exp(Pe*C4Pe*(UPe.prevIter() - Ue - react.E0()[1])));
             	eta.correctBoundaryConditions();
             	
 
-
+/*Info<<"6.0"<<endl;
+Info<<"min eta    : "<<min(eta).value()<<endl;
+Info<<"max eta    : "<<max(eta).value()<<endl;
+Info<<"min react.E0()[0]    :   "<<min(react.E0()[0]).value()<<endl;
+Info<<"max react.E0()[0]    :   "<<max(react.E0()[0]).value()<<endl;
+Info<<"min react.E0()[1]    :   "<<min(react.E0()[1]).value()<<endl;
+Info<<"max react.E0()[1]    :   "<<max(react.E0()[1]).value()<<endl;*/
 J =
-    Pe*as[1]*react.i0()[1]*(1-theta)*
+    Pe*as*react.i0()[1]*(1-theta)*
     (
         CRa_Pe*exp(Pe*(C3Pe*eta)) - CRc_Pe*exp(Pe*(C4Pe*eta))
     )
-  + Ne*as[0]*react.i0()[0]*(1-theta)*
+  + Ne*as*react.i0()[0]*(1-theta)*
     (
         CRa_Ne*exp(Ne*(C3Ne*eta)) - CRc_Ne*exp(Ne*(C4Ne*eta))
     );
+   // Info<<"6.1"<<endl;
 		J.correctBoundaryConditions();
 		Ie=fvc::reconstruct(UeEqn.flux());
 		                Ue.storePrevIter();
                 UNe.storePrevIter();
                 UPe.storePrevIter();
+    //Info<<"6.2"<<endl;

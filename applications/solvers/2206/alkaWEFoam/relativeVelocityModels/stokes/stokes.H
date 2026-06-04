@@ -62,7 +62,7 @@ class stokes
 	//const dimensionedVector g_;
 	const meshObjects::gravity& g_;
 	
-	PtrList <dimensionedScalar> rd_;
+	const volScalarField& rb_;
 	dimensionedScalar n_;
 	const dimensionedScalar minAlphad_;
 	const dimensionedScalar& rhoc_;
@@ -75,8 +75,8 @@ class stokes
     
     
     volScalarField f();
-    dimensionedVector vStokes(int j);
-    volVectorField UStokes(int j);
+    volVectorField vStokes();
+    volVectorField UStokes();
     
 
 

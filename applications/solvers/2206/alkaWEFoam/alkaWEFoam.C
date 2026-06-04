@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     massAndSpeciesTransferModel& mSTa(mSTaPtr());
     
     const volScalarField& epsilon1 = poroM.eps();
-    const PtrList <dimensionedScalar>& as = poroM.as();
+    const volScalarField& as = poroM.as();
     const volScalarField& Ne = poroM.Ne();
     const volScalarField& Pe = poroM.Pe();
     const volScalarField& Mem = poroM.Mem();
@@ -164,20 +164,21 @@ int main(int argc, char *argv[])
             thetaModel.correct();
             
             #include "alphaEqnSubCycle.H"
-	    //mixture.correct_rhoc();
-
+	        //mixture.correct_rhoc();
+           
 	        mixture.correct_rhod(mSTa.p_water());
-
+            
             mixture.correct(mSTa.p_water());
 
             //mixture.correct_D1();
-
+            
             mixture.correct_nu();
             //Info<<"correct darcy drag for rdrPiso"<<endl;
             #include "correctD.H"
+            
             //Info<<"correct construct U matrix"<<endl;
             #include "UEqn.H"
-
+            
             // --- Pressure corrector loop
             while (pimple.correct())
             {
@@ -188,22 +189,22 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
-            Info<<"a";
+
             speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
-            Info<<"b";
+
             speciesP.correct_D2_eff(1-alpha2);
-            Info<<"c";
+
             react.correct(mSTa.p_water(),mSTa.p_water_pure(),mixture.p_num(),react.mKOH(T,C2[3]/1000));
                 Ue.storePrevIter();
                 UNe.storePrevIter();
                 UPe.storePrevIter();
-            Info<<"0";
+
             /*for(label i=0; i<C2.size()-1; i++)
             {
                 Info<<C2[i].name()<<min(C2[i]).value()<<endl;
                 Info<<C2[i].name()<<max(C2[i]).value()<<endl;
             }*/
-            Info<<"1";
+
             for (int k=0; k<=outerChemicalCorrections; k++)
             {
 
@@ -211,14 +212,14 @@ int main(int argc, char *argv[])
             	//speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
             	
             	//speciesP.correct_D2_eff(1-alpha2);
-            	Info<<"2";
+ 
             	CLModel.correct(sTp.C2_s());
             	for (int j=0; j<=potentialCorrections; j++)
             	{
             	
             		#include "potentialEqn.H"
             	}
-                Info<<"3";
+          
             	for (int j=0; j<=speciesCorrections; j++)
             	{
             		#include "CiEqn.H"
@@ -226,11 +227,11 @@ int main(int argc, char *argv[])
             	}
 	    }
         }
-        Info<<"8";
+       
         INe = poroM.sigma_s_eff()*fvc::grad(UNe);
         INe.correctBoundaryConditions();
         IPe = poroM.sigma_s_eff()*fvc::grad(UPe);
-        Info<<"9"<<endl;
+     
         runTime.write();
 
         runTime.printExecutionTime(Info);

@@ -55,7 +55,13 @@ Foam::relativeVelocityModels::darcyForchheimer::darcyForchheimer
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
-    rd_(electrodes.size()),
+    rb_
+    (
+        mixture_.alpha1().mesh().lookupObject<volScalarField>
+        (
+            "rb"
+        )
+    ),
     CF_(electrodes.size()),
 	//(
 	//	"R_DB",
@@ -87,20 +93,7 @@ Foam::relativeVelocityModels::darcyForchheimer::darcyForchheimer
         ).K()
         )
 {
-forAll(electrodes,i)
-	{
-	rd_.set
-    	(
-        	i,
-        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
-        );
-        	CF_.set
-    	(
-        	i,
-        	new dimensionedScalar("f_"+electrodes[i], dimless,dict_)
-        );
-        }
-        Info<<"darcyForchheimer complete"<<endl;
+
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

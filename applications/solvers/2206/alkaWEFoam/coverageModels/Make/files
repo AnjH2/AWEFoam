@@ -5,6 +5,5 @@ vogt/vogt.C
 linearVogt/linearVogt.C
 verticalVogt/verticalVogt.C
 linearVerticalVogt/linearVerticalVogt.C
-sLinearVerticalVogt/sLinearVerticalVogt.C
 
 LIB = $(FOAM_USER_LIBBIN)/libAlkaWECoverageModels

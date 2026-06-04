@@ -55,17 +55,17 @@ Foam::relativeVelocityModels::SchillingsU::SchillingsU
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
-    rd_(electrodes.size()),
+    rb_
+    (
+        mixture_.alpha1().mesh().lookupObject<volScalarField>
+        (
+            "rb"
+        )
+    ),
     n_("n",dimless,dict),
     rhoc_(mixture.rhoc()),
     rhod_(mixture.rhod()),
     
-        V1_(
-	alphac_.mesh().lookupObject<volScalarField>
-        (
-            	"V1"
-        )
-        ),
     eps_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
@@ -80,14 +80,7 @@ Foam::relativeVelocityModels::SchillingsU::SchillingsU
         ),
     eg_("eg",(-1*g_)/mag(g_))
 {
-forAll(electrodes,i)
-	{
-	rd_.set
-    	(
-        	i,
-        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
-        );
-        }
+
 }
 
 
@@ -139,7 +132,7 @@ volVectorField Foam::relativeVelocityModels::SchillingsU::n()
 volVectorField Foam::relativeVelocityModels::SchillingsU::vStokes()
 {
 	
-	return -g_.value()*(sqr(2*(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_)))/(18.0*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+	return -g_.value()*(sqr(2*rb_)/(18.0*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
 }
 
 volScalarField Foam::relativeVelocityModels::SchillingsU::gamma()
@@ -168,7 +161,7 @@ volVectorField Foam::relativeVelocityModels::SchillingsU::USaff()
         - f()
         * mag(vStokes())
         * (6.46/(6.0*Foam::constant::mathematical::pi))
-        * sqrt( sqr(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_)) * mag(omega()) / mixture_.nuc() )
+        * sqrt( sqr(rb_) * mag(omega()) / mixture_.nuc() )
         * n()
         * (1 - Mem_ + VSMALL);
 }
@@ -176,7 +169,7 @@ volVectorField Foam::relativeVelocityModels::SchillingsU::USaff()
 
 volVectorField Foam::relativeVelocityModels::SchillingsU::USmig()
 {
-	return -1/alphad_*sqr(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_))*mag(gamma())*kappa()*fvc::grad(mag(tau()))/(tau()+dimensionedScalar(dimPressure,SMALL));
+	return -1/alphad_*sqr(rb_)*mag(gamma())*kappa()*fvc::grad(mag(tau()))/(tau()+dimensionedScalar(dimPressure,SMALL));
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 

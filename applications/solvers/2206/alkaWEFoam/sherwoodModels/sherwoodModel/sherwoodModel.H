@@ -86,6 +86,7 @@ protected:
 	const volScalarField& Ne_;
 	const volScalarField& NeC_;
 	const volScalarField& Mem_;
+	const volScalarField& lCh_;
     // Private Member Functions
 
         //- No copy construct
@@ -111,9 +112,10 @@ public:
             (
                 const word& name,
                 const incompressibleTwoPhaseInteractingMixture& mixture,
-                const dictionary& sherwoodPropertiesSub1
+                const dictionary& sherwoodPropertiesSub1,
+                const volScalarField& lCh //characteristic length
             ),
-            (name, mixture, sherwoodPropertiesSub1)
+            (name, mixture, sherwoodPropertiesSub1, lCh)
         );
 
 
@@ -124,7 +126,8 @@ public:
         (
             const word& name,
             const incompressibleTwoPhaseInteractingMixture& mixture,
-            const dictionary& sherwoodPropertiesSub1
+            const dictionary& sherwoodPropertiesSub1,
+            const volScalarField& lCh
         );
 
 
@@ -135,7 +138,8 @@ public:
         (
             const word& name,
             const incompressibleTwoPhaseInteractingMixture& mixture,
-            const dictionary& sherwoodPropertiesSub1
+            const dictionary& sherwoodPropertiesSub1,
+            const volScalarField& lCh
         );
 
 
@@ -144,14 +148,14 @@ public:
 
     // Member Functions
     
-	virtual const PtrList <dimensionedScalar>& d()const = 0;
+	virtual  scalar s() const = 0;
 	virtual tmp<volScalarField> ki(const int i) = 0;
     
     
-	tmp<volScalarField> Re(const dimensionedScalar d)const{
+	tmp<volScalarField> Re(const volScalarField d)const{
 		return (mag(mixture_.U())*d/mixture_.nuc());
 	}
-	tmp<volScalarField> ReR(const dimensionedScalar d)const{
+	tmp<volScalarField> ReR(const volScalarField d)const{
 		return (mag(mixture_.rho()/(mixture_.rhoc()*mixture_.alpha2())*Udm_)*d/mixture_.nuc());
 	}
 	

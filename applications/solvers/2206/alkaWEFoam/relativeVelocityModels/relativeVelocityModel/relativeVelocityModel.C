@@ -92,15 +92,14 @@ Foam::relativeVelocityModel::relativeVelocityModel
             alphac_.time().timeName(),
             alphac_.mesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         alphac_.mesh(),
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
     ),
-    hF_(
-    	dict.lookupOrDefault<scalar>("hF", 0) //how much the velocity is reduced, 0 is free rasing bubble, only active in Pe and Ne
-    ),
+    hF_(alphac_.mesh().lookupObject<volScalarField>("hf")),
+
         Pe_(
 	        alphad_.mesh().lookupObject<volScalarField>
         	(

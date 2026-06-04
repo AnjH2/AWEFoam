@@ -69,7 +69,7 @@ class linearVerticalVogt
         PtrList <dimensionedScalar> CD_;    //drag coefficient for bubbles
         
         
-        const PtrList <dimensionedScalar>& as_;
+        const volScalarField& as_;
         const volScalarField& Pe_;
         const volScalarField& Ne_; 
         const volVectorField& U_;

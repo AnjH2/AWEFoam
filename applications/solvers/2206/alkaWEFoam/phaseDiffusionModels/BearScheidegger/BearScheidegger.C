@@ -63,7 +63,6 @@ Foam::phaseDiffusionModels::BearScheidegger::BearScheidegger
     Dp_("diffCoeffGravity", dimless, dict),
     Dn_("diffCoeffGravityNormal", dimless, dict),
     //n_("n",dimless,dict),
-    rd_(electrodes.size()),
 ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector::Y)),mag(g_.value().component(vector::Z)))/mag(g_.value())),
     t_((mag(ep_.x()) < 0.9) ? vector(1,0,0) : vector(0,1,0)),
     en1_(ep_ ^ t_),
@@ -98,14 +97,7 @@ ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector:
     	D_.replace(tensor::XX,mag(DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X)));
     	D_.replace(tensor::YY,mag(DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y)));
     	D_.replace(tensor::ZZ,mag(DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z)));
-    	forAll(electrodes,i)
-	{
-    	rd_.set
-    	(
-        	i,
-        	new dimensionedScalar("bubbleRadius_"+electrodes[i], dimLength,dict_)
-        );
-        }
+
 }
 
 
@@ -127,7 +119,7 @@ volScalarField Foam::phaseDiffusionModels::BearScheidegger::f()
 volVectorField Foam::phaseDiffusionModels::BearScheidegger::vStokes()
 {
 	
-	return -g_.value()*(sqr(2*(rd_[0]*Ne_+rd_[1]*Pe_))/(18*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+	return -g_.value()*(sqr(2*rb_)/(18*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
 }
 
 
@@ -140,7 +132,7 @@ volTensorField Foam::phaseDiffusionModels::BearScheidegger::UHdiff()
     	//D_.replace(tensor::YY,DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y));
     	//D_.replace(tensor::ZZ,DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z));	
 
-	return 1/alphad_*(rd_[0]*Ne_+rd_[1]*Pe_)*f()*mag(vStokes())*D_;
+	return 1/alphad_*rb_*f()*mag(vStokes())*D_;
 }
 volTensorField Foam::phaseDiffusionModels::BearScheidegger::UBSdiff()
 {

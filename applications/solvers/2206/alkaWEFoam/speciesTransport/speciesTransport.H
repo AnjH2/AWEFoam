@@ -60,6 +60,8 @@ protected:
     // Protected data
     	const massAndSpeciesTransferModel& mSTaPtr_;
 	dictionary	speciesTransportCoeffs_;
+	//wire radius, is either constructed from booleans or read from 0/rb. for the sherwoodModel its converted into diameter
+    volScalarField wr_;
 	autoPtr<sherwoodModel> shModelW_;
 	List<word> species2;
 	PtrList <volScalarField> C2_s_;
@@ -67,8 +69,10 @@ protected:
 	const volScalarField& alphal_;
 	const volScalarField& Pe_;
 	const volScalarField& Ne_;
+	const volScalarField& PeC_;
+	const volScalarField& NeC_;
 	const volScalarField& Mem_;
-	const PtrList <dimensionedScalar>& as_;
+	const volScalarField& as_;
 	const PtrList <dimensionedScalar>& MW_;
 	
 	

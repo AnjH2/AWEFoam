@@ -155,7 +155,7 @@ volScalarField Foam::coverageModels::linearVerticalVogt::correction()
 void Foam::coverageModels::linearVerticalVogt::correct()
 {
 
-    theta_ =max(alphad_,correction()*(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
+    theta_ =max(alphad_,correction()*(J_scale_*pow(mag(J_)/(as_*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
 
     theta_.correctBoundaryConditions();
 }

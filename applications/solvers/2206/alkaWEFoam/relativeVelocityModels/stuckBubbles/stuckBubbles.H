@@ -57,22 +57,19 @@ class stuckBubbles
 :
     public relativeVelocityModel
 {
-	const incompressibleTwoPhaseInteractingMixture& mixture_;
 	autoPtr<relativeVelocityModel> baseModel_;
 	autoPtr<coverageModel> covModel_;
 	List<word> electrodes;
-	const dictionary& dict_;
-	const volScalarField& eps_;
 	const volVectorField& U_;
 	const dimensionedScalar n_; //powerlaw that converts coverage to saturation
-	PtrList <dimensionedScalar> c_; //linearScale that converts coverage to saturation
-	PtrList <dimensionedScalar> rd_;
+	volScalarField thetaC_; //linearScale that converts coverage to saturation
+	const volScalarField& rb_;
 	//values to check and print
 	volTensorField Ddm_;
 	volScalarField alphaStatic_;
 	volScalarField alphaMoveing_;
 	const dimensionedScalar alphaResidual_; //a minimum volume fraction that is passed in the stuck bubble model.
-	const PtrList <dimensionedScalar>& as_;
+	const volScalarField& as_;
 	
     // Private functions??
         volScalarField gamma_L();

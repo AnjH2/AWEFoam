@@ -65,7 +65,7 @@ protected:
         dictionary WhitakerCoeffsSub1_;
                 //- Maximum sherwood
         //dimensionedScalar muMax_;
-	PtrList <dimensionedScalar> d_;
+	scalar s_;
 
 	
 
@@ -85,6 +85,7 @@ public:
             const word& name,
             const incompressibleTwoPhaseInteractingMixture& mixture,
             const dictionary& sherwoodPropertiesSub1,
+            const volScalarField& lCh,
             const word modelName=typeName
         );
 
@@ -95,9 +96,9 @@ public:
 
 
     // Member Functions
-	const PtrList <dimensionedScalar>& d()const 
+	scalar s() const 
 	{
-		return d_;
+		return s_;
 	}
 	tmp<volScalarField> ki(const int i);
 
@@ -106,7 +107,7 @@ public:
         
 	const tmp<volScalarField> sh(const int i)
 	{
-		return 2+(0.4*pow(Re(d_[0])*(Ne_+NeC_)+Re(d_[1])*(Pe_+PeC_)+Re((d_[1]+d_[0])/2)*Mem_,0.5)+0.06*pow(Re(d_[0])*(Ne_+NeC_)+Re(d_[1])*(Pe_+PeC_)+Re((d_[1]+d_[0])/2)*Mem_,2/3)*pow(Sc(i),0.4));
+		return 2+(0.4*pow(Re(lCh_*s_*2),0.5)+0.06*pow(Re(lCh_*s_*2),2/3)*pow(Sc(i),0.4));
 	}
 };
 

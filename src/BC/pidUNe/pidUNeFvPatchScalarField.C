@@ -69,6 +69,7 @@ void Foam::pidUNeFvPatchScalarField::applyDict(const dictionary& d)
         d.readIfPresent("initialU", U_);
         eInt_ = 0.0;
         initialized_ = false;
+        firstControllerUpdateSkipped_ = false;
         lastUpdateTimeIndex_ = -1;
     }
 
@@ -207,6 +208,7 @@ Foam::pidUNeFvPatchScalarField::pidUNeFvPatchScalarField
     Umin_(-GREAT),
     Umax_(GREAT),
     updateEveryNTimeSteps_(1),
+    firstControllerUpdateSkipped_(false),
     lastUpdateTimeIndex_(-1),
     initFromPatchAverage_(true),
     initialized_(false),
@@ -239,6 +241,7 @@ Foam::pidUNeFvPatchScalarField::pidUNeFvPatchScalarField
     Umin_(dict.getOrDefault<scalar>("Umin", -GREAT)),
     Umax_(dict.getOrDefault<scalar>("Umax", GREAT)),
     updateEveryNTimeSteps_(dict.getOrDefault<label>("updateEveryNTimeSteps", 1)),
+    firstControllerUpdateSkipped_(dict.getOrDefault<bool>("firstControllerUpdateSkip", true)),
     lastUpdateTimeIndex_(-1),
     initFromPatchAverage_(dict.getOrDefault<bool>("initFromPatchAverage", true)),
     initialized_(false),
@@ -276,6 +279,7 @@ Foam::pidUNeFvPatchScalarField::pidUNeFvPatchScalarField
     Umin_(ptf.Umin_),
     Umax_(ptf.Umax_),
     updateEveryNTimeSteps_(ptf.updateEveryNTimeSteps_),
+    firstControllerUpdateSkipped_(ptf.firstControllerUpdateSkipped_),
     lastUpdateTimeIndex_(ptf.lastUpdateTimeIndex_),
     initFromPatchAverage_(ptf.initFromPatchAverage_),
     initialized_(ptf.initialized_),
@@ -307,6 +311,7 @@ Foam::pidUNeFvPatchScalarField::pidUNeFvPatchScalarField
     Umin_(ptf.Umin_),
     Umax_(ptf.Umax_),
     updateEveryNTimeSteps_(ptf.updateEveryNTimeSteps_),
+    firstControllerUpdateSkipped_(ptf.firstControllerUpdateSkipped_),
     lastUpdateTimeIndex_(ptf.lastUpdateTimeIndex_),
     initFromPatchAverage_(ptf.initFromPatchAverage_),
     initialized_(ptf.initialized_),
@@ -340,6 +345,7 @@ Foam::pidUNeFvPatchScalarField::pidUNeFvPatchScalarField
     Umin_(ptf.Umin_),
     Umax_(ptf.Umax_),
     updateEveryNTimeSteps_(ptf.updateEveryNTimeSteps_),
+    firstControllerUpdateSkipped_(ptf.firstControllerUpdateSkipped_),
     lastUpdateTimeIndex_(ptf.lastUpdateTimeIndex_),
     initFromPatchAverage_(ptf.initFromPatchAverage_),
     initialized_(ptf.initialized_),
@@ -366,10 +372,23 @@ void Foam::pidUNeFvPatchScalarField::updateCoeffs()
 
     // 2) Compute cadence for controller update (this controls when U_ changes)
     bool doUpdate = false;
-    if (lastUpdateTimeIndex_ < 0 || (ti - lastUpdateTimeIndex_) >= updateEveryNTimeSteps_)
+
+    if (lastUpdateTimeIndex_ < 0)
+    {
+        // First call: do not run PID because currentField may not be valid yet.
+        lastUpdateTimeIndex_ = ti;
+        firstControllerUpdateSkipped_ = true;
+
+        if (verbose_ && Pstream::master())
+        {
+            Info<< "pidUNe: skipping first PID update at timeIndex="
+                << ti << " because " << currentFieldName_
+                << " may not be calculated yet" << nl;
+        }
+    }
+    else if ((ti - lastUpdateTimeIndex_) >= updateEveryNTimeSteps_)
     {
         doUpdate = true;
-        // IMPORTANT: only set this when we actually update U_
         lastUpdateTimeIndex_ = ti;
     }
 

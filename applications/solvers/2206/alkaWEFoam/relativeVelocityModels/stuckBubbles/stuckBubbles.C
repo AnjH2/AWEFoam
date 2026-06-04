@@ -51,18 +51,9 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
 )
 :
     relativeVelocityModel(dict, mixture,modelName),
-    mixture_(mixture),
     baseModel_(relativeVelocityModel::New(dict.subDict("baseModel"),mixture_,modelName+"base:")),
     covModel_(coverageModel::New(dict.subDict("covModel"),mixture_.alpha2().mesh(),mixture_,"base:")),
     electrodes({"Ne","Pe"}),
-    dict_(dict),
-    eps_
-    (
-        mixture_.alpha1().mesh().lookupObject<volScalarField>
-        (
-            "eps"
-        )
-    ),
     U_
     (
         mixture_.alpha1().mesh().lookupObject<volVectorField>
@@ -76,8 +67,26 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
 		dimless,
 		 dict.lookupOrDefault<scalar>("thetaInvPowN", 1.0)
 	),
-	c_(electrodes.size()),
-	rd_(electrodes.size()),
+	thetaC_
+	    (
+        IOobject
+        (
+            "thetaScale",
+            eps_.time().timeName(),
+            eps_.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        eps_.mesh(),
+        dimensionedScalar("thetaScale",dimless, Zero)
+    ),
+	rb_
+    (
+        mixture_.alpha1().mesh().lookupObject<volScalarField>
+        (
+            "rb"
+        )
+    ),
 	Ddm_
     (
         IOobject
@@ -86,10 +95,10 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
             U_.time().timeName(),
             U_.mesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         U_.mesh(),
-        dimensionedTensor(dimVelocity*dimLength, Zero)
+        dimensionedTensor("Ddm_avg",dimVelocity*dimLength, Zero)
     ),
     alphaStatic_
     (
@@ -102,9 +111,9 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
             IOobject::AUTO_WRITE
         ),
         U_.mesh(),
-        dimensionedScalar(dimless, Zero)
+        dimensionedScalar("alphaStatic",dimless, Zero)
     ),
-        alphaMoveing_
+    alphaMoveing_
     (
         IOobject
         (
@@ -115,7 +124,7 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
             IOobject::AUTO_WRITE
         ),
         U_.mesh(),
-        dimensionedScalar(dimless, Zero)
+        dimensionedScalar("alphaMoveing",dimless, Zero)
     ),
     alphaResidual_
 	(
@@ -130,18 +139,23 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
         ).as()
         )
 {
-forAll(electrodes,i)
-	{
-	rd_.set
-    	(
-        	i,
-        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
-        );
-     c_.set
-        (
-            i,
-		    new dimensionedScalar("thetaScale_"+electrodes[i],dimless,dict_)
-	    );
+Info<< "thetaC_.name()       = " << thetaC_.name() << nl;
+Info<< "thetaC_.writeOpt()   = " << thetaC_.writeOpt() << nl;
+Info<< "thetaC_.registered?  = "
+    << U_.mesh().foundObject<volScalarField>("thetaScale") << nl;
+Info<< "thetaC_.instance()   = " << thetaC_.instance() << nl;
+    if (!thetaC_.headerOk())
+    {
+    Info<< "Trying manual write of " << thetaC_.name() << nl;
+    thetaC_ =
+        dimensionedScalar("thetaScale_Ne",dimless,dict_)*Ne_
+      + dimensionedScalar("thetaScale_Pe",dimless,dict_)*Pe_
+      + dimensionedScalar("thetaScale_min", dimless, SMALL);
+        
+    }
+    else
+    {
+    Info<< "Trying manual write of " << thetaC_.name() << nl;
     }
 }
 
@@ -178,16 +192,16 @@ void Foam::relativeVelocityModels::stuckBubbles::correct()
     covModel_->correct();
     
     
-    //volScalarField alphaStatic_(pow(covModel_->theta(),1/n_));
-    alphaStatic_=min((c_[0]*rd_[0]*as_[0]*Ne_+c_[1]*rd_[1]*as_[1]*Pe_)*pow(covModel_->theta(),n_),alphad_);
-    //volScalarField alphaMoveing_(max(alphad_-alphaStatic_,Zero));
+    //volScalarField alphaStatithetaC_(pow(covModel_->theta(),1/n_));
+    alphaStatic_=min(thetaC_*rb_*as_*pow(covModel_->theta(),n_),alphad_);
+    //volScalarField alphaMoveing_(max(alphad_-alphaStatithetaC_,Zero));
     alphaMoveing_=alphad_-alphaStatic_;
     //volScalarField scaleing=1/(gamma_G()*(1-gamma_GA()));
-    /*volScalarField scaleing=1/(alphad_*(rhoc_*alphac_+rhod_*alphaMoveing_));
+    /*volScalarField scaleing=1/(alphad_*(rhothetaC_*alphathetaC_+rhod_*alphaMoveing_));
     Info<<average(scaleing)<<endl;
-    Udm_ = scaleing*(-1*alphac_*rhoc_*alphaStatic_*U_+rho()*alphaMoveing_*baseModel_->Udm());
+    Udm_ = scaleing*(-1*alphathetaC_*rhothetaC_*alphaStatithetaC_*U_+rho()*alphaMoveing_*baseModel_->Udm());
     Info<<average(mag(Udm_))<<endl;
-    Ddm_=scaleing*(alphac_*rhoc_*alphaStatic_*dModel_->D()+rho()*alphaMoveing_*baseModel_->Ddm());
+    Ddm_=scaleing*(alphathetaC_*rhothetaC_*alphaStatithetaC_*dModel_->D()+rho()*alphaMoveing_*baseModel_->Ddm());
     */
     volScalarField scaleing=1/(gamma_G()*(1-gamma_GD()));
     Udm_ = scaleing*(-1*gamma_L()*gamma_GA()*U_+gamma_GD()*baseModel_->Udm());

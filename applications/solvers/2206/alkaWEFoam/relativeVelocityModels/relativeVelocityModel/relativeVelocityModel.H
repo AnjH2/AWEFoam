@@ -91,7 +91,7 @@ protected:
         mutable volVectorField Udm_;
         
 	
-	const scalar hF_;
+	const volScalarField& hF_;
 	
 	const volScalarField& Pe_;
 	

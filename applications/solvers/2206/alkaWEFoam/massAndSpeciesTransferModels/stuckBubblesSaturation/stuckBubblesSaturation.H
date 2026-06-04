@@ -24,100 +24,99 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::sLinearVerticalVogt
+    Foam::stuckBubblesSaturation
 
 Description
-    sLinearVerticalVogt coverage model
+    stuckBubblesSaturation mass transfer that have to be coupled with the
+    relativ velocity model stuckBubbles.
+    it considers both mass transfer to growing and moving bubbles seperatly.
 
 SourceFiles
-    sLinearVerticalVogt.C
+    stuckBubblesSaturation.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef sLinearVerticalVogt_H
-#define sLinearVerticalVogt_H
+#ifndef stuckBubblesSaturation_H
+#define stuckBubblesSaturation_H
 
 #include "volFields.H"
-#include "unitConversion.H"
-#include "coverageModel.H"
+#include "massAndSpeciesTransferModel.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coverageModels
+namespace massAndSpeciesTransferModels
 {
 
 /*---------------------------------------------------------------------------*\
                          Class linear Declaration
 \*---------------------------------------------------------------------------*/
 
-class sLinearVerticalVogt
+class stuckBubblesSaturation
 :
-    public coverageModel
+    public massAndSpeciesTransferModel
 {
     // Private data
-
-        //- exchange current density -> read
-        List<word> electrodes;
-        const dictionary& dict_;
-        const volScalarField& J_;
-        const volScalarField& T_;
-        const dimensionedScalar J_lim_;
-        const dimensionedScalar J_scale_;
-        const dimensionedScalar T_ref_;
-        PtrList <dimensionedScalar> CD_;    //drag coefficient for bubbles
-        PtrList <dimensionedScalar> c_; //linearScale that converts coverage to saturation
-	    PtrList <dimensionedScalar> rd_;
-	    const PtrList <dimensionedScalar>& as_;
-        
-        
-        const volScalarField& Pe_;
-        const volScalarField& Ne_; 
-        const volVectorField& U_;
-        const dimensionedScalar& rhoc_;
-        const volScalarField& rhod_;
-        const meshObjects::gravity& g_;
-        //- volume fraction of gas -> read
-        const volScalarField& alphad_;
-        
-        // functions
-        volScalarField correction();
-        
-        
-        
+    	autoPtr<sherwoodModel> shModelAB_;
+    	autoPtr<sherwoodModel> shModelDB_;
+	const dimensionedScalar	c_AB_;
+	const PtrList<volScalarField>& C2_;
+	const PtrList <volScalarField>& k_H_;
+	const volScalarField& alphaStatic_;
+	const volScalarField& alphaMoveing_;
+	
 public:
 
     //- Runtime type information
-    TypeName("sLinearVerticalVogt");
+    TypeName("stuckBubblesSaturation");
 
 
     // Constructors
 
         //- Construct from components
-        sLinearVerticalVogt
+        stuckBubblesSaturation
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const incompressibleTwoPhaseInteractingMixture& mixture,
-        const word& modelName = ""
+            const incompressibleTwoPhaseInteractingMixture& mixture
         );
 
 
     //- Destructor
-    ~sLinearVerticalVogt();
+    ~stuckBubblesSaturation();
 
 
     // Member Functions
+        
 
-        //- Update coverage
-        virtual void correct();
+        
+        //- Update coverage        
+        virtual void correct_mDot_wall( const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta);
+        
+        //- Return the mass condensation and vaporisation rates as a
+        //  coefficient to multiply (1 - alphal) for the condensation rate
+        //  and a coefficient to multiply  alphal for the vaporisation rate
+        virtual Pair<tmp<volScalarField>> mDotAlphal(const int i);
+
+        //- Return the mass condensation and vaporisation rates as coefficients
+        virtual Pair<tmp<volScalarField>> mDot(const int i,const bool Write);
+
+	
+	
+        //- Correct the constant phaseChange model
+        virtual void correct(const int i);
+
+        //- Read the transportProperties dictionary and update
+        //virtual bool read();
+        
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coverageModels
+} // End namespace massAndSpeciesTransfers
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

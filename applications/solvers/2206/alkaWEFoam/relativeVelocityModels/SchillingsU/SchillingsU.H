@@ -61,11 +61,10 @@ class SchillingsU
 	//const dimensionedVector g_;
 	const meshObjects::gravity& g_;
 	
-	PtrList <dimensionedScalar> rd_;
+	const volScalarField& rb_;
 	const dimensionedScalar n_;
 	const dimensionedScalar& rhoc_;
 	const volScalarField& rhod_;
-	const volScalarField& V1_;
 	const volScalarField& eps_;
 	const volVectorField& U_;
 	const dimensionedVector eg_;

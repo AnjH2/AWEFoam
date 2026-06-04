@@ -55,22 +55,18 @@ Foam::relativeVelocityModels::DahlkildU::DahlkildU
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
-    rd_
-	(
-		"R_DB",
-		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
-		dict
-	),
+    rb_
+    (
+        mixture_.alpha1().mesh().lookupObject<volScalarField>
+        (
+            "rb"
+        )
+    ),
     n_("n",dimless,dict),
     rhoc_(mixture.rhoc()),
     rhod_(mixture.rhod()),
     
-        V1_(
-	alphac_.mesh().lookupObject<volScalarField>
-        (
-            	"V1"
-        )
-        ),
+
     eps_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
@@ -106,10 +102,10 @@ volScalarField Foam::relativeVelocityModels::DahlkildU::f()
 }
 
 
-dimensionedVector Foam::relativeVelocityModels::DahlkildU::vStokes()
+volVectorField Foam::relativeVelocityModels::DahlkildU::vStokes()
 {
 	
-	return g_.value()*(sqr(2*rd_)/(3*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+	return g_.value()*(sqr(2*rb_)/(3*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
 }
 
 

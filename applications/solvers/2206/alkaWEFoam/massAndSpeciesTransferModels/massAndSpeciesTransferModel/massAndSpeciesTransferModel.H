@@ -88,9 +88,10 @@ protected:
         const volScalarField& T_;
         const volScalarField& alpha_;
         const volScalarField& epsilon_;
-        const PtrList <dimensionedScalar>& as_;
+        const volScalarField& as_;
         const dimensionedScalar& t_OH_;
         const volVectorField& U_;
+        const volScalarField& rb_;
         //const dimensionedScalar& p_num_;
         //Mass transfer model.
         PtrList <volScalarField> mDot_Wall_;

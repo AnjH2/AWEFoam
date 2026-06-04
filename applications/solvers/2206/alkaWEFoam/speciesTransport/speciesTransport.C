@@ -42,13 +42,28 @@ Foam::speciesTransport::speciesTransport
 :
 	mSTaPtr_(mSTaPtr),
     	speciesTransportCoeffs_(dict.optionalSubDict("speciesTransport")),
+    	
+    wr_
+	(
+        IOobject
+        (
+            "wr",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimLength, 1)
+    ),	
     shModelW_
     (
         sherwoodModel::New
         (
             "wireModel",
             mSTaPtr_.mixture(),
-            speciesTransportCoeffs_
+            speciesTransportCoeffs_,
+            wr_
         )
     ),
     	species2({"H2","O2","H2O","OH"}),
@@ -75,6 +90,18 @@ Foam::speciesTransport::speciesTransport
 	        mesh.lookupObject<volScalarField>
         	(
             		"Ne"
+        	)
+	),
+		PeC_(
+	        mesh.lookupObject<volScalarField>
+        	(
+            		"PeC"
+        	)
+	),
+		NeC_(
+	        mesh.lookupObject<volScalarField>
+        	(
+            		"NeC"
         	)
 	),
 	Mem_(
@@ -117,13 +144,24 @@ forAll(species2,i)
             			C2_[i]
         		)
         	);
+        	
+        	
+        	
 	}
+	
+	if (!wr_.headerOk())
+    {
+    wr_ =
+        dimensionedScalar("wr_Ne",dimLength,speciesTransportCoeffs_)*(Ne_+NeC_+Mem_/2)
+      + dimensionedScalar("wr_Pe",dimLength,speciesTransportCoeffs_)*(Pe_+PeC_+Mem_/2);
+        
+    }
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 void Foam::speciesTransport::correct(const int i, const volScalarField& theta_)
 {
 
-		C2_s_[i]=(mSTaPtr_.Psi_BV()[i])/(shModelW_->ki(i)*as_[0]*(1-theta_))+C2_[i]; //final
+		C2_s_[i]=(mSTaPtr_.Psi_BV()[i])/(shModelW_->ki(i)*as_*(1-theta_))+C2_[i]; //final
 		//C2_s_[i]=(mSTaPtr_.Psi_BV()[i])/(shModelW_->ki(i)*as_[0]*(1-theta_))+C2_[i]; // does not have the error
 		//C2_s_[i]=(mSTaPtr_.Psi_BV()[i]-mSTaPtr_.mDot_Wall()[i]/MW_[i])/(shModelW_->ki(i)*as_[0])+C2_[i]; // have less error
 }

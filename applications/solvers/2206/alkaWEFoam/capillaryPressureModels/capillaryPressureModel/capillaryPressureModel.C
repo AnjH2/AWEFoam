@@ -65,7 +65,7 @@ Foam::capillaryPressureModel::capillaryPressureModel
             alphaWetting_.time().timeName(),
             alphaWetting_.mesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),       
         alphaWetting_.mesh(),
         dimensionedScalar("pc", dimPressure, 0)
@@ -78,7 +78,7 @@ Foam::capillaryPressureModel::capillaryPressureModel
             alphaWetting_.time().timeName(),
             alphaWetting_.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),       
         alphaWetting_.mesh(),
         dimensionedScalar("dpcds", dimPressure, 0)

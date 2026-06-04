@@ -101,6 +101,7 @@ protected:
 	const volScalarField& Mem_;
 	
 	const volScalarField& eps_;
+	const volScalarField& rb_;
 	
 	const word modelName_;
 	

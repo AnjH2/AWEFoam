@@ -47,7 +47,8 @@ Foam::sherwoodModel::sherwoodModel
 (
     const word& name,
     const incompressibleTwoPhaseInteractingMixture& mixture,
-    const dictionary& sherwoodPropertiesSub1
+    const dictionary& sherwoodPropertiesSub1,
+    const volScalarField& lCh
 )
 :
     name_(name),
@@ -97,7 +98,8 @@ Foam::sherwoodModel::sherwoodModel
         	(
             		"Mem"
         	)
-	)
+	),
+	lCh_(lCh)
 	
 {
 Info<<"rembember we have added new driftModel!"<<endl;

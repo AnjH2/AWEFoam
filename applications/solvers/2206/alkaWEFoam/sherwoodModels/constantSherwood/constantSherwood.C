@@ -54,12 +54,13 @@ Foam::sherwoodModels::constantSherwood::constantSherwood
     const word& name,
     const incompressibleTwoPhaseInteractingMixture& mixture,
     const dictionary& sherwoodPropertiesSub1,
+    const volScalarField& lCh,
     const word modelName
 )
 :
-    sherwoodModel(name, mixture, sherwoodPropertiesSub1),
+    sherwoodModel(name, mixture, sherwoodPropertiesSub1,lCh),
     constantSherwoodCoeffsSub1_(sherwoodPropertiesSub1.optionalSubDict(name+"_"+modelName + "Coeffs")),
-    d_(electrodes.size()),
+    s_(constantSherwoodCoeffsSub1_.getOrDefault<scalar>("scale",1)),
     sh_(species2.size())
     
 
@@ -74,15 +75,7 @@ forAll(species2,i)
 
         
 	}
-forAll(electrodes,i)
-	{
-	d_.set
-    	(
-        	i,
-        	new dimensionedScalar("d_"+electrodes[i], dimLength,constantSherwoodCoeffsSub1_)
-        );
 
-        }
 }
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -91,7 +84,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::sherwoodModels::constantSherwood::ki(const int i)
 	{
 
-		return D2_[i]*sh(i)/(d_[0]*(Ne_+NeC_)+d_[1]*(Pe_+PeC_)+(d_[1]+d_[0])/2*Mem_);
+		return D2_[i]*sh(i)/(lCh_*s_*2);
 		
 	}
 

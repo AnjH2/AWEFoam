@@ -161,6 +161,13 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
             "U"
         )
     ),
+    rb_
+    (
+        mesh.lookupObject<volScalarField>
+        (
+            "rb"
+        )
+    ),
     /*p_num_(
 	mesh.lookupObject<incompressibleTwoPhaseInteractingMixture>
         (
@@ -181,7 +188,7 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
     	),
     	mesh,
     	dimPressure
@@ -215,7 +222,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::READ_IF_PRESENT,
-                		IOobject::AUTO_WRITE
+                		IOobject::NO_WRITE
             		),
             		mesh,
             		dimensionSet(1,-3,-1,0,0,0,0)
@@ -249,7 +256,7 @@ forAll(species2,i)
         			mesh.time().timeName(),
                 		mesh,
                 		IOobject::READ_IF_PRESENT,
-                		IOobject::AUTO_WRITE
+                		IOobject::NO_WRITE
             		),
             		mesh,
             		//dimensionSet(1,-3,-1,0,0,0,0) //kg/m^3/s

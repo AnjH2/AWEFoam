@@ -171,6 +171,25 @@ Info<<"Creating Saturation flux"<<endl;
         mesh,
         dimensionedScalar(phi.dimensions(), Zero)
     );
+volScalarField hf(
+            IOobject
+        (
+            "hf",
+            runTime.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+    	dimensionedScalar
+        (
+            "hf",
+            dimless,
+            0
+        ) //how much the velocity is reduced, 0 is free rasing bubble,
+    );
+
+
 
 // Construct compressible turbulence model
 autoPtr

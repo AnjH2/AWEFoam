@@ -59,6 +59,7 @@ private:
     scalar dUmax_;
     scalar Umin_, Umax_;
     label  updateEveryNTimeSteps_;
+    bool firstControllerUpdateSkipped_;
 
     // State
     label  lastUpdateTimeIndex_;

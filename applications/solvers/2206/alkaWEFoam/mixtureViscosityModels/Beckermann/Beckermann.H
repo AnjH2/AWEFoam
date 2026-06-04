@@ -73,7 +73,6 @@ protected:
 	PtrList <dimensionedScalar> T_muref_;
 	PtrList <dimensionedScalar> n_mu_;
 	PtrList <volScalarField> mud_;
-	PtrList <dimensionedScalar> kr_p_;
 	volScalarField a_;
 	volScalarField mud_m_;
 	        

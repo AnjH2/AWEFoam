@@ -12,7 +12,7 @@
                 mesh,
                 phi,
                 upwind<scalar>(mesh, phi)
-            ).fvmDiv(phi+phir, alpha1)
+            ).fvmDiv(phi, alpha1)
          ==
             -mDote/rho1
         );
@@ -76,7 +76,7 @@
                 (-mDote/rho1)(),
         
                 UniformField<scalar>(mixture.alphaMax()),
-                zeroField()
+                UniformField<scalar>(1e-4)
             );
 
             // Under-relax the correction for all but the 1st corrector
@@ -103,7 +103,7 @@
                 zeroField(),
                 (-mDote/rho1)(),
                 UniformField<scalar>(mixture.alphaMax()),
-                zeroField()
+                UniformField<scalar>(1e-4)
             );
         }
     }

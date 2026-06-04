@@ -62,7 +62,7 @@ class darcyForchheimer
 	//const dimensionedVector g_;
 	const meshObjects::gravity& g_;
 	
-	PtrList <dimensionedScalar> rd_;
+	const volScalarField& rb_;
 	PtrList <dimensionedScalar> CF_;
 	dimensionedScalar n_;
 	const dimensionedScalar minAlphad_;
