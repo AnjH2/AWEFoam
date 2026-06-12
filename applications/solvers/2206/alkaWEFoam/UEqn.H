@@ -8,8 +8,7 @@
       //+ fvm::div(fvc::interpolate(mixture.rho()/pow(epsilon1,2))*phi, U,"div(rhoPhi,U)")
       + fvm::div(fvc::interpolate(1/pow(epsilon1,2))*rhoPhi, U,"div(rhoPhi,U)")
       + fvc::div(
-                 alpha1*mixture.rhod()*pow(alpha2*mixture.rhoc()/mixture.rho(),2)*Ur*Ur
-                +alpha2*mixture.rhoc()*pow(alpha1*mixture.rhod()/mixture.rho(),2)*Ur*Ur, 
+                 1/(pow(epsilon1,2)*mixture.rho())*(alpha1*mixture.rhod())*(alpha2*mixture.rhoc())*Ur*Ur,
                     "div(tauDm)"
                 )
       + 1/epsilon1*turbulence->divDevRhoReff(U)

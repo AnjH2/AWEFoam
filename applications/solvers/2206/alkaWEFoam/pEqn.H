@@ -32,7 +32,12 @@
     (
         - rhorAtUdf * ghf * fvc::snGrad(mixture.rho()) * mesh.magSf()
     );
-    phiHbyA += phig;
+    
+        surfaceScalarField phiFd //
+    (
+         rhorAtUdf *(fvc::interpolate(UdmModel.F()) & mesh.Sf())
+    );
+    phiHbyA += phig + phiFd;
     //fvc::makeRelative(phiHbyA, rho, U);
 
     /*while (pimple.correctNonOrthogonal())
@@ -99,7 +104,7 @@
             p_rgh.relax();
 
             //U = HbyA + rAUd * fvc::reconstruct((phig + p_rghEqn.flux())/rhorAUdf);
-            U = fvc::reconstruct(phi)*chi1 +(1-chi1)*(HbyA + rAtUd()*fvc::reconstruct((phig + p_rghEqn.flux())/rhorAtUdf));
+            U = fvc::reconstruct(phi)*chi1 +(1-chi1)*(HbyA + rAtUd()*fvc::reconstruct((phig + phiFd + p_rghEqn.flux())/rhorAtUdf));
             //U=fvc::reconstruct(phi);
             U.correctBoundaryConditions();
             fvOptions.correct(U);

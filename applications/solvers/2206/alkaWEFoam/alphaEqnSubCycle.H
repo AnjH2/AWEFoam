@@ -60,7 +60,7 @@
             (mesh.Sf() & (fvc::interpolate(Ddm) & mesh.Sf()))
             / (sqr(mesh.magSf()) + VSMALL*dimensionedScalar(dimArea*dimArea,1))
         );
-        Info<<"---CHECK---      min(Ddm)->"<<min(Ddm)<<endl;
+        
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1)

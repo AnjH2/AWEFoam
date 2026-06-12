@@ -6,6 +6,7 @@ SchillingsU/SchillingsU.C
 DahlkildU/DahlkildU.C
 noDrift/noDrift.C
 darcyForchheimer/darcyForchheimer.C
+capillaryMassCentered/capillaryMassCentered.C
 
 
 LIB = $(FOAM_USER_LIBBIN)/libAlkaWERelativeVelocityModels

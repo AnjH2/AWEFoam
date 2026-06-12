@@ -90,6 +90,9 @@ protected:
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
         
+        //- Forces inposed by drift model
+        mutable volVectorField F_;
+        
 	
 	const volScalarField& hF_;
 	
@@ -169,6 +172,13 @@ public:
         {
             return Udm_;
         }
+        
+        //- Return the forces impose by drift models, if any
+        const volVectorField& F() const
+        {
+            return F_;
+        }
+        
         //- Return the relative velocity of the continues phase
 	tmp<volVectorField> Ucm() const;
 	

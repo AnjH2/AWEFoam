@@ -88,7 +88,7 @@ Foam::capillaryPressureModels::leverett::leverett
     (
     		alphaWetting.mesh().lookupObject<volScalarField>
    	 	    (
-    			"permeabilityField"
+    			"K"
     			//(
     			//)
     		)

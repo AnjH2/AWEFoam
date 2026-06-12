@@ -98,6 +98,19 @@ Foam::relativeVelocityModel::relativeVelocityModel
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
     ),
+    F_
+    (
+        IOobject
+        (
+            modelName+"F",
+            alphac_.time().timeName(),
+            alphac_.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        alphac_.mesh(),
+        dimensionedVector(dimForce/dimVolume, Zero)
+    ),
     hF_(alphac_.mesh().lookupObject<volScalarField>("hf")),
 
         Pe_(

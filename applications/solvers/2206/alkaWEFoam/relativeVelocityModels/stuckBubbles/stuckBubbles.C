@@ -208,7 +208,7 @@ void Foam::relativeVelocityModels::stuckBubbles::correct()
     
     Ddm_=scaleing*(gamma_L()*gamma_GA()*dModel_->D()+gamma_GD()*baseModel_->Ddm());
     
-    
+    F_=baseModel_->F();
     //Ddm_=alphaMoveing_*baseModel_->Ddm();
 }
 
