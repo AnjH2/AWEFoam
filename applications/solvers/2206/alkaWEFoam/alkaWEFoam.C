@@ -135,8 +135,16 @@ int main(int argc, char *argv[])
     while (runTime.run())
     {
         #include "readTimeControls.H"
+        scalar maxDriftCo
+        (
+            runTime.controlDict().lookupOrDefault<scalar>
+            (
+                "maxDriftCo",
+                1
+            )
+        );
         #include "driftCourantNo.H"
-        #include "setDeltaT.H"
+        #include "setDeltaTmDot.H"
         ++runTime;
         
         //if (index < 3)

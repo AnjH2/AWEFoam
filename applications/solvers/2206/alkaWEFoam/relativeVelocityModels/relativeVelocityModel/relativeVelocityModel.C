@@ -109,7 +109,7 @@ Foam::relativeVelocityModel::relativeVelocityModel
             IOobject::AUTO_WRITE
         ),
         alphac_.mesh(),
-        dimensionedVector(dimForce/dimVolume, Zero)
+        dimensionedScalar(dimForce/dimLength, Zero)
     ),
     hF_(alphac_.mesh().lookupObject<volScalarField>("hf")),
 
@@ -160,7 +160,7 @@ Foam::relativeVelocityModel::relativeVelocityModel
         )
     )
 {
-
+F_.setOriented(true);
 }
 
 

@@ -28,8 +28,11 @@ Class
 
 Description
     capillary relative velocity model,
-    it defines properties for each electrode.
-    lift only
+    simplified model of the DarcyFlux.
+    assuming that only the capillary pressure is drive the two phase flow.
+        because the gas which is filling the pores are diconnected, 
+        thus turning gravity and mixture pressure contributions to 0.
+    both mobilities are non-zero.
 
 SourceFiles
     capillary.C
@@ -61,6 +64,7 @@ class capillary
 	const dictionary& dict_;
 	
 	volVectorField Urel_;
+	dimensionedScalar CBeta_;
 	
 	
 	const meshObjects::gravity& g_;
@@ -74,6 +78,9 @@ class capillary
     volScalarField Mc();
     volScalarField Md();
     volScalarField Mm();
+    volScalarField rhoS();
+    volScalarField wd();
+    volScalarField wc();
     
     
 

@@ -67,8 +67,9 @@ Foam::relativeVelocityModels::capillary::capillary
         alphac_.mesh(),
         dimensionedVector(dimVelocity, Zero)
     ),
+    CBeta_("CBeta",dimless,dict_),
     
-    g_(meshObjects::gravity::New(mixture.U().time())),
+    g_(meshObjects::gravity::New(mixture_.U().time())),
    
     eps_(
 	    alphac_.mesh().lookupObject<volScalarField>
@@ -79,14 +80,14 @@ Foam::relativeVelocityModels::capillary::capillary
     K_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
-            	"permeabilityField"
+            	"K"
             )
         ),
     kr_(mixture_.kr()),
     p_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
-            	"p_rgh"
+            	"p"
             )
         ),
     Solid_(
@@ -108,57 +109,200 @@ Foam::relativeVelocityModels::capillary::~capillary()
 volScalarField Foam::relativeVelocityModels::capillary::Mc()
 {
 
-	return	mixture_.rho()*K_*pow(alphac_,kr_)/(rhoc_*max(alphac_,SMALL)*mixture_.muc());
+	return	K_*pow(alphac_,kr_)/(mixture_.muc());
 }
 volScalarField Foam::relativeVelocityModels::capillary::Md()
 {
 
-	return	mixture_.rho()*K_*pow(alphad_,kr_)/(rhod_*max(alphad_,SMALL)*mixture_.mud_m());
+	return	K_*pow(alphad_,kr_)/(mixture_.mud_m());
 }
 volScalarField Foam::relativeVelocityModels::capillary::Mm()
 {
 
-	return	K_/mixture_.mu();
+	return	(mixture_.rhod()*Md()+mixture_.rhoc()*Mc())/mixture_.rho();
 }
 
-
+volScalarField Foam::relativeVelocityModels::capillary::rhoS()
+{
+    return (pow(mixture_.rhod(),2)*Md()+pow(mixture_.rhoc(),2)*Mc())
+            / (mixture_.rhod()*Md()+mixture_.rhoc()*Mc());
+}
+volScalarField Foam::relativeVelocityModels::capillary::wd()
+{
+    return mixture_.rhod()*Md()/ (mixture_.rhod()*Md()+mixture_.rhoc()*Mc());
+}
+volScalarField Foam::relativeVelocityModels::capillary::wc()
+{
+    return mixture_.rhoc()*Mc()/ (mixture_.rhod()*Md()+mixture_.rhoc()*Mc());
+}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 void Foam::relativeVelocityModels::capillary::correctRelativeVelocity()
 {
+Info<<"re1"<<endl;
+        const volScalarField& pc = mixture_.pc();
+        volScalarField beta0=CBeta_/sqrt(K_)*Solid_;
+        volScalarField betaC=beta0/pow(max(alphac_, 1e-4), 3);
+        volScalarField betaD=beta0/pow(max(alphad_, 1e-4), 3);
 
-    const volScalarField& pc(mixture_.pc());
+
+Info<<"re2"<<endl;
+        // Initial Darcy phase fluxes
+        volVectorField qd
+        (
+            "qd",
+            Md()*Solid_
+           *(
+              - fvc::grad(alphac_*pc,"grad(pc)")
+            )
+        );
+
+        volVectorField qc
+        (
+            "qc",
+            Mc()*Solid_
+           *(
+              - fvc::grad(- alphad_*pc,"grad(pc)")
+            )
+        );
+Info<<"re3"<<endl;
+Info<<"max(mag(qd)) before Forch:   "<<max(mag(qd))<<endl;
+Info<<"max(mag(qc)) before Forch:   "<<max(mag(qc))<<endl;
+        // Forchheimer magnitude correction
+        qd *=
+            2.0
+           /(
+                1.0
+              + sqrt
+                (
+                    1.0
+                  + 4.0*mixture_.rhod()*betaD*Md()*mag(qd)
+                )
+            );
+
+        qc *=
+            2.0
+           /(
+                1.0
+              + sqrt
+                (
+                    1.0
+                  + 4.0*mixture_.rhoc()*betaC*Mc()*mag(qc)
+                )
+            );
+Info<<"re4"<<endl;
+Info<<"max(mag(qd)) after Forch:   "<<max(mag(qd))<<endl;
+Info<<"max(mag(qc)) after Forch:   "<<max(mag(qc))<<endl;
+        // Porosity-scaled relative velocity
+        Urel_ =
+              qd/max(alphad_, 1e-4)
+            - qc/max(alphac_, 1e-4);
+        volVectorField Gd
+        (
+            "Gd",
+            fvc::grad(alphac_*pc,"grad(pc)")
+        );
+
+        volVectorField Gc
+        (
+            "Gc",
+            fvc::grad(- alphad_*pc,"grad(pc)")
+        );
+Info<<"re5"<<endl;
     
-    //volVectorField& Urel = this->Urel_;
+    Info<< "max |grad(pd)|     = "
+    << max(mag(fvc::grad(alphac_*pc,"grad(pc)"))*Solid_) << nl;
 
-    Urel_=
-    (//(-Md()+Mc())*fvc::grad(p_)+//it is simply to strong!
-    (-rhoc_*Mc()+rhod_*Md())*g_
-    //-(Md()*alphac_+Mc()*alphad_)*fvc::grad(pc)
-    //+(Mc()-Md())*pc*fvc::grad(alphac_)
-    )*Solid_*-1;
- 
-    Urel_.correctBoundaryConditions();
+    Info<< "max |rho_d*g|      = "
+        << max(mag(mixture_.rhod()*g_)*Solid_) << nl;
+
+    Info<< "max |Gd|           = "
+        << max(mag(Gd)*Solid_) << nl;
+
+    Info<< "max |grad(pcPhase)|= "
+        << max(mag(fvc::grad( - alphad_*pc,"grad(pc)"))*Solid_) << nl;
+
+
+    Info<< "max |Gc|           = "
+        << max(mag(Gc)*Solid_) << nl;
+        
+
+Info<<"re6"<<endl;
+volScalarField ReKd
+(
+    "ReKd",
+    mixture_.rhod()*mag(qd)*sqrt(K_*(1-Mem_)*Solid_)/mixture_.mud_m()
+);
+
+volScalarField ReKc
+(
+    "ReKc",
+    mixture_.rhoc()*mag(qc)*sqrt(K_*(1-Mem_)*Solid_)/mixture_.muc()
+);
+
+Info<< "ReKd mean/max = "
+    << gAverage(ReKd) << "  " << max(ReKd*Solid_) << nl;
+
+Info<< "ReKc mean/max = "
+    << gAverage(ReKc) << "  " << max(ReKc*Solid_) << nl;
+    
+    
+const vector gHat = g_.value()/mag(g_.value());
+
+volScalarField GcAlongG
+(
+    "GcAlongG",
+    ((mixture_.rhoc()*g_ - fvc::grad(- alphad_*pc)) & gHat)
+   *Solid_
+);
+
+Info<< "Gc along g min/max = "
+    << min(GcAlongG.primitiveField()) << "  "
+    << max(GcAlongG.primitiveField()) << nl;
+
+
+
+volVectorField GcPerpendicular
+(
+    "GcPerpendicular",
+    Gc - (Gc & gHat)*gHat
+);
+
+Info<< "max |Gc along g| = "
+    << max(mag(Gc & gHat)().primitiveField()) << nl;
+
+Info<< "max |Gc perpendicular| = "
+    << max((mag(GcPerpendicular)*Solid_)().primitiveField()) << nl; 
+    
+    
 }
 
 void Foam::relativeVelocityModels::capillary::correct()
 {    
+    
     dModel_->correct();
+    
     correctRelativeVelocity();
-    Udm_ = (alphac_*rhoc_/mixture_.rho()) * Urel_*(1-hF_)*(1-Mem_+VSMALL);
     
+    Udm_ = (alphac_*rhoc_/mixture_.rho()) * Urel_;
+    
+    //F_=((rhoS()-mixture_.rho())*g_-wd()*fvc::grad(alphac_*mixture_.pc(),"grad(pc)")+wc()*fvc::grad(alphad_*mixture_.pc(),"grad(pc)"));
+    F_=(
+            // (rhoStar - rho)*g . Sf
+            //  fvc::interpolate(rhoS() - mixture_.rho())
+            // *(g_ & alphad_.mesh().Sf())
 
-    /*
-    Udm_.component(0) = pow(2,0.5)*pow((sigma_*g_.component(0)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
-    Info<<Udm_.component(0)<<endl;
-    Udm_.component(1) = pow(2,0.5)*pow((sigma_*g_.component(1)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
-    Info<<Udm_.component(1)<<endl;
-    Udm_.component(2) = pow(2,0.5)*pow((sigma_*g_.component(2)*(rhod_-rhoc_))/(pow(rhoc_,2)),0.25)*pow(1-alphad_,1.75);
-    Info<<Udm_.component(2)<<endl;
-    Info<<((sigma_*g_*(rhoc_-rhod_))/(pow(rhoc_,2))).component(0)<<endl;*/
-    
-    //Ddm_=(rhoc_/rho())*(rd_[0]*mag(vcapillary(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vcapillary(1))*D_[1]*(Pe_*dF_+PeC_))*f()/alphad_;
-    //Ddm_.correctBoundaryConditions();
+            // -wd*grad(alphac*pc) . Sf
+            - fvc::interpolate(wd())
+             *fvc::snGrad(alphac_*mixture_.pc())
+             *alphad_.mesh().magSf()
+
+            // +wc*grad(alphad*pc) . Sf
+            + fvc::interpolate(wc())
+             *fvc::snGrad(alphad_*mixture_.pc())
+             *alphad_.mesh().magSf()
+    );
+
 }
 
 

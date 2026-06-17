@@ -60,43 +60,11 @@ Foam::phaseDiffusionModels::BearScheidegger::BearScheidegger
         	)
 	),
     //dimensionedScalar
-    Dp_("diffCoeffGravity", dimless, dict),
-    Dn_("diffCoeffGravityNormal", dimless, dict),
-    //n_("n",dimless,dict),
-ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector::Y)),mag(g_.value().component(vector::Z)))/mag(g_.value())),
-    t_((mag(ep_.x()) < 0.9) ? vector(1,0,0) : vector(0,1,0)),
-    en1_(ep_ ^ t_),
-    en2_(ep_ ^ en1_),
-    D_ 
-    (
-            IOobject
-            (
-                "anIsoDTensor",
-                alphad_.mesh().time().timeName(),
-                alphad_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE         // run-time field, not written
-            ),
-            alphad_.mesh(),
-            dimensionedTensor("zero", dimless, tensor::zero) // start at 0
-    ),
-    DVn1_(Dn_*en1_),
-    DVn2_(Dn_*en2_),
-    DVp_(Dp_*ep_),
-    aL_(dict.lookupOrDefault<scalar>("aL", 1)),
-    bP_(dict.lookupOrDefault<scalar>("bP", 5)),
-    cL_(dict.lookupOrDefault<scalar>("cL", 1)),
-    dP_(dict.lookupOrDefault<scalar>("dP", 5)),
+    dispT_("dispT", dimLength, dict_),
+    dispL_("dispL", dimLength, dict_)
     
-    BSPore0_("DispersitivCoefficient", dimLength, dict),
-    nSat_(dict.lookupOrDefault<scalar>("nSat", -2)),
-    chi_(dict.lookupOrDefault<scalar>("chi", 0.2))
     
 {
-
-    	D_.replace(tensor::XX,mag(DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X)));
-    	D_.replace(tensor::YY,mag(DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y)));
-    	D_.replace(tensor::ZZ,mag(DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z)));
 
 }
 
@@ -110,40 +78,14 @@ Foam::phaseDiffusionModels::BearScheidegger::~BearScheidegger()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 
-volScalarField Foam::phaseDiffusionModels::BearScheidegger::f()
-{
-	
-	return aL_*pow(1-alphad_,bP_)+cL_*pow(alphad_,dP_);
-}
-
-volVectorField Foam::phaseDiffusionModels::BearScheidegger::vStokes()
-{
-	
-	return -g_.value()*(sqr(2*rb_)/(18*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
-}
-
-
-
-//------	Diffusion coefficient functions 	------//
-
-volTensorField Foam::phaseDiffusionModels::BearScheidegger::UHdiff()
-{
-    	//D_.replace(tensor::XX,DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X));
-    	//D_.replace(tensor::YY,DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y));
-    	//D_.replace(tensor::ZZ,DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z));	
-
-	return 1/alphad_*rb_*f()*mag(vStokes())*D_;
-}
 volTensorField Foam::phaseDiffusionModels::BearScheidegger::UBSdiff()
 {
-    volVectorField  Uhat_=max(U_/eps_,dimensionedVector(dimVelocity,vector(SMALL,SMALL,SMALL)));
-    volScalarField  BS_=BSPore0_*pow(alphac_,nSat_);
-
-    return (
-                        mag(Uhat_)*BS_*chi_*symmTensor::I
-                        +
-                        BS_*(1-chi_)*(Uhat_*Uhat_)/mag(Uhat_)
-                    );
+const dimensionedScalar Umin ( "Umin", dimVelocity, SMALL );
+volScalarField magU(mag(U_));
+    return //Transverse isotropic contribution 
+            dispT_*magU*tensor::I 
+            // Additional longitudinal contribution 
+            + (dispL_ - dispT_) *sqr(U_) /max(magU, Umin);
 }
 
 
@@ -153,7 +95,7 @@ volTensorField Foam::phaseDiffusionModels::BearScheidegger::UBSdiff()
 void Foam::phaseDiffusionModels::BearScheidegger::correct()
 {
 
-    Ddm_=dF_*(1-Mem_)*(RToM()*UHdiff()+alphac_/alphad_*VToM()*UBSdiff()/alphad_);
+    Ddm_=(1-Mem_)*(VToM()*UBSdiff()/alphad_);
 
 }
 

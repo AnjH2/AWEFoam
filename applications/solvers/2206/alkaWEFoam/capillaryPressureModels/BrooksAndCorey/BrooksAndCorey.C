@@ -58,15 +58,39 @@ Foam::capillaryPressureModels::BrooksAndCorey::BrooksAndCorey
 :
     capillaryPressureModel(alphaWetting,dict),
     BrooksAndCoreyCoeffsSub_(dict_.subDict(modelName + "Coeffs")),
-    pc0_(BrooksAndCoreyCoeffsSub_.get<scalar>("pc0")),
-    beta_(BrooksAndCoreyCoeffsSub_.get<scalar>("beta")),
+    pc0_
+    (
+        IOobject
+        (
+            "pc0",
+            alphaWetting.time().timeName(),
+            alphaWetting.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),       
+        alphaWetting.mesh(),
+        dimensionedScalar("pc0", dimless, SMALL)
+    ),
+    beta_
+    (
+        IOobject
+        (
+            "beta",
+            alphaWetting.time().timeName(),
+            alphaWetting.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),       
+        alphaWetting.mesh(),
+        dimensionedScalar("beta", dimless, 1)
+    ),
     alphaWetMin_("alphaWetMin",dimless,BrooksAndCoreyCoeffsSub_),
     alphaWetMax_("alphaWetMax",dimless,BrooksAndCoreyCoeffsSub_),
     alphaWetEff_
     (
         IOobject
         (
-            "alphaCEff",
+            "alphaEff",
             alphaWetting.time().timeName(),
             alphaWetting.mesh(),
             IOobject::NO_READ,
@@ -88,7 +112,7 @@ Foam::capillaryPressureModels::BrooksAndCorey::BrooksAndCorey
     (
     		alphaWetting.mesh().lookupObject<volScalarField>
    	 	    (
-    			"permeabilityField"
+    			"K"
     			//(
     			//)
     		)
@@ -112,7 +136,27 @@ Foam::capillaryPressureModels::BrooksAndCorey::BrooksAndCorey
     		)
   	)
 {
-
+    if (!pc0_.headerOk())
+    {
+    
+    pc0_ =
+        dimensionedScalar("pc0_Ne",dimless,BrooksAndCoreyCoeffsSub_)*Ne_
+      + dimensionedScalar("pc0_Pe",dimless,BrooksAndCoreyCoeffsSub_)*Pe_
+      + dimensionedScalar("pc0_Mem",dimless,BrooksAndCoreyCoeffsSub_)*Mem_
+      + dimensionedScalar("pc0_min", dimless, SMALL);
+        
+    }
+    
+    if (!beta_.headerOk())
+    {
+    
+    beta_ =
+        dimensionedScalar("beta_Ne",dimless,BrooksAndCoreyCoeffsSub_)*Ne_
+      + dimensionedScalar("beta_Pe",dimless,BrooksAndCoreyCoeffsSub_)*Pe_
+      + dimensionedScalar("beta_Mem",dimless,BrooksAndCoreyCoeffsSub_)*Mem_
+      + dimensionedScalar("beta_min", dimless, SMALL);
+        
+    }
 }
 
 
@@ -139,10 +183,10 @@ void Foam::capillaryPressureModels::BrooksAndCorey::correct()
    
    pc_=
             //(-1.0)* //ANJ
-            Solid_*(pc0_+pc0_*Mem_)*pow(alphaWetEff_, -beta_)*dimensionedScalar(dimPressure,1);
+            (pc0_)*pow(alphaWetEff_, -beta_)*dimensionedScalar(dimPressure,1);
    pc_.correctBoundaryConditions();  
    dpcds_ = -1.0*
-   beta_*Solid_*(pc0_+pc0_*Mem_)*pow(alphaWetEff_, -beta_-1)*(alphaWetEffdS)*dimensionedScalar(dimPressure,1);
+   beta_*(pc0_)*pow(alphaWetEff_, -beta_-1)*(alphaWetEffdS)*dimensionedScalar(dimPressure,1);
     dpcds_.correctBoundaryConditions(); 
 
 }

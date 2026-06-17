@@ -91,7 +91,7 @@ protected:
         mutable volVectorField Udm_;
         
         //- Forces inposed by drift model
-        mutable volVectorField F_;
+        mutable surfaceScalarField F_;
         
 	
 	const volScalarField& hF_;
@@ -174,7 +174,7 @@ public:
         }
         
         //- Return the forces impose by drift models, if any
-        const volVectorField& F() const
+        const surfaceScalarField& F() const
         {
             return F_;
         }

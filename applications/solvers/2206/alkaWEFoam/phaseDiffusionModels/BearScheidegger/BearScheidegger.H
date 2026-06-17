@@ -60,33 +60,9 @@ class BearScheidegger
         const dictionary& dict_;
         const meshObjects::gravity& g_;
         const volVectorField&   U_;
-        dimensionedScalar Dp_;
-        dimensionedScalar Dn_;
-        //const dimensionedScalar n_;
-        vector ep_; //unit vector parallel to g
-        vector t_; //test vector
-        vector en1_; //unit vector normal to g
-        vector en2_; //unit vector normal to g
-        volTensorField D_;
-	    dimensionedVector DVn1_;
-	    dimensionedVector DVn2_;
-	    dimensionedVector DVp_;
-	    
-	    const scalar aL_;
-	    const scalar bP_;
-	    const scalar cL_;
-	    const scalar dP_;
-	    
-	    // BSPore_ = BSPore0_*sL^nSat*U
-	    const dimensionedScalar BSPore0_; //dispersivit value at 1 alphaL, in the longitudinal direction.
-	    const scalar    nSat_; //BSPore0_ dependency on saturation typically negative
-	    const scalar    chi_; // relation between tranverse and longitudinal longitudinal*chi=transvers dispersion, order 0.1-0.3.
-
-        
-    	volScalarField f(); //hindering fuunnnnctiiion
-    	volVectorField vStokes(); //Terminal velocity model
-    	
-    	volTensorField UHdiff();
+        dimensionedScalar dispT_; //transverse dispersion scale. 
+        dimensionedScalar dispL_; //longitutional dispersion scale. order of pore diameter
+        //dispL_/dispT_ approx 10
         volTensorField UBSdiff();
 
 public:

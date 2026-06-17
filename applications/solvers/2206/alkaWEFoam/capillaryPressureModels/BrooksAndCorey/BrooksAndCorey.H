@@ -67,10 +67,10 @@ protected:
         dictionary BrooksAndCoreyCoeffsSub_;
 
         // entry capillary pressure
-        scalar pc0_;
+        volScalarField pc0_;
 
         // Exponent
-        scalar beta_;
+        volScalarField beta_;
     
         // irreducible saturation
         dimensionedScalar alphaWetMin_;

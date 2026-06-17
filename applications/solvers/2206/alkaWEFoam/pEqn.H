@@ -35,7 +35,7 @@
     
         surfaceScalarField phiFd //
     (
-         rhorAtUdf *(fvc::interpolate(UdmModel.F()) & mesh.Sf())
+         rhorAtUdf *UdmModel.F()
     );
     phiHbyA += phig + phiFd;
     //fvc::makeRelative(phiHbyA, rho, U);

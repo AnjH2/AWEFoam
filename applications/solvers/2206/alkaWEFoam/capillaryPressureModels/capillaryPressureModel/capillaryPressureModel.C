@@ -65,7 +65,7 @@ Foam::capillaryPressureModel::capillaryPressureModel
             alphaWetting_.time().timeName(),
             alphaWetting_.mesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),       
         alphaWetting_.mesh(),
         dimensionedScalar("pc", dimPressure, 0)
@@ -82,7 +82,37 @@ Foam::capillaryPressureModel::capillaryPressureModel
         ),       
         alphaWetting_.mesh(),
         dimensionedScalar("dpcds", dimPressure, 0)
-    )
+    ),
+            Pe_(
+	        alphaWetting_.mesh().lookupObject<volScalarField>
+        	(
+            		"Pe"
+        	)
+	),
+	Ne_(
+	        alphaWetting_.mesh().lookupObject<volScalarField>
+        	(
+            		"Ne"
+        	)
+	),
+	PeC_(
+	        alphaWetting_.mesh().lookupObject<volScalarField>
+        	(
+            		"PeC"
+        	)
+	),
+	NeC_(
+	        alphaWetting_.mesh().lookupObject<volScalarField>
+        	(
+            		"NeC"
+        	)
+	),
+	Mem_(
+	        alphaWetting_.mesh().lookupObject<volScalarField>
+        	(
+            		"Mem"
+        	)
+	)
    
 {
 

@@ -1,12 +1,14 @@
 relativeVelocityModel/relativeVelocityModel.C
 stuckBubbles/stuckBubbles.C
+simplifiedStuckBubbles/simplifiedStuckBubbles.C
 stokes/stokes.C
 capillary/capillary.C
 SchillingsU/SchillingsU.C
 DahlkildU/DahlkildU.C
 noDrift/noDrift.C
 darcyForchheimer/darcyForchheimer.C
-capillaryMassCentered/capillaryMassCentered.C
-
+DarcyFlux/DarcyFlux.C
+poreFlow/poreFlow.C
+capillaryDiscontinuous/capillaryDiscontinuous.C
 
 LIB = $(FOAM_USER_LIBBIN)/libAlkaWERelativeVelocityModels
