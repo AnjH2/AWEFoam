@@ -16,7 +16,7 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (0.00309 0 0);//200ml/min
+internalField   uniform (0.037 0 0);//200ml/min
 
 
 boundaryField

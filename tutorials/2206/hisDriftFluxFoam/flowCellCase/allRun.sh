@@ -14,11 +14,8 @@ blockMesh
 # Set the initial field values
 setFields
 
-# Decompose the domain for parallel run
-decomposePar -force
-
 #Running case
-mpirun -np 3 hisDriftFluxFoam -parallel
+hisDriftFluxFoam
 
 reconstructPar
 echo "Setup and initial run steps completed."

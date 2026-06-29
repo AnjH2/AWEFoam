@@ -90,12 +90,7 @@ protected:
         mutable volVectorField Udm_;
         
         volTensorField Ddm_;
-        
-        const scalar y0_;
-        const scalar y1_;
-	const scalar y2_;
-	const scalar y3_;
-	volScalarField yNormal_;
+       
 	
 	const scalar dF_;
 	const scalar hF_;
