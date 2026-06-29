@@ -153,7 +153,8 @@ Info<<"re2"<<endl;
             "qd",
             Md()*Solid_
            *(
-              - fvc::grad(alphac_*pc,"grad(pc)")
+                mixture_.rhod()*g_
+              - fvc::grad( alphac_*pc,"grad(pc)")
             )
         );
 
@@ -162,6 +163,7 @@ Info<<"re2"<<endl;
             "qc",
             Mc()*Solid_
            *(
+                mixture_.rhoc()*g_
               - fvc::grad(- alphad_*pc,"grad(pc)")
             )
         );
@@ -200,51 +202,55 @@ Info<<"max(mag(qc)) after Forch:   "<<max(mag(qc))<<endl;
         volVectorField Gd
         (
             "Gd",
-            fvc::grad(alphac_*pc,"grad(pc)")
+            fvc::grad( alphac_*pc,"grad(pc)")
+          - mixture_.rhod()*g_
         );
 
         volVectorField Gc
         (
             "Gc",
-            fvc::grad(- alphad_*pc,"grad(pc)")
+            fvc::grad( - alphad_*pc,"grad(pc)")
+          - mixture_.rhoc()*g_
         );
 Info<<"re5"<<endl;
     
     Info<< "max |grad(pd)|     = "
-    << max(mag(fvc::grad(alphac_*pc,"grad(pc)"))*Solid_) << nl;
+    << max(mag(fvc::grad( alphac_*pc,"grad(pc)"))*(Solid_*(1-Mem_))) << nl;
 
     Info<< "max |rho_d*g|      = "
-        << max(mag(mixture_.rhod()*g_)*Solid_) << nl;
+        << max(mag(mixture_.rhod()*g_)*(Solid_*(1-Mem_))) << nl;
 
     Info<< "max |Gd|           = "
-        << max(mag(Gd)*Solid_) << nl;
+        << max(mag(Gd)*(Solid_*(1-Mem_))) << nl;
 
     Info<< "max |grad(pcPhase)|= "
-        << max(mag(fvc::grad( - alphad_*pc,"grad(pc)"))*Solid_) << nl;
+        << max(mag(fvc::grad( - alphad_*pc,"grad(pc)"))*(Solid_*(1-Mem_))) << nl;
 
+    Info<< "max |rho_c*g|      = "
+        << mag(mixture_.rhoc()*g_) << nl;
 
     Info<< "max |Gc|           = "
-        << max(mag(Gc)*Solid_) << nl;
+        << max(mag(Gc)*(Solid_*(1-Mem_))) << nl;
         
 
 Info<<"re6"<<endl;
 volScalarField ReKd
 (
     "ReKd",
-    mixture_.rhod()*mag(qd)*sqrt(K_*(1-Mem_)*Solid_)/mixture_.mud_m()
+    mixture_.rhod()*mag(qd)*sqrt(K_*(1-Mem_)*(Solid_*(1-Mem_)))/mixture_.mud_m()
 );
 
 volScalarField ReKc
 (
     "ReKc",
-    mixture_.rhoc()*mag(qc)*sqrt(K_*(1-Mem_)*Solid_)/mixture_.muc()
+    mixture_.rhoc()*mag(qc)*sqrt(K_*(1-Mem_)*(Solid_*(1-Mem_)))/mixture_.muc()
 );
 
 Info<< "ReKd mean/max = "
-    << gAverage(ReKd) << "  " << max(ReKd*Solid_) << nl;
+    << gAverage(ReKd) << "  " << max(ReKd*(Solid_*(1-Mem_))) << nl;
 
 Info<< "ReKc mean/max = "
-    << gAverage(ReKc) << "  " << max(ReKc*Solid_) << nl;
+    << gAverage(ReKc) << "  " << max(ReKc*(Solid_*(1-Mem_))) << nl;
     
     
 const vector gHat = g_.value()/mag(g_.value());
@@ -252,8 +258,8 @@ const vector gHat = g_.value()/mag(g_.value());
 volScalarField GcAlongG
 (
     "GcAlongG",
-    ((mixture_.rhoc()*g_ - fvc::grad(- alphad_*pc)) & gHat)
-   *Solid_
+    ((mixture_.rhoc()*g_ - fvc::grad( - alphad_*pc)) & gHat)
+   *(Solid_*(1-Mem_))
 );
 
 Info<< "Gc along g min/max = "
@@ -272,7 +278,7 @@ Info<< "max |Gc along g| = "
     << max(mag(Gc & gHat)().primitiveField()) << nl;
 
 Info<< "max |Gc perpendicular| = "
-    << max((mag(GcPerpendicular)*Solid_)().primitiveField()) << nl; 
+    << max((mag(GcPerpendicular)*(Solid_*(1-Mem_)))().primitiveField()) << nl; 
     
     
 }
@@ -289,8 +295,8 @@ void Foam::relativeVelocityModels::capillary::correct()
     //F_=((rhoS()-mixture_.rho())*g_-wd()*fvc::grad(alphac_*mixture_.pc(),"grad(pc)")+wc()*fvc::grad(alphad_*mixture_.pc(),"grad(pc)"));
     F_=(
             // (rhoStar - rho)*g . Sf
-            //  fvc::interpolate(rhoS() - mixture_.rho())
-            // *(g_ & alphad_.mesh().Sf())
+              fvc::interpolate(rhoS() - mixture_.rho())
+             *(g_ & alphad_.mesh().Sf())
 
             // -wd*grad(alphac*pc) . Sf
             - fvc::interpolate(wd())

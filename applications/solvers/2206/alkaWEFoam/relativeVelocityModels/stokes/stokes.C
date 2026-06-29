@@ -117,6 +117,7 @@ void Foam::relativeVelocityModels::stokes::correct()
 {    
     dModel_->correct();
     Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*UStokes();
+    BSCap_=dModel_->BSCap();
 }
 
 

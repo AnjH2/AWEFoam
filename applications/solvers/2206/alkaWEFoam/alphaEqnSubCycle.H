@@ -66,10 +66,12 @@
             fvm::ddt(epsilon1,alpha1) - fvc::ddt(epsilon1,alpha1)
           //- fvm::laplacian(turbulence->nut(), alpha1)
           - fvm::laplacian(nDn*fvc::interpolate(epsilon1), alpha1,"laplacian(D,alpha1)")
+          ==
+          fvc::div(fvc::interpolate(alpha1)*fvc::flux(UdmModel.BSCap()))
         );
 
         alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));
-        alphaPhi += alpha1Eqn.flux();
+        alphaPhi += alpha1Eqn.flux()- fvc::flux(UdmModel.BSCap());
         alpha2 = 1.0 - alpha1;
 
         Info<< "Phase-1 volume fraction = "

@@ -98,6 +98,21 @@ Foam::relativeVelocityModel::relativeVelocityModel
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
     ),
+    BSCap_
+    (
+        IOobject
+        (
+            modelName+"BSCap",
+            alphac_.time().timeName(),
+            alphac_.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        alphac_.mesh(),
+        dimensionedVector(dimVelocity, Zero)
+    ),
+    
+    
     F_
     (
         IOobject

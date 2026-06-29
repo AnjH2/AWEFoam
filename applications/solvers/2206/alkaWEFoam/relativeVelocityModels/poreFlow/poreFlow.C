@@ -104,6 +104,7 @@ void Foam::relativeVelocityModels::poreFlow::correct()
     Info<<"after corrects()"<<endl;
     Udm_= (1-chi_)*continuousModel_->Udm()+chi_*dispersedModel_->Udm();
     Ddm_= (1-chi_)*continuousModel_->Ddm()+chi_*dispersedModel_->Ddm();
+    BSCap_=(1-chi_)*continuousModel_->BSCap()+chi_*dispersedModel_->BSCap();
     Info<<"after Udm and Ddm"<<endl;
     F_=(1-chif_)*continuousModel_->F()+chif_*dispersedModel_->F();
     Info<<"after F"<<endl;

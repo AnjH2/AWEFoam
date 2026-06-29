@@ -88,6 +88,10 @@ protected:
         
         //- Dispersed phase diffusion        
         volTensorField Ddm_;
+        
+        //
+        volVectorField BSCap_;
+        
 	
 	const scalar dF_;
 	
@@ -170,6 +174,11 @@ public:
         {
             return Ddm_;
         }
+        
+    const volVectorField& BSCap() const
+        {
+            return BSCap_;
+        }    
 	//- Return the relative diffusion of the continues phase
 	tmp<volTensorField> Dcm() const;
 

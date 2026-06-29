@@ -60,12 +60,49 @@ Foam::phaseDiffusionModels::BearScheidegger::BearScheidegger
         	)
 	),
     //dimensionedScalar
-    dispT_("dispT", dimLength, dict_),
-    dispL_("dispL", dimLength, dict_)
+    dispT_ 
+    (
+            IOobject
+            (
+                "dispT",
+                alphad_.mesh().time().timeName(),
+                alphad_.mesh(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE         // run-time field, not written
+            ),
+            alphad_.mesh(),
+            dimensionedScalar("dispT", dimLength,0 ) // start at 0
+    ),
+    dispL_ 
+    (
+            IOobject
+            (
+                "dispL",
+                alphad_.mesh().time().timeName(),
+                alphad_.mesh(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE         // run-time field, not written
+            ),
+            alphad_.mesh(),
+            dimensionedScalar("dispL", dimLength,0 ) // start at 0
+    )
     
     
 {
-
+    if (!dispT_.headerOk())
+    {
+    dispT_ =
+        dimensionedScalar("dispT_Ne",dimLength,dict_)*(Ne_+NeC_)
+      + dimensionedScalar("dispT_Pe",dimLength,dict_)*(Pe_+PeC_);
+        
+    }
+    if (!dispL_.headerOk())
+    {
+    dispL_ =
+        dimensionedScalar("dispL_Ne",dimLength,dict_)*(Ne_+NeC_)
+      + dimensionedScalar("dispL_Pe",dimLength,dict_)*(Pe_+PeC_);
+        
+    }
 }
 
 

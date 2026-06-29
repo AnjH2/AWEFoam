@@ -90,6 +90,9 @@ protected:
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
         
+        //- Dispersed diffusion velocity
+        mutable volVectorField BSCap_;
+        
         //- Forces inposed by drift model
         mutable surfaceScalarField F_;
         
@@ -160,6 +163,12 @@ public:
         {
             return mixture_;
         }
+        
+        const phaseDiffusionModel& dModel() const
+        {
+            return dModel_;
+        }
+        
         virtual bool runDiffusion()
         {
         	return dModel_->runDiffusion();
@@ -172,6 +181,12 @@ public:
         {
             return Udm_;
         }
+        
+        const volVectorField& BSCap() const
+        {
+            return BSCap_;
+        }
+        
         
         //- Return the forces impose by drift models, if any
         const surfaceScalarField& F() const

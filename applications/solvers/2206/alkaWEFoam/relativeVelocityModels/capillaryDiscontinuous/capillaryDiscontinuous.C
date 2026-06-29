@@ -147,104 +147,81 @@ Info<<"re1"<<endl;
 
 
 Info<<"re2"<<endl;
-
-
-        volVectorField qc
+        // Initial Darcy phase fluxes
+        volVectorField qd
         (
-            "qc",
-            Mc()*Solid_
+            "qd",
+            Md()*Solid_
            *(
-              - fvc::grad(alphad_*pc,"grad(pc)")
+              - fvc::grad(alphac_*pc,"grad(pc)")
             )
         );
+
+
 Info<<"re3"<<endl;
-Info<<"max(mag(qc)) before Forch:   "<<max(mag(qc))<<endl;
+Info<<"max(mag(qd)) before Forch:   "<<max(mag(qd))<<endl;
         // Forchheimer magnitude correction
-
-
-        qc *=
+        qd *=
             2.0
            /(
                 1.0
               + sqrt
                 (
                     1.0
-                  + 4.0*mixture_.rhoc()*betaC*Mc()*mag(qc)
+                  + 4.0*mixture_.rhod()*betaD*Md()*mag(qd)
                 )
             );
+
+
 Info<<"re4"<<endl;
-Info<<"max(mag(qc)) after Forch:   "<<max(mag(qc))<<endl;
+Info<<"max(mag(qd)) after Forch:   "<<max(mag(qd))<<endl;
         // Porosity-scaled relative velocity
         Urel_ =
-            - qc/max(alphac_, 1e-4);
-
-
-        volVectorField Gc
+              qd/max(alphad_, 1e-4);
+        volVectorField Gd
         (
-            "Gc",
-            fvc::grad(alphad_*pc,"grad(pc)")
+            "Gd",
+            fvc::grad(alphac_*pc,"grad(pc)")
         );
+
+
 Info<<"re5"<<endl;
     
-
+    Info<< "max |grad(pd)|     = "
+    << max(mag(fvc::grad(alphac_*pc,"grad(pc)"))*Solid_) << nl;
 
     Info<< "max |rho_d*g|      = "
         << max(mag(mixture_.rhod()*g_)*Solid_) << nl;
 
-
+    Info<< "max |Gd|           = "
+        << max(mag(Gd)*Solid_) << nl;
 
     Info<< "max |grad(pcPhase)|= "
-        << max(mag(fvc::grad(alphad_*pc,"grad(pc)"))*Solid_) << nl;
+        << max(mag(fvc::grad( - alphad_*pc,"grad(pc)"))*Solid_) << nl;
 
-    Info<< "max |rho_c*g|      = "
-        << mag(mixture_.rhoc()*g_) << nl;
 
-    Info<< "max |Gc|           = "
-        << max(mag(Gc)*Solid_) << nl;
+
         
 
 Info<<"re6"<<endl;
-
-
-volScalarField ReKc
+volScalarField ReKd
 (
-    "ReKc",
-    mixture_.rhoc()*mag(qc)*sqrt(K_*(1-Mem_)*Solid_)/mixture_.muc()
+    "ReKd",
+    mixture_.rhod()*mag(qd)*sqrt(K_*(1-Mem_)*Solid_)/mixture_.mud_m()
 );
 
 
 
-Info<< "ReKc mean/max = "
-    << gAverage(ReKc) << "  " << max(ReKc*Solid_) << nl;
-    
+Info<< "ReKd mean/max = "
+    << gAverage(ReKd) << "  " << max(ReKd*Solid_) << nl;
+
+  
     
 const vector gHat = g_.value()/mag(g_.value());
 
-volScalarField GcAlongG
-(
-    "GcAlongG",
-    (( - fvc::grad(alphad_*pc)) & gHat)
-   *Solid_
-);
-
-Info<< "Gc along g min/max = "
-    << min(GcAlongG.primitiveField()) << "  "
-    << max(GcAlongG.primitiveField()) << nl;
 
 
 
-volVectorField GcPerpendicular
-(
-    "GcPerpendicular",
-    Gc - (Gc & gHat)*gHat
-);
-
-Info<< "max |Gc along g| = "
-    << max(mag(Gc & gHat)().primitiveField()) << nl;
-
-Info<< "max |Gc perpendicular| = "
-    << max((mag(GcPerpendicular)*Solid_)().primitiveField()) << nl; 
-    
     
 }
 
@@ -260,18 +237,18 @@ void Foam::relativeVelocityModels::capillaryDiscontinuous::correct()
     //F_=((rhoS()-mixture_.rho())*g_-wd()*fvc::grad(alphac_*mixture_.pc(),"grad(pc)")+wc()*fvc::grad(alphad_*mixture_.pc(),"grad(pc)"));
     F_=(
             // (rhoStar - rho)*g . Sf
-                //  fvc::interpolate(rhoS() - mixture_.rho())
-                // *(g_ & alphad_.mesh().Sf())
+            //  fvc::interpolate(rhoS() - mixture_.rho())
+            // *(g_ & alphad_.mesh().Sf())
 
             // -wd*grad(alphac*pc) . Sf
-               // - fvc::interpolate(wd())
-               //  *fvc::snGrad(alphac_*mixture_.pc())
-               //  *alphad_.mesh().magSf()
+            - fvc::interpolate(wd())
+             *fvc::snGrad(alphac_*mixture_.pc())
+             *alphad_.mesh().magSf()
 
             // +wc*grad(alphad*pc) . Sf
-               //+ fvc::interpolate()
-             fvc::snGrad(alphad_*mixture_.pc())
-             *alphad_.mesh().magSf()
+          //  + fvc::interpolate(wc())
+          //   *fvc::snGrad(alphad_*mixture_.pc())
+          //   *alphad_.mesh().magSf()
     );
 
 }

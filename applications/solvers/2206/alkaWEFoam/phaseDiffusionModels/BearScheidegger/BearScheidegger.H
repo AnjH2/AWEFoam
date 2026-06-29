@@ -60,8 +60,8 @@ class BearScheidegger
         const dictionary& dict_;
         const meshObjects::gravity& g_;
         const volVectorField&   U_;
-        dimensionedScalar dispT_; //transverse dispersion scale. 
-        dimensionedScalar dispL_; //longitutional dispersion scale. order of pore diameter
+        volScalarField dispT_; //transverse dispersion scale. 
+        volScalarField dispL_; //longitutional dispersion scale. order of pore diameter
         //dispL_/dispT_ approx 10
         volTensorField UBSdiff();
 
