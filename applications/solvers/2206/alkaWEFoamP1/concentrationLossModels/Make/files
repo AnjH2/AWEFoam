@@ -1,0 +1,6 @@
+concentrationLossModel/concentrationLossModel.C
+localReference/localReference.C
+fixedReferenceValue/fixedReferenceValue.C
+constantRatio/constantRatio.C
+
+LIB = $(FOAM_USER_LIBBIN)/libAlkaWEFoamConcentrationLossModels
