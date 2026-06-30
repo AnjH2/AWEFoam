@@ -79,3 +79,19 @@ This branch may receive documentation updates, tutorial improvements, and minor 
 
 The `paper1-version` branch is intended as a maintained and user-friendly version of the original solver line. For strict reproducibility, use the release or tag corresponding to the exact code version used for the publication, if available.
 
+# NOTICE
+
+AlkaWEFoam
+
+AlkaWEFoam is an OpenFOAM-based solver for alkaline water electrolysis simulations.
+
+This project is distributed under the GNU General Public License version 3
+or, at your option, any later version, consistent with the OpenFOAM licensing terms.
+
+OpenFOAM is distributed under the GNU General Public License.
+OpenFOAM is a registered trademark of OpenCFD Ltd.
+
+AlkaWEFoam is an independent research code and is not endorsed by or affiliated
+with OpenCFD Ltd, the OpenFOAM Foundation, or ESI Group unless explicitly stated.
+
+Copyright (C) 2025 Andreas Jacobsen
