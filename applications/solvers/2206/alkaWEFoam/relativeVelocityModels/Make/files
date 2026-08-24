@@ -1,0 +1,7 @@
+relativeVelocityModel/relativeVelocityModel.C
+stuckBubbles/stuckBubbles.C
+simple/simple.C
+combinedFixedD/combinedFixedD.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libAlkaWEFoamRelativeVelocityModels

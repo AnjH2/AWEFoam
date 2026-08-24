@@ -1,0 +1,130 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2014-2015 OpenFOAM Foundation
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "stuckBubbles.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace relativeVelocityModels
+{
+    defineTypeNameAndDebug(stuckBubbles, 0);
+    addToRunTimeSelectionTable(relativeVelocityModel, stuckBubbles, dictionary);
+}
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
+(
+    const dictionary& dict,
+    const incompressibleTwoPhaseInteractingMixture& mixture
+)
+:
+    relativeVelocityModel(dict, mixture),
+    mixture_(mixture),
+    electrodes({"Ne","Pe"}),
+    dict_(dict),
+    g_(meshObjects::gravity::New(mixture.U().time())),
+    
+    rd_(electrodes.size()),
+    n_("n",dimless,dict_),
+    rhoc_(mixture.rhoc()),
+    rhod_(mixture.rhod()),
+   
+    D_(electrodes.size()),//("D", dimVelocity*dimLength, dict),
+    
+    
+    eps_(
+	    alphac_.mesh().lookupObject<volScalarField>
+            (
+            	"eps"
+            )
+        ),
+
+    eg_("eg",(-1*g_)/mag(g_)),
+        U_(
+	    alphac_.mesh().lookupObject<volVectorField>
+            (
+            	"U"
+            )
+        ),
+        rU_("rU",dimless,dict_)
+{
+forAll(electrodes,i)
+	{
+	rd_.set
+    	(
+        	i,
+        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
+        );
+        D_.set
+        (
+        	i,
+        	new dimensionedTensor("D_"+electrodes[i], dimless,dict_)
+        );
+        }
+}
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::relativeVelocityModels::stuckBubbles::~stuckBubbles()
+{}
+
+// * * * * * * * * * * * * * * Private Functions  * * * * * * * * * * * * * * //
+
+volVectorField Foam::relativeVelocityModels::stuckBubbles::vStokes(int j)
+{
+	
+	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nucModel().nu())*eg_;
+}
+
+
+
+
+
+
+
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::relativeVelocityModels::stuckBubbles::correct()
+{    
+    //coupling drift with the mixture velocity
+    Udm_ = (1-Mem_+VSMALL)*U_*rU_;
+    
+    
+    Ddm_=(rhoc_/rho())*((rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))/alphad_);
+    Ddm_.correctBoundaryConditions();
+}
+
+
+// ************************************************************************* //

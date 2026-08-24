@@ -1,0 +1,6 @@
+this case is for BASELINE case A of the 2025 paper.
+please note that not all initial fields are written, 
+    they have to be copied from 0/ to the startTime
+
+only a single potential is solved for, how to do a sweep is shown in 0.orig/UNe
+

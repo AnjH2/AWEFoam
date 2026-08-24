@@ -1,19 +1,26 @@
 conversionRatioO2
-    {
-        libs            (utilityFunctionObjects);
-        type            coded;
-        name            conversionRatioO2;
-        writeControl    adjustableRunTime;
-        writeInterval   0.5;
-	postProcess     true;
-	codeInclude
-	#{
-	        #include "volFields.H"
+{
+    libs            (utilityFunctionObjects);
+    type            coded;
+    name            conversionRatioO2;
+
+    writeControl    adjustableRunTime;
+    writeInterval   0.5;
+
+    postProcess     true;
+
+    codeInclude
+    #{
+        #include "volFields.H"
         #include "surfaceFields.H"
         #include "IOstreams.H"
         #include <cmath>
-	using namespace Foam;
-	        inline scalar patchAreaWeightedAverage
+        using namespace Foam;
+
+        //===========================================
+        // 1. Patch area-weighted average for a volScalarField
+        //===========================================
+        inline scalar patchAreaWeightedAverage
         (
             const volScalarField& sField,
             const fvMesh&         mesh,
@@ -49,10 +56,10 @@ conversionRatioO2
             }
         }
 
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //===========================================
         // 2. Patch area-weighted normal velocity (vector field)
         //    If 'magnitude' = true, returns |normal velocity|.
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //===========================================
         inline scalar patchAreaWeightedNormalAverage
         (
             const volVectorField& vField,
@@ -77,7 +84,7 @@ conversionRatioO2
 
             forAll (vPatch, faceI)
             {
-                // Dot product of velocity with face area vector
+                // Dot product: U dot Sf
                 scalar dotVal = vPatch[faceI] & SfPatch[faceI];
                 if (magnitude)
                 {
@@ -91,102 +98,185 @@ conversionRatioO2
 
             return (sumArea > SMALL) ? sumVal / sumArea : 0.0;
         }
+
+        //===========================================
+        // 3. Look-up scalar field safely (READ_IF_PRESENT)
+        //===========================================
         inline volScalarField lookUpVolScalarField
         (
             const word& sFieldName,
-            const fvMesh&         mesh
+            const fvMesh& mesh
         )
         {
-        volScalarField field
-    	(
-        	IOobject
-        	(
-            		sFieldName,
-            		mesh.time().timeName(),
-            		mesh,
-            		IOobject::READ_IF_PRESENT,  // Don’t crash if missing
-            		IOobject::NO_WRITE
-        	),
-        	mesh,
-        	// Default "dimensionedScalar" if not present
-        	dimensionedScalar(dimless, 0.0)
-    	);
-    	return field;
+            volScalarField field
+            (
+                IOobject
+                (
+                    sFieldName,
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::READ_IF_PRESENT,  // don’t crash if missing
+                    IOobject::NO_WRITE
+                ),
+                mesh,
+                dimensionedScalar(dimless, 0.0)
+            );
+            return field;
         }
+
+        //===========================================
+        // 4. Look-up vector field safely (READ_IF_PRESENT)
+        //===========================================
         inline volVectorField lookUpVolVectorField
         (
             const word& vFieldName,
-            const fvMesh&         mesh
+            const fvMesh& mesh
         )
         {
-        volVectorField field
-    	(
-        	IOobject
-        	(
-            		vFieldName,
-            		mesh.time().timeName(),
-            		mesh,
-            		IOobject::READ_IF_PRESENT,  // Don’t crash if missing
-            		IOobject::NO_WRITE
-        	),
-        	mesh,
-        	// Default "dimensionedVector" if not present
-        	dimensionedVector(dimless, vector(0,0,0))
-    	);
-    	return field;
+            volVectorField field
+            (
+                IOobject
+                (
+                    vFieldName,
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::READ_IF_PRESENT, // don’t crash if missing
+                    IOobject::NO_WRITE
+                ),
+                mesh,
+                dimensionedVector(dimless, vector(0,0,0))
+            );
+            return field;
         }
-	#};
 
-        codeWrite
-        #{
-        // patch
+    #}; // end codeInclude
+
+    codeWrite
+    #{
+        // 1. Patch name
         word patchName = "Outlet1";
-        // define Scalars.
-        scalar P_cell = 101325;
-        scalar rho_KOH = 1231;
-        scalar M_O2 = 32e-3;
-        
-	 // 1. Get read fields Scalar and vector volumeFields
-    const volScalarField alpha = lookUpVolScalarField("alpha.gas",mesh());
-    const volScalarField T = lookUpVolScalarField("T",mesh());
-    const volScalarField& eps = lookUpVolScalarField("eps",mesh());
-    const volScalarField& C2_O2 =lookUpVolScalarField("C_O2.electrolyte",mesh()); 
-    const volVectorField& U = lookUpVolVectorField("U",mesh()); 
-    const volVectorField& Udm = lookUpVolVectorField("Udm",mesh());
-    const volScalarField& p_water = lookUpVolScalarField("p_water",mesh());   
-    
-    
-    scalar alphaPatchAverage = patchAreaWeightedAverage(alpha, mesh(), patchName);
-    scalar p_waterPatchAverage = patchAreaWeightedAverage(p_water, mesh(), patchName);
-    scalar TPatchAverage = patchAreaWeightedAverage(T, mesh(), patchName);
-    scalar epsPatchAverage = patchAreaWeightedAverage(eps, mesh(), patchName);
-    scalar C2_O2PatchAverage = patchAreaWeightedAverage(C2_O2, mesh(), patchName);
-    scalar UPatchAverage = patchAreaWeightedNormalAverage(U, mesh(), patchName, true);
-    scalar UdmPatchAverage = patchAreaWeightedNormalAverage(Udm, mesh(), patchName, true);
-    
-    
-    scalar rho_O2 = P_cell/(TPatchAverage*Foam::constant::physicoChemical::R.value()/M_O2);
-    
-    scalar n_gas = alphaPatchAverage*(P_cell-p_waterPatchAverage)/(TPatchAverage*Foam::constant::physicoChemical::R.value())*epsPatchAverage;
-    scalar n_liquid = (1-alphaPatchAverage)*C2_O2PatchAverage*epsPatchAverage;
-    scalar phi_O2_gas = n_gas*(UPatchAverage+UdmPatchAverage);
-    scalar phi_O2_liquid = n_liquid*((-UdmPatchAverage*(alphaPatchAverage*rho_O2)/((1-alphaPatchAverage)*rho_KOH))+UPatchAverage);
-    scalar conversionRatio = phi_O2_gas/(phi_O2_gas+phi_O2_liquid);
-    Info << "Patch 'outlet2' area-weighted alpha = "
-         << alphaPatchAverage << nl;
-                IOstreamOption streamOpt;
-                const bool append = true;
-		OFstream dataFile2("postProcessing/ConversionRatioO2.dat",  streamOpt,append);
-		if (Pstream::master())
-		{
-    			if(dataFile2.opened())
-    			{
-        			dataFile2 << mesh().time().timeName()
-                  		<< tab
-                  		<< conversionRatio
-                  	 	<< endl;
-    			}
-		}
-        #};
-        
-    }
+
+        // 2. Constants
+        //    (p_water can be either constant or read from a field, up to you)
+        scalar P_cell   = 101325;     // [Pa]
+        scalar p_waterC = 4.354;    // constant partial pressure of water
+        scalar rho_KOH  = 1231;       // [kg/m3]
+        scalar M_O2     = 32e-3;      // [kg/mol]
+
+        // For convenience
+        const scalar R = Foam::constant::physicoChemical::R.value();  // 8.314462618...
+
+        Info << "Reading fields for patch " << patchName << nl;
+
+        // 3. Get fields
+        const volScalarField alpha     = lookUpVolScalarField("alpha.gas", mesh());
+        const volScalarField T         = lookUpVolScalarField("T", mesh());
+        const volScalarField eps       = lookUpVolScalarField("eps", mesh());
+        const volScalarField C2_O2     = lookUpVolScalarField("C_O2.electrolyte", mesh());
+        const volVectorField U         = lookUpVolVectorField("U", mesh());
+        const volVectorField Udm       = lookUpVolVectorField("Udm", mesh());
+        // If you want to read p_water from a field, do it here (uncomment):
+        // const volScalarField pWaterField = lookUpVolScalarField("p_water", mesh());
+
+        // 4. Compute patch averages
+        scalar alphaPatchAverage = patchAreaWeightedAverage(alpha, mesh(), patchName);
+        // If you read pWaterField, you could do e.g.:
+        // scalar p_waterPatchAverage = patchAreaWeightedAverage(pWaterField, mesh(), patchName);
+        scalar TPatchAverage     = patchAreaWeightedAverage(T,     mesh(), patchName);
+        scalar epsPatchAverage   = patchAreaWeightedAverage(eps,   mesh(), patchName);
+        scalar C2_O2PatchAverage = patchAreaWeightedAverage(C2_O2, mesh(), patchName);
+        scalar UPatchAverage     = patchAreaWeightedNormalAverage(U,   mesh(), patchName, true);
+        scalar UdmPatchAverage   = patchAreaWeightedNormalAverage(Udm, mesh(), patchName, true);
+
+        // 5. Print patch-averaged debug info
+        Info << "Patch '" << patchName << "' alphaAvg=" << alphaPatchAverage
+             << ", Tavg=" << TPatchAverage
+             << ", epsAvg=" << epsPatchAverage
+             << ", C2_O2Avg=" << C2_O2PatchAverage
+             << ", Uavg=" << UPatchAverage
+             << ", UdmAvg=" << UdmPatchAverage
+             << nl << nl;
+
+        // 6. Safety checks
+        if (TPatchAverage < SMALL)
+        {
+            Info << "WARNING: T ~ 0 => skipping ratio calc\n" << nl;
+            return true; // Skip
+        }
+
+        // Compute density of O2:  rho_O2 = P_cell / (T * R / M_O2)
+        scalar rho_O2 = P_cell / (TPatchAverage * R / M_O2);
+
+        // The user code uses a constant p_waterC. If you want to use a patchAverage field, do:
+        // scalar p_waterC = p_waterPatchAverage; // if read from the field
+
+        scalar deltaP = P_cell - p_waterC;
+        if (deltaP < SMALL)
+        {
+            Info << "WARNING: (P_cell - p_waterC) <= 0 => skipping\n" << nl;
+            return true;
+        }
+
+        // Check alpha near 1
+        scalar denAlpha = 1.0 - alphaPatchAverage;
+        if (Foam::mag(denAlpha) < VSMALL)
+        {
+            Info << "WARNING: alpha ~ 1 => (1-alpha) near 0 => skipping\n" << nl;
+            return true;
+        }
+
+        // 7. Compute n_gas, n_liquid
+        scalar n_gas = alphaPatchAverage * deltaP
+                     / (TPatchAverage * R)
+                     * epsPatchAverage;
+
+        scalar n_liquid = denAlpha * C2_O2PatchAverage * epsPatchAverage;
+
+        // 8. Flow terms
+        scalar phi_O2_gas = n_gas * (UPatchAverage + UdmPatchAverage);
+
+        Info << "n_gas=" << n_gas
+             << ", phi_O2_gas=" << phi_O2_gas << nl;
+
+        scalar phi_O2_liquid =
+            n_liquid * (
+                ( -UdmPatchAverage * (alphaPatchAverage * rho_O2)
+                  / (denAlpha * rho_KOH)
+                )
+                + UPatchAverage
+            );
+
+        Info << "n_liquid=" << n_liquid
+             << ", phi_O2_liquid=" << phi_O2_liquid << nl;
+
+        // 9. Check the denominator for the final ratio
+        scalar denom = phi_O2_gas + phi_O2_liquid;
+        if (Foam::mag(denom) < VSMALL)
+        {
+            Info << "WARNING: (phi_O2_gas + phi_O2_liquid) ~ 0 => skipping\n" << nl;
+            return true;
+        }
+
+        scalar conversionRatio = phi_O2_gas / denom;
+        Info << "Computed conversionRatio=" << conversionRatio << nl;
+
+        // 10. Write to file
+        IOstreamOption streamOpt;
+        const bool append = true;
+        OFstream dataFile2("postProcessing/ConversionRatioO2.dat", streamOpt, append);
+
+        if (Pstream::master())
+        {
+            if (dataFile2.opened())
+            {
+                dataFile2 << mesh().time().timeName()
+                          << tab
+                          << conversionRatio
+                          << endl;
+            }
+        }
+
+        return true; // Indicate success
+    #}; // end codeWrite
+}
+

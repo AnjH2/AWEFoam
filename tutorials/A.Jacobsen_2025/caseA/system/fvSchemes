@@ -30,7 +30,11 @@ gradSchemes
 divSchemes
 {
     div(rhoPhi,U)       Gauss linearUpwind default;
-    div(rhoalpha2*Uc,C2[i])	Gauss linearUpwind default
+    div(rhoalpha2*Uc,C2[i])	Gauss linearUpwind default;
+    //div(((interpolate(alpha.electrolyte)*(phi+interpolate(Ucm)))*MW_H2),C_H2.electrolyte)	Gauss linearUpwind default;
+    //div(((interpolate(alpha.electrolyte)*(phi+interpolate(Ucm)))*MW_O2),C_O2.electrolyte)	Gauss linearUpwind default;
+    //div(((interpolate(alpha.electrolyte)*(phi+interpolate(Ucm)))*MW_H2O),C_H2O.electrolyte)	Gauss linearUpwind default;
+    //div(((interpolate(alpha.electrolyte)*(phi+interpolate(Ucm)))*MW_OH),C_OH.electrolyte)	Gauss linearUpwind default;
     div(const*snGrad(Ue),C2[i])	Gauss upwind;
     div(const*snGrad(alpha2),C2[i])	Gauss upwind;
     "div\(alphaPhi,C.*\)"	bounded Gauss linearUpwind grad(U);
@@ -58,12 +62,6 @@ interpolationSchemes
 snGradSchemes
 {
     default         orthogonal;
-}
-
-fluxRequired
-{
-    default         no;
-    Ue;
 }
 
 // ************************************************************************* //

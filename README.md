@@ -29,7 +29,7 @@ The solver has also been compiled with OpenFOAM v2506. However, the publication 
 The main solver is located in:
 
 ```text
-applications/solvers/2206/alkaWEFoamP1
+applications/solvers/2206/alkaWEFoam
 ```
 
 ## Tutorials

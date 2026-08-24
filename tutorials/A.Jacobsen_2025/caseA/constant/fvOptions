@@ -147,24 +147,6 @@ porosity5
     	}
     }
 }
-/*fixedValue
-{
-    type            vectorFixedValueConstraint;
-    active          yes;
-
-    selectionMode   cellZone;    //cellZone or all
-    cellZone        diaphram;
-    fieldValues
-    {
-        U	(1e-39 1e-39 0);
-    }
-        	coordinateSystem
-    	{
-        	origin  (0 0 0);
-        	e1      (0 $tPe 0);
-        	e2      (#eval{$cellLength+10e-3} $t2 $cellDepth);
-    	}
-}*/
 
 
 // ************************************************************************* //

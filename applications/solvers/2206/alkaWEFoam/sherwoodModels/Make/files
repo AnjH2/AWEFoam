@@ -1,0 +1,9 @@
+sherwoodModel/sherwoodModel.C
+sherwoodModel/sherwoodModelNew.C
+constantSherwood/constantSherwood.C
+Whitaker/Whitaker.C
+WhitakerR/WhitakerR.C
+general/general.C
+generalR/generalR.C
+
+LIB = $(FOAM_USER_LIBBIN)/libAlkaWEFoamModels

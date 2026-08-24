@@ -69,7 +69,6 @@ reactionCoeffs
 	n_Temp	0;
 	T_BV_ref	TBV;
 	
-	//k_as		0.3; //mean velocity 0.015m/s //tubebundle assumption as=120m²/m³ 
 
 }
 
