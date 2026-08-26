@@ -1,0 +1,106 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p_rgh;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    Inlet1
+    {
+        //type            zeroGradient;
+        //type            fixedFluxPressure;
+        //value           uniform 0;
+       //type            fixedValue;
+       //value           uniform 90;
+       type            fixedFluxPressure;
+       //value           unifrom $internalField;
+
+    }
+    Inlet2
+    {
+        //type            zeroGradient;
+        //type            fixedFluxPressure;
+        //value           uniform 0;
+       //type            fixedValue;
+       //value           uniform 90;
+       type            fixedFluxPressure;
+       //value           unifrom $internalField;
+
+    }
+    Outlet1
+    {
+    	type prghTotalPressure;
+    	p0               uniform 0;
+    }
+        Outlet2
+    {
+    	type prghTotalPressure;
+    	p0               uniform 0;
+    }
+
+    PPe
+    {
+        type            fixedFluxPressure;
+        //value           uniform 0;
+    }
+        PNe
+    {
+        type            fixedFluxPressure;
+        //value           uniform 0;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+        OWall
+    {
+    type            fixedFluxPressure;
+    	/*type 	codedFixedValue;
+    	value	uniform 0;
+    	name 	prghHydrostat3;
+	code	#{
+
+            const vectorField Cf(this->patch().Cf());
+            const scalarField p_(patch().size(), Zero);
+            scalarField prgh_(patch().size(), Zero);
+            const scalarField rho_(this->patch().lookupPatchField<volScalarField, scalar>("rho"));
+            const scalarField gh_(this->patch().lookupPatchField<volScalarField, scalar>("gh"));
+            forAll(Cf,faceI)
+            {
+
+            prgh_[faceI] = p_[faceI]-rho_[faceI]*gh_[faceI];
+            }
+            operator==(prgh_);
+
+		#};*/
+    }
+    Walls
+    {
+    	//type            zeroGradient;
+       // type            fixedValue;
+        //value           uniform 90;
+        type            fixedFluxPressure;
+        //rho             rho;
+        //value           unifrom $internalField;
+    }
+    
+}
+
+
+// ************************************************************************* //

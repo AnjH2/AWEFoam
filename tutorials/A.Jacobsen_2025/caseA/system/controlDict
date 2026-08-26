@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     alkaWEFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         5;
+
+deltaT          0.0005;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.1;
+
+purgeWrite      5;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep 	yes;
+maxCo       0.125;
+maxDeltaT	0.05;
+
+
+functions
+{
+
+	PWall_Ne
+	{
+	name    PNe;
+	fields  (INe UNe);
+
+	operation areaAverage;
+
+	type            surfaceFieldValue;
+	libs            ("libfieldFunctionObjects.so");
+
+	writeControl    runTime;
+	writeInterval   0.1;
+
+	writeFields     false;
+	log             false;
+
+	regionType  patch;
+	}
+	PWall_Pe
+	{
+	name    PPe;
+	fields  (IPe UPe);
+
+	operation areaAverage;
+
+	type            surfaceFieldValue;
+	libs            ("libfieldFunctionObjects.so");
+
+	writeControl    runTime;
+	writeInterval   0.1;
+
+	writeFields     false;
+	log             false;
+
+	regionType  patch;
+	}
+}
+// ************************************************************************* //

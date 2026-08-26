@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2206                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       dictionary;
+    location    "0.2/uniform/functionObjects";
+    object      functionObjectProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+cdf7e925f5746741c316f5fbcf39ad0dfca90775
+{
+    PWall_Ne
+    {
+        vector
+        {
+            areaAverage(PNe,INe) ( 7.39251e-10 -2.91615 0 );
+        }
+        scalar
+        {
+            areaAverage(PNe,UNe) -1.399999999999999;
+        }
+    }
+    PWall_Pe
+    {
+        vector
+        {
+            areaAverage(PPe,IPe) ( 4.75026e-12 -2.93139 0 );
+        }
+        scalar
+        {
+            areaAverage(PPe,UPe) 0;
+        }
+    }
+}
+
+
+// ************************************************************************* //

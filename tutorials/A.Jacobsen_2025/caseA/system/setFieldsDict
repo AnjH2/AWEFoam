@@ -1,0 +1,114 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      setFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+tPe		1.8e-3;
+tDi		0.85e-3;
+tNe		1.8e-3;
+cellLength	100.0e-3;
+cellDepth	30e-3;
+nD		0.025;
+
+
+
+t2 #eval #{ $tPe+$tDi #};
+t3 #eval #{ $tPe+$tDi+$tNe #};
+
+
+
+defaultFieldValues
+(
+
+    volScalarFieldValue Ne 0
+    volScalarFieldValue Pe 0
+    volScalarFieldValue Mem 0
+    volScalarFieldValue eps 0.95
+    volScalarFieldValue	tau 1.2
+    volScalarFieldValue PeC 0
+    volScalarFieldValue NeC 0
+);
+
+regions
+(
+    zoneToCell
+    {
+    	zone     positiveChannel;
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue PeC 1
+    	);
+    }
+    zoneToCell
+    {
+    	zone     negativeChannel;
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue NeC 1
+    	);
+    }
+    boxToCell
+    {
+    	box (0 $tPe 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue tau 2.7
+    	);
+    }
+    boxToCell
+    {
+    	box (0 0 0) ($cellLength $tPe $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue Pe 1
+    	);
+    }
+    boxToCell
+    {
+    	box (0 $t2 0) ($cellLength  $t3 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue Ne 1
+    	);
+    }
+    boxToCell
+    {
+    	box (0 $tPe 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue Mem 1
+    	);
+    }
+
+    
+    boxToCell
+    {
+    	box (0.0 $tPe 0) ($cellLength  $t2 $cellDepth);
+    	
+    	fieldValues
+    	(
+    		volScalarFieldValue eps 0.5
+    	);
+    }
+
+);
+
+
+// ************************************************************************* //

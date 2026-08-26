@@ -72,28 +72,10 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
         )
     ),
 
-    K_AB_
-	(
-		"K_AB",
-		dimensionSet ( 0, 1, -1, 0, 0, 0,0),
-		dict
-	),
     c_AB_
 	(
 		"c_AB",
 		dimless,
-		dict
-	),
-   K_DB_
-	(
-		"K_DB",
-		dimensionSet ( 0, 1, -1, 0, 0, 0,0),
-		dict
-	),
-   R_DB_
-	(
-		"R_DB",
-		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
 		dict
 	),
 	C2_(

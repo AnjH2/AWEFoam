@@ -50,17 +50,34 @@ Foam::phaseDiffusionModels::constant::constant
 )
 :
     phaseDiffusionModel(dict, mixture,modelName),
-    D_("DiffusionConstant", dimLength*dimLength/dimTime, dict),
-    DT_(dimLength*dimLength/dimTime, Zero)
-{
+    mixture_(mixture),
+    electrodes({"Ne","Pe"}),
+    dict_(dict),
+    g_(meshObjects::gravity::New(mixture.U().time())),
     
-    Ddm_.replace(tensor::XX,D_);
-    Ddm_.replace(tensor::YY,D_);
-    Ddm_.replace(tensor::ZZ,D_);
-    DT_.replace(tensor::XX,D_);
-    DT_.replace(tensor::YY,D_);
-    DT_.replace(tensor::ZZ,D_);
-    Info<<"Constant ready"<<endl;
+    rd_(electrodes.size()),
+
+    rhoc_(mixture.rhoc()),
+    rhod_(mixture.rhod()),
+   
+    D_(electrodes.size()),
+
+
+    eg_("eg",(-1*g_)/mag(g_))
+{
+forAll(electrodes,i)
+	{
+	rd_.set
+    	(
+        	i,
+        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
+        );
+        D_.set
+        (
+        	i,
+        	new dimensionedTensor("D_"+electrodes[i], dimless,dict_)
+        );
+        }
 }
 
 
@@ -72,9 +89,15 @@ Foam::phaseDiffusionModels::constant::~constant()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+volVectorField Foam::phaseDiffusionModels::constant::vStokes(int j)
+{
+	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nucModel().nu())*eg_;
+}
+
 void Foam::phaseDiffusionModels::constant::correct()
 {
-    Ddm_=dF_*VToM()*DT_*(1-Mem_);
+    Ddm_=(rhoc_/mixture_.rho())*((rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))/alphad_);
+
 }
 
 

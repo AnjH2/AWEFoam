@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+as_Ne		4280;
+as_Pe		4280;
+D_pore_Ne		0.06e-3;
+D_pore_Pe		0.06e-3;
+sigma_s_ref	1.43e7;
+
+K_Pe	763000000.0;
+K_Ne   $K_Pe;
+K_Mem   8.85e17;
+
+
+
+// ************************************************************************* //

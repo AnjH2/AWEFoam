@@ -55,11 +55,18 @@ class constant
     public phaseDiffusionModel
 {
     // Private data
-
-        //- Diffusion coefficient
-        dimensionedScalar D_;
-        dimensionedTensor DT_;
-
+        const incompressibleTwoPhaseInteractingMixture& mixture_;
+	    List<word> electrodes;
+	    const dictionary& dict_;
+	    const meshObjects::gravity& g_;
+	    
+	    PtrList <dimensionedScalar> rd_;
+	    const dimensionedScalar& rhoc_;
+	    const volScalarField& rhod_;
+	    PtrList <dimensionedTensor> D_;
+	    const dimensionedVector eg_;
+    
+        volVectorField vStokes(int j);
 
 public:
 
