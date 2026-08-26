@@ -66,9 +66,6 @@ class capillaryD
     volScalarField Mc();
     volScalarField Md();
     volScalarField Mm();
-    
-    volScalarField Ar();
-    volScalarField Cr();
 
 
 public:

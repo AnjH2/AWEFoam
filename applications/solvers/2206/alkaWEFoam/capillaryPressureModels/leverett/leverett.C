@@ -69,7 +69,7 @@ Foam::capillaryPressureModels::leverett::leverett
             "alphaEff",
             alphaWetting.time().timeName(),
             alphaWetting.mesh(),
-            IOobject::READ_IF_PRESENT,
+            IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),       
         alphaWetting.mesh(),
@@ -88,7 +88,7 @@ Foam::capillaryPressureModels::leverett::leverett
     (
     		alphaWetting.mesh().lookupObject<volScalarField>
    	 	    (
-    			"K"
+    			"permeabilityField"
     			//(
     			//)
     		)
@@ -139,7 +139,7 @@ void Foam::capillaryPressureModels::leverett::correct()
    pc_.correctBoundaryConditions();  
    dpcds_ =
            //! Change to pc = pl - pg  (For IMPES)
-         // (-1) * ANJ
+          //(-1) * ANJ
            Solid_*sigma_*cos(thetaRad)*sqrt(eps_)*sqrtK
            *(
                thetaRad < Foam::constant::mathematical::pi/2.0

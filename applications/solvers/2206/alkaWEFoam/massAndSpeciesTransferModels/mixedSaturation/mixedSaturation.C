@@ -59,8 +59,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
         (
             "AttachedBubbleGrowthModel",
             mixture_,
-            massAndSpeciesTransferModelDict_,
-            rb_
+            massAndSpeciesTransferModelDict_
         )
     ),
     shModelDB_
@@ -69,16 +68,32 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
         (
             "DetachedBubbleGrowthModel",
             mixture_,
-            massAndSpeciesTransferModelDict_,
-            rb_
+            massAndSpeciesTransferModelDict_
         )
     ),
 
-
+    K_AB_
+	(
+		"K_AB",
+		dimensionSet ( 0, 1, -1, 0, 0, 0,0),
+		dict
+	),
     c_AB_
 	(
 		"c_AB",
 		dimless,
+		dict
+	),
+   K_DB_
+	(
+		"K_DB",
+		dimensionSet ( 0, 1, -1, 0, 0, 0,0),
+		dict
+	),
+   R_DB_
+	(
+		"R_DB",
+		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
 		dict
 	),
 	C2_(
@@ -113,7 +128,7 @@ void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_mDot_wall(cons
 		C_sat_[i]=k_H_[i]*(mixture_.p_num()-p_water_);
 		C_sat_[i].correctBoundaryConditions();
 
-		mDotAlpha_Wall_[i]=(Pe_+Ne_)*max(c_AB_*shModelAB_->ki(i)*as_*theta*MW_[i]*(C2_s[i]-C_sat_[i]),dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),0));
+		mDotAlpha_Wall_[i]=(Pe_+Ne_)*max(c_AB_*shModelAB_->ki(i)*as_[i]*theta*MW_[i]*(C2_s[i]-C_sat_[i]),dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),0));
 		//mDot_Wall_[i]=min(mDotAlpha_Wall_[i]*(1-alpha_),Psi_BV_[i]*MW_[i]); removed 05-11-2024 -> it is already damped by Psi_BV
 		mDot_Wall_[i]=min(mDotAlpha_Wall_[i]*(1-pow(alpha_,5)),Psi_BV_[i]*MW_[i]);
 		
@@ -140,7 +155,7 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i)
         	mDot_Wall_[i]*0,
         	
         	
-       		-((Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/(shModelDB_->s()*rb_)*
+       		-((Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/((shModelDB_->d()[0]*Ne_+shModelDB_->d()[1]*Pe_+(shModelDB_->d()[1]+shModelDB_->d()[0])/2*(1-Pe_-Ne_))/2)*
        		epsilon_*(1-pow(alpha_,5))*MW_[i]*max(C2_[i] - C_sat_[i], C0))
     	);
     }
@@ -195,8 +210,8 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i, const boo
 
     	volScalarField mDotE
     	(
-        	"mDotE_"+species2[i], mDot_Wall_[i]+((Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/(shModelDB_->s()*rb_)*
-       		epsilon_*alpha_*(1-pow(alpha_,5))*MW_[i]*max(C2_[i] - C_sat_[i], C0))
+        	"mDotE_"+species2[i], mDot_Wall_[i]+((Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/((shModelDB_->d()[0]*Ne_+shModelDB_->d()[1]*Pe_+(shModelDB_->d()[1]+shModelDB_->d()[0])/2*(1-Pe_-Ne_))/2)*
+       		epsilon_*alpha_*(1-pow(alpha_,5))*MW_[i]*max(C2_[i] - C_sat_[i], C0))//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
     	);
     	volScalarField mDotC
     	(

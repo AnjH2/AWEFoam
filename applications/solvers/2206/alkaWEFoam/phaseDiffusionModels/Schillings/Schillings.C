@@ -58,7 +58,7 @@ Foam::phaseDiffusionModels::Schillings::Schillings
     Dp_("diffCoeffGravity", dimless, dict),
     Dn_("diffCoeffGravityNormal", dimless, dict),
     n_("n",dimless,dict),
-   
+    rd_(electrodes.size()),
 ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector::Y)),mag(g_.value().component(vector::Z)))/mag(g_.value())),
     t_((mag(ep_.x()) < 0.9) ? vector(1,0,0) : vector(0,1,0)),
     en1_(ep_ ^ t_),
@@ -96,7 +96,14 @@ ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector:
     	D_.replace(tensor::XX,mag(DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X)));
     	D_.replace(tensor::YY,mag(DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y)));
     	D_.replace(tensor::ZZ,mag(DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z)));
-
+    	forAll(electrodes,i)
+	{
+	rd_.set
+    	(
+        	i,
+        	new dimensionedScalar("bubbleRadius_"+electrodes[i], dimLength,dict_)
+        );
+        }
 }
 
 
@@ -107,12 +114,6 @@ Foam::phaseDiffusionModels::Schillings::~Schillings()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-volSymmTensorField Foam::phaseDiffusionModels::Schillings::S()
-{
-	
-	return  dev(symm(fvc::grad(U_)));
-}
-
 volScalarField Foam::phaseDiffusionModels::Schillings::kappa()
 {
 	
@@ -134,12 +135,18 @@ volScalarField Foam::phaseDiffusionModels::Schillings::f()
 volVectorField Foam::phaseDiffusionModels::Schillings::vStokes()
 {
 	
-	return -g_.value()*(sqr(2.0*rb_)/(18.0*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+	return -g_.value()*(sqr(2.0*(rd_[0]*Ne_+rd_[1]*Pe_))/(18.0*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
 }
 
 volScalarField Foam::phaseDiffusionModels::Schillings::gamma()
 {
-    return sqrt(2.0)*mag(S());
+
+    //volTensorField tauP=dev2(fvc::grad(U_));
+	//return fvc::grad(U_);//sqrt(0.5*( tauP && tauP ));
+	//return sqrt(0.5*( tauP && tauP ));
+	    volTensorField gU_=fvc::grad(U_);
+   volTensorField E_=0.5*(gU_+gU_.T());
+	return sqrt(2*( E_ && E_ ));
 }
 
 
@@ -151,13 +158,13 @@ volTensorField Foam::phaseDiffusionModels::Schillings::UHdiff()
     	//D_.replace(tensor::YY,DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y));
     	//D_.replace(tensor::ZZ,DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z));	
 
-	return 1/alphad_*rb_*f()*mag(vStokes())*D_;
+	return 1/alphad_*(rd_[0]*Ne_+rd_[1]*Pe_)*f()*mag(vStokes())*D_;
 }
 
 volTensorField Foam::phaseDiffusionModels::Schillings::USdiff()
 {
 	//volTensorField	DOne_(dimless,tensor(1,0,0,0,1,0,0,0,1));
-	return 1/alphad_*tensor(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0)*pow(rb_,2)*mag(gamma())*beta();
+	return 1/alphad_*tensor(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0)*pow((rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_)),2)*mag(gamma())*beta();
 }
 
 

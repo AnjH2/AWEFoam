@@ -85,7 +85,7 @@ Foam::mixtureViscosityModels::linearMu::linearMu
                		"mud",
                 	U.mesh().time().timeName(),
                 	U.mesh(),
-                	IOobject::READ_IF_PRESENT,
+                	IOobject::NO_READ,
                 	IOobject::AUTO_WRITE
             	),
             	U.mesh(),

@@ -65,7 +65,7 @@ protected:
         dictionary constantSherwoodCoeffsSub1_;
         //- Maximum sherwood
         //dimensionedScalar muMax_;
-	scalar s_;
+	PtrList <dimensionedScalar> d_;
 	PtrList <dimensionedScalar> sh_;
 
 	
@@ -86,7 +86,6 @@ public:
             const word& name,
             const incompressibleTwoPhaseInteractingMixture& mixture,
             const dictionary& sherwoodPropertiesSub1,
-            const volScalarField& lCh,
             const word modelName=typeName
         );
 
@@ -97,9 +96,9 @@ public:
 
 
     // Member Functions
-	scalar s() const 
+	const PtrList <dimensionedScalar>& d()const 
 	{
-		return s_;
+		return d_;
 	}
 	tmp<volScalarField> ki(const int i);
 

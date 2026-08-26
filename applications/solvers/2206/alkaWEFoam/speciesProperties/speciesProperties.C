@@ -72,7 +72,7 @@ Foam::speciesProperties::speciesProperties
      	       "D2_ambi",
     	       mesh.time().timeName(),
      	       mesh,
-     	       IOobject::READ_IF_PRESENT,
+     	       IOobject::NO_READ,
     	       IOobject::AUTO_WRITE
     	    ),
     	    mesh,
@@ -98,7 +98,7 @@ Foam::speciesProperties::speciesProperties
      	       "C2_0",
     	       mesh.time().timeName(),
      	       mesh,
-     	       IOobject::READ_IF_PRESENT,
+     	       IOobject::NO_READ,
     	       IOobject::AUTO_WRITE
     	    ),
     	    mesh,

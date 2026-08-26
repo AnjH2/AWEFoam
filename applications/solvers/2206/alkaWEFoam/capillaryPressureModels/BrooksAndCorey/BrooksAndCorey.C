@@ -58,43 +58,19 @@ Foam::capillaryPressureModels::BrooksAndCorey::BrooksAndCorey
 :
     capillaryPressureModel(alphaWetting,dict),
     BrooksAndCoreyCoeffsSub_(dict_.subDict(modelName + "Coeffs")),
-    pc0_
-    (
-        IOobject
-        (
-            "pc0",
-            alphaWetting.time().timeName(),
-            alphaWetting.mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),       
-        alphaWetting.mesh(),
-        dimensionedScalar("pc0", dimless, SMALL)
-    ),
-    beta_
-    (
-        IOobject
-        (
-            "beta",
-            alphaWetting.time().timeName(),
-            alphaWetting.mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),       
-        alphaWetting.mesh(),
-        dimensionedScalar("beta", dimless, 1)
-    ),
+    pc0_(BrooksAndCoreyCoeffsSub_.get<scalar>("pc0")),
+    beta_(BrooksAndCoreyCoeffsSub_.get<scalar>("beta")),
     alphaWetMin_("alphaWetMin",dimless,BrooksAndCoreyCoeffsSub_),
     alphaWetMax_("alphaWetMax",dimless,BrooksAndCoreyCoeffsSub_),
     alphaWetEff_
     (
         IOobject
         (
-            "alphaEff",
+            "alphaCEff",
             alphaWetting.time().timeName(),
             alphaWetting.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),       
         alphaWetting.mesh(),
         dimensionedScalar("alphaEff", dimless, 0)
@@ -112,7 +88,7 @@ Foam::capillaryPressureModels::BrooksAndCorey::BrooksAndCorey
     (
     		alphaWetting.mesh().lookupObject<volScalarField>
    	 	    (
-    			"K"
+    			"permeabilityField"
     			//(
     			//)
     		)
@@ -136,27 +112,7 @@ Foam::capillaryPressureModels::BrooksAndCorey::BrooksAndCorey
     		)
   	)
 {
-    if (!pc0_.headerOk())
-    {
-    
-    pc0_ =
-        dimensionedScalar("pc0_Ne",dimless,BrooksAndCoreyCoeffsSub_)*Ne_
-      + dimensionedScalar("pc0_Pe",dimless,BrooksAndCoreyCoeffsSub_)*Pe_
-      + dimensionedScalar("pc0_Mem",dimless,BrooksAndCoreyCoeffsSub_)*Mem_
-      + dimensionedScalar("pc0_min", dimless, SMALL);
-        
-    }
-    
-    if (!beta_.headerOk())
-    {
-    
-    beta_ =
-        dimensionedScalar("beta_Ne",dimless,BrooksAndCoreyCoeffsSub_)*Ne_
-      + dimensionedScalar("beta_Pe",dimless,BrooksAndCoreyCoeffsSub_)*Pe_
-      + dimensionedScalar("beta_Mem",dimless,BrooksAndCoreyCoeffsSub_)*Mem_
-      + dimensionedScalar("beta_min", dimless, SMALL);
-        
-    }
+
 }
 
 
@@ -169,24 +125,22 @@ void Foam::capillaryPressureModels::BrooksAndCorey::correct()
     //! Within the equations I define pc = pgas - pliquid
 
    // // Calcluate effective saturation for wetting phase
-   volScalarField alphaWetEffRaw_((alphaWetting_-alphaWetMin_)/(alphaWetMax_-alphaWetMin_));
-   //alphaWetEff_=((alphaWetting_-alphaWetMin_)/(alphaWetMax_-alphaWetMin_));
-   alphaWetEff_=min(1-SMALL,max(SMALL,alphaWetEffRaw_));
-   
+   alphaWetEff_=((alphaWetting_-alphaWetMin_)/(alphaWetMax_-alphaWetMin_));
+   Info<<"what is alphaCEff min:max?->"<<min(alphaWetEff_)<<" : "<<max(alphaWetEff_)<<endl;
+   alphaWetEff_=max(SMALL,alphaWetEff_);
+   alphaWetEff_=min(alphaWetEff_,1.0-SMALL);
    //alphaWetEff_.min(1e-4);
+   Info<<"what is alphaCEff min:max?->"<<min(alphaWetEff_)<<" : "<<max(alphaWetEff_)<<endl;
 
    
-   volScalarField alphaWetEffdS (
-                                    (pos(alphaWetEffRaw_ - SMALL) * pos((1-SMALL) - alphaWetEffRaw_)) 
-                                    / (alphaWetMax_.value()-alphaWetMin_.value())
-                                );
+   scalar alphaWetEffdS = 1 / (alphaWetMax_.value()-alphaWetMin_.value());
    
    pc_=
             //(-1.0)* //ANJ
-            (pc0_)*pow(alphaWetEff_, -beta_)*dimensionedScalar(dimPressure,1);
+            Solid_*(pc0_+pc0_*Mem_)*pow(alphaWetEff_, -beta_)*dimensionedScalar(dimPressure,1);
    pc_.correctBoundaryConditions();  
-   dpcds_ = -1.0*
-   beta_*(pc0_)*pow(alphaWetEff_, -beta_-1)*(alphaWetEffdS)*dimensionedScalar(dimPressure,1);
+   dpcds_ = //-1.0*
+   beta_*Solid_*(pc0_+pc0_*Mem_)*pow(alphaWetEff_, -beta_-1)*(alphaWetEffdS)*dimensionedScalar(dimPressure,1);
     dpcds_.correctBoundaryConditions(); 
 
 }

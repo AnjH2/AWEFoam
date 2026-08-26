@@ -62,6 +62,7 @@ class solidPressure
         dimensionedScalar Dp_;
         dimensionedScalar Dn_;
         //const dimensionedScalar n_;
+        PtrList <dimensionedScalar> rd_;
         vector ep_; //unit vector parallel to g
         vector t_; //test vector
         vector en1_; //unit vector normal to g
@@ -71,9 +72,11 @@ class solidPressure
 	dimensionedVector DVn2_;
 	dimensionedVector DVp_;
 	
-	volScalarField A_;
-	volScalarField Cb_;
-	volScalarField alpha0_;
+	    const scalar  ANe_;
+	    const scalar  CbNe_;
+	    const scalar  APe_;
+	    const scalar  CbPe_;
+        const scalar  alpha0_;
 
         
     	volScalarField f(); //hindering fuunnnnctiiion

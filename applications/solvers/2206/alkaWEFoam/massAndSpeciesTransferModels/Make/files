@@ -1,5 +1,4 @@
 massAndSpeciesTransferModel/massAndSpeciesTransferModel.C
 mixedSaturation/mixedSaturation.C
-stuckBubblesSaturation/stuckBubblesSaturation.C
 
 LIB = $(FOAM_USER_LIBBIN)/libAlkaWEMassAndSpeciesTransferModels

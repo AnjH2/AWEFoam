@@ -161,13 +161,6 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
             "U"
         )
     ),
-    rb_
-    (
-        mesh.lookupObject<volScalarField>
-        (
-            "rb"
-        )
-    ),
     /*p_num_(
 	mesh.lookupObject<incompressibleTwoPhaseInteractingMixture>
         (
@@ -187,8 +180,8 @@ Foam::massAndSpeciesTransferModel::massAndSpeciesTransferModel
     	    "p_water",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
     	),
     	mesh,
     	dimPressure
@@ -221,8 +214,8 @@ forAll(species2,i)
         			"mDot_Wall_"+species2[i],
         			mesh.time().timeName(),
                 		mesh,
-                		IOobject::READ_IF_PRESENT,
-                		IOobject::NO_WRITE
+                		IOobject::NO_READ,
+                		IOobject::AUTO_WRITE
             		),
             		mesh,
             		dimensionSet(1,-3,-1,0,0,0,0)
@@ -255,8 +248,8 @@ forAll(species2,i)
         			"vDot_"+species2[i],
         			mesh.time().timeName(),
                 		mesh,
-                		IOobject::READ_IF_PRESENT,
-                		IOobject::NO_WRITE
+                		IOobject::NO_READ,
+                		IOobject::AUTO_WRITE
             		),
             		mesh,
             		//dimensionSet(1,-3,-1,0,0,0,0) //kg/m^3/s
@@ -273,7 +266,7 @@ forAll(species2,i)
         			"Psi_BV_"+species2[i],
         			mesh.time().timeName(),
                 		mesh,
-                		IOobject::READ_IF_PRESENT,
+                		IOobject::NO_READ,
                 		IOobject::AUTO_WRITE
             		),
             		mesh,

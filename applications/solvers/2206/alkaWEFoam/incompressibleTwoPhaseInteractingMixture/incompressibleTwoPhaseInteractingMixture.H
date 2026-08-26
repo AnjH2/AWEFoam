@@ -79,9 +79,6 @@ protected:
         volScalarField rhod_;
         dimensionedScalar rhoc_;
         
-        //bubble radius, is either constructed from booleans or read from 0/rb
-        volScalarField rb_;
-        
         //- Optional diameter of the dispersed phase particles
         dimensionedScalar dd_;
 
@@ -154,12 +151,6 @@ public:
         const volScalarField& rhod() const
         {
             return rhod_;
-        }
-
-        //- Return const-access to the dispersed-phase density
-        const volScalarField& rb() const
-        {
-            return rb_;
         }
 
         //- Return const-access to continuous-phase density
@@ -278,18 +269,17 @@ public:
         //- Correct the laminar viscosity
         virtual void correct(const volScalarField& p_water)
         {
-            
+        
             pCapModel_->correct();
-            
             muModel_->mud_m_correct(p_water,p_num_);
-            
+
             mu_ = muModel_->mu(rhod_);
-            
+
         }
 
         virtual void correct_rhod(const volScalarField& p_water)
         {
-
+        
         	rhod_=(Pe_+PeC_)*(p_num_)/(Foam::constant::physicoChemical::R*T_)*((p_num_-p_water)*(MW_[1])+p_water*MW_[2])/p_num_
 			+ (Ne_+NeC_)*(p_num_)/(Foam::constant::physicoChemical::R*T_)*((p_num_-p_water)*(MW_[0])+p_water*MW_[2])/p_num_
 			+ Mem_*(p_num_)/(Foam::constant::physicoChemical::R*T_)*MW_[2];

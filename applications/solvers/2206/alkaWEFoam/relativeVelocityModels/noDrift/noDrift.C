@@ -71,7 +71,6 @@ void Foam::relativeVelocityModels::noDrift::correct()
 {    
     dModel_->correct();
     Udm_ =dimensionedVector(dimVelocity,Zero);
-    BSCap_=dModel_->BSCap();
 }
 
 

@@ -90,23 +90,10 @@ Foam::phaseDiffusionModel::phaseDiffusionModel
             alphac_.time().timeName(),
             alphac_.mesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        alphac_.mesh(),
-        dimensionedTensor(dimVelocity*dimLength, Zero)
-    ),
-    BSCap_
-    (
-        IOobject
-        (
-            modelName+"BSCapD",
-            alphac_.time().timeName(),
-            alphac_.mesh(),
-            IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
         alphac_.mesh(),
-        dimensionedVector(dimVelocity, Zero)
+        dimensionedTensor(dimVelocity*dimLength, Zero)
     ),
     dF_(
     	dict.lookupOrDefault<scalar>("dF", 1) //how much the dispersion is incressed, 1 is defined dispersion, only active in Pe and Ne
@@ -145,12 +132,6 @@ Foam::phaseDiffusionModel::phaseDiffusionModel
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
             		"eps"
-        	)
-	),
-	rb_(
-	        alphad_.mesh().lookupObject<volScalarField>
-        	(
-            		"rb"
         	)
 	),
 	modelName_(modelName)

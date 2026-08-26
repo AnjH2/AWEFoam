@@ -62,6 +62,7 @@ class Schillings
         dimensionedScalar Dp_;
         dimensionedScalar Dn_;
         const dimensionedScalar n_;
+        PtrList <dimensionedScalar> rd_;
         vector ep_; //unit vector parallel to g
         vector t_; //test vector
         vector en1_; //unit vector normal to g
@@ -78,7 +79,6 @@ class Schillings
     	volScalarField f(); //hindering fuunnnnctiiion
     	volVectorField vStokes(); //Terminal velocity model
     	volScalarField gamma(); //shear rate function
-    	volSymmTensorField S();
     	
     	volTensorField UHdiff();
     	volTensorField USdiff();

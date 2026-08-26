@@ -107,26 +107,12 @@ incompressibleTwoPhaseInteractingMixture
             "rhod",
             U.time().timeName(),
             U.mesh(),
-            IOobject::READ_IF_PRESENT,
+            IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
         p_num_/(Foam::constant::physicoChemical::R*T_)*(MW_[2])
     ),
     rhoc_("rho", dimDensity, nucModel_->viscosityProperties()),
-    
-    rb_
-	(
-        IOobject
-        (
-            "rb",
-            U.time().timeName(),
-            U.mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        U.mesh(),
-        dimensionedScalar(dimLength, Zero)
-    ),
     
     dd_
     (
@@ -146,7 +132,7 @@ incompressibleTwoPhaseInteractingMixture
             "mu",
             U_.time().timeName(),
             U_.db(),
-            IOobject::READ_IF_PRESENT,
+            IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
         U_.mesh(),
@@ -160,7 +146,7 @@ incompressibleTwoPhaseInteractingMixture
             "nu",
             U.time().timeName(),
             U.mesh(),
-            IOobject::READ_IF_PRESENT,
+            IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
         mu_/rho()
@@ -230,15 +216,7 @@ incompressibleTwoPhaseInteractingMixture
     		)
   	)
 {
-    
-    if (!rb_.headerOk())
-    {
-    rb_ =
-        dimensionedScalar("rb_Ne",dimLength,dict_)*(Ne_+NeC_)
-      + dimensionedScalar("rb_Pe",dimLength,dict_)*(Pe_+PeC_)
-      + dimensionedScalar("rb_min", dimLength, SMALL);
-        
-    }
+
     
 }
 

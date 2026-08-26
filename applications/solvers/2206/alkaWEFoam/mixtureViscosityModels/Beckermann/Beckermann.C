@@ -66,6 +66,7 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
     T_muref_(species1.size()),
     n_mu_(species1.size()),
     mud_(species1.size()),
+    kr_p_(porousRegions.size()),
         a_(
             	IOobject
             	(
@@ -176,8 +177,33 @@ else
 {
     mud_m_=mud_[0]*(Ne_+NeC_+Mem_/2)+mud_[1]*(Pe_+PeC_+Mem_/2);
 }
-
-
+forAll(porousRegions,i)
+{
+            kr_p_.set
+    	(
+        	i,
+        	new dimensionedScalar("kr_"+porousRegions[i], dimless,BeckermannCoeffsSub1_)
+        );
+}
+forAll(kr_,celli)
+    {
+        if(Ne_[celli]>0.99)
+        {
+            kr_[celli]=kr_p_[0].value();
+        }
+        else if(Pe_[celli]>0.99)
+        {
+            kr_[celli]=kr_p_[1].value();
+        }
+        else if(Mem_[celli]>0.99)
+        {
+            kr_[celli]=kr_p_[2].value();
+        }
+        else
+        {
+            kr_[celli]=1;
+        }
+    }
 }
 
 
@@ -187,7 +213,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& rhod) const
 {
 
-    return pow(pow(1-min(alpha_,0.999),kr_)/(muc_/rhoc_)+pow(min(alpha_,0.999),kr_)/(mud_m_/rhod),-1)*(min(alpha_,0.999)*rhod+(1-min(alpha_,0.999))*rhoc_);
+    return pow((1-alpha_)*pow(1-min(alpha_,0.999),kr_)/(muc_/rhoc_)+alpha_*pow(min(alpha_,0.999),kr_)/(mud_m_/rhod),-1)*(min(alpha_,0.999)*rhod+(1-min(alpha_,0.999))*rhoc_);
 }
 
 void Foam::mixtureViscosityModels::Beckermann::mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num){

@@ -61,7 +61,7 @@ Foam::coverageModel::coverageModel
             	modelName+"theta",
             	mesh.time().timeName(),
             	mesh,
-            	IOobject::READ_IF_PRESENT,
+            	IOobject::NO_READ,
             	IOobject::AUTO_WRITE
         	),
         mesh,

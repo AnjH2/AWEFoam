@@ -90,14 +90,14 @@ protected:
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
         
-        //- Dispersed diffusion velocity
-        mutable volVectorField BSCap_;
         
-        //- Forces inposed by drift model
-        mutable surfaceScalarField F_;
-        
+        const scalar y0_;
+        const scalar y1_;
+	const scalar y2_;
+	const scalar y3_;
+	volScalarField yNormal_;
 	
-	const volScalarField& hF_;
+	const scalar hF_;
 	
 	const volScalarField& Pe_;
 	
@@ -163,12 +163,6 @@ public:
         {
             return mixture_;
         }
-        
-        const phaseDiffusionModel& dModel() const
-        {
-            return dModel_;
-        }
-        
         virtual bool runDiffusion()
         {
         	return dModel_->runDiffusion();
@@ -181,26 +175,13 @@ public:
         {
             return Udm_;
         }
-        
-        const volVectorField& BSCap() const
-        {
-            return BSCap_;
-        }
-        
-        
-        //- Return the forces impose by drift models, if any
-        const surfaceScalarField& F() const
-        {
-            return F_;
-        }
-        
         //- Return the relative velocity of the continues phase
 	tmp<volVectorField> Ucm() const;
 	
 	//- Return the relative velocity of the dispersed phase, volumesentric
 	tmp<volVectorField> Udj() const;
 	
-	//- Return the relative diffusion of the dispersed phase, masssentric
+	//- Return the relative diffusion of the dispersed phase, volumesentric
 	virtual const volTensorField& Ddm() const
         {
             return dModel_->D();

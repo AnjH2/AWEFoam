@@ -46,19 +46,8 @@ Foam::porousProperties::porousProperties
             IOobject::NO_WRITE
         )
     ),
-    porousProperties_
-    (
-        IOobject
-        (
-            "porousProperties",
-            mesh.time().constant(),
-            mesh,
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
-        )
-    ),
     electrodes({"Ne","Pe"}),
-    asL_(electrodes.size()),
+    as_(electrodes.size()),
     D_pore_(electrodes.size()),
     KL_(electrodes.size()+1),
     epsilon_
@@ -69,7 +58,7 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mesh
     ),
@@ -132,7 +121,7 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar(dimless,Zero)
@@ -146,38 +135,17 @@ Foam::porousProperties::porousProperties
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar(dimless,Zero)
     ),
-        as_
-    (
-        IOobject
-        (
-            "as",
-            mesh.time().timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar
-        (
-            "as",
-            dimless/dimLength,
-            0
-        )
-    ),
-    
-    
         sigma_s_ref_
 	(
 		"sigma_s_ref",
 		dimensionSet ( -1, -3, 3, 0, 0, 2,0),
 		*this
 	),
-
     sigma_s_eff_
     (
     	IOobject
@@ -194,33 +162,19 @@ Foam::porousProperties::porousProperties
     (
     	IOobject
         (
-            "K",
+            "permeabilityField",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensionedScalar("K", dimArea,1e6)
-    ),
-    Kr_
-    (
-    	IOobject
-        (
-            "Kr",
-            mesh.time().timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar("Kr", dimless,1)
+        dimensionedScalar("K", dimensionSet (  0, 2, 0, 0, 0, 0, 0),1)
     )
-    
 {
 forAll(electrodes,i)
 	{
-		asL_.set
+		as_.set
     	(
         	i,
         	new dimensionedScalar("as_"+electrodes[i], dimensionSet (  0, -1, 0, 0, 0, 0, 0),*this)
@@ -241,61 +195,7 @@ forAll(electrodes,i)
         	2,
         	new dimensionedScalar("K_Mem", dimensionSet (  0, 2, 0, 0, 0, 0, 0),*this)
         );
-    //K_=Pe_*KL_[1]+Ne_*KL_[0]+Mem_*KL_[2]+(PeC_+NeC_)*dimensionedScalar(dimensionSet(  0, 2, 0, 0, 0, 0, 0),1e6);
-    
-    
-        if (!K_.headerOk())
-    {
     K_=Pe_*KL_[1]+Ne_*KL_[0]+Mem_*KL_[2]+(PeC_+NeC_)*dimensionedScalar(dimensionSet(  0, 2, 0, 0, 0, 0, 0),1e6);
-    K_.correctBoundaryConditions();
-        
-    }
-
-    if (!as_.headerOk())
-    {
-    
-    as_ =
-        dimensionedScalar
-        (
-            "as_Ne",
-            dimless/dimLength,
-            porousProperties_.get<scalar>("as_Ne")
-        )*Ne_
-      + dimensionedScalar
-        (
-            "as_Pe",
-            dimless/dimLength,
-            porousProperties_.get<scalar>("as_Pe")
-        )*Pe_
-      + dimensionedScalar("as_min", dimless/dimLength, SMALL);
-        
-    }
-        if (!Kr_.headerOk())
-    {
-    
-   Kr_ =
-        dimensionedScalar
-        (
-            "Kr_Ne",
-            dimless,
-            porousProperties_.get<scalar>("Kr_Ne")
-        )*Ne_
-      + dimensionedScalar
-        (
-            "Kr_Pe",
-            dimless,
-            porousProperties_.get<scalar>("Kr_Pe")
-        )*Pe_
-        + dimensionedScalar
-        (
-            "Kr_Mem",
-            dimless,
-            porousProperties_.get<scalar>("Kr_Mem")
-        )*Mem_
-      + dimensionedScalar("Kr_min", dimless, 1)*(1-Ne_-Pe_-Mem_);
-        
-    }
-
 
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //

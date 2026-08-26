@@ -55,17 +55,17 @@ Foam::relativeVelocityModels::SchillingsU::SchillingsU
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
-    rb_
-    (
-        mixture_.alpha1().mesh().lookupObject<volScalarField>
-        (
-            "rb"
-        )
-    ),
+    rd_(electrodes.size()),
     n_("n",dimless,dict),
     rhoc_(mixture.rhoc()),
     rhod_(mixture.rhod()),
     
+        V1_(
+	alphac_.mesh().lookupObject<volScalarField>
+        (
+            	"V1"
+        )
+        ),
     eps_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
@@ -80,7 +80,14 @@ Foam::relativeVelocityModels::SchillingsU::SchillingsU
         ),
     eg_("eg",(-1*g_)/mag(g_))
 {
-
+forAll(electrodes,i)
+	{
+	rd_.set
+    	(
+        	i,
+        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
+        );
+        }
 }
 
 
@@ -91,19 +98,6 @@ Foam::relativeVelocityModels::SchillingsU::~SchillingsU()
 
 
 // * * * * * * * * * * * * * * Private Functions  * * * * * * * * * * * * * * //
-
-volSymmTensorField Foam::relativeVelocityModels::SchillingsU::S()
-{
-    return dev(symm(fvc::grad(U_)));
-}
-
-
-volVectorField Foam::relativeVelocityModels::SchillingsU::omega()
-{
-    return fvc::curl(U_);
-}
-
-
 
 volScalarField Foam::relativeVelocityModels::SchillingsU::kappa()
 {
@@ -124,27 +118,29 @@ volScalarField Foam::relativeVelocityModels::SchillingsU::f()
 }
 volVectorField Foam::relativeVelocityModels::SchillingsU::n()
 {
-    
-    volVectorField nL (omega()^(eg_.value())*dimensionedScalar(dimTime,1));
-    return nL/(mag(nL)+SMALL);
+    volVectorField omega = fvc::curl(U_);
+    //return (omega^eg_)/(mag(omega^eg_)+dimensionedScalar(dimless/dimTime,SMALL));
+    volVectorField lamb = U_^omega;
+    return (lamb)/(mag(lamb)+dimensionedScalar(dimLength/dimTime/dimTime,SMALL));
 }
 
 volVectorField Foam::relativeVelocityModels::SchillingsU::vStokes()
 {
 	
-	return -g_.value()*(sqr(2*rb_)/(18.0*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+	return -g_.value()*(sqr(2*(rd_[0]*Ne_+rd_[1]*Pe_))/(18.0*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
 }
 
 volScalarField Foam::relativeVelocityModels::SchillingsU::gamma()
 {
-    
-    return sqrt(2.0)*mag(S());                          // scalar shear rate magnitude [1/s]
+	    volTensorField gU_=fvc::grad(U_);
+   volTensorField E_=0.5*(gU_+gU_.T());
+	return sqrt(2*( E_ && E_ ));
 }
 
 volScalarField Foam::relativeVelocityModels::SchillingsU::tau()
 {
 
-	return sqrt(0.5)*mag(2*S()*mixture_.mu());
+	return mixture_.mu()*gamma()+dimensionedScalar(dimPressure,SMALL);
 }
 
 volVectorField Foam::relativeVelocityModels::SchillingsU::UStokes()
@@ -155,21 +151,13 @@ volVectorField Foam::relativeVelocityModels::SchillingsU::UStokes()
 
 volVectorField Foam::relativeVelocityModels::SchillingsU::USaff()
 {
-
-
-    return
-        - f()
-        * mag(vStokes())
-        * (6.46/(6.0*Foam::constant::mathematical::pi))
-        * sqrt( sqr(rb_) * mag(omega()) / mixture_.nuc() )
-        * n()
-        * (1 - Mem_ + VSMALL);
+	return -f()*sign(gamma())*mag(vStokes())*6.46/(6.0*Foam::constant::mathematical::pi)*sqrt((sqr(rd_[0]*Ne_+rd_[1]*Pe_)*mag(gamma()))/mixture_.nuc())*n()*(1-Mem_+VSMALL);
 }
 
 
 volVectorField Foam::relativeVelocityModels::SchillingsU::USmig()
 {
-	return -1/alphad_*sqr(rb_)*mag(gamma())*kappa()*fvc::grad(mag(tau()))/(tau()+dimensionedScalar(dimPressure,SMALL));
+	return -1/alphad_*pow((rd_[0]*Ne_+rd_[1]*Pe_),2)*mag(gamma())*kappa()*fvc::grad(tau())/tau();
 }
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 

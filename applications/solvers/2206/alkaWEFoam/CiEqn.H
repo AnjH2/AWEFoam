@@ -19,12 +19,11 @@ for(label i=0; i<C2.size()-1; i++)
 	mSTa.correct_Psi_BV(i); //calculates species transfer from exchange current
 	//mSTa.Psi_BV()[i].correctBoundaryConditions();
 	//
-    const word divKey = "div(rhoalpha2*Uc," + C2[i].name() + ")"; 
-    const word laplacianKey = "div(D," + C2[i].name() + ")";
+
 	fvScalarMatrix C2Eqn
 	(
         	fvm::ddt(MW[i]*alpha2*epsilon1,C2[i])
-        	+fvm::div((rhoPhi-fvc::interpolate(rho1)*alphaPhi)/rho2*MW[i],C2[i],divKey)
+        	+fvm::div((rhoPhi-fvc::interpolate(rho1)*alphaPhi)/rho2*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::flux(UdmModel.Ucm()))*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
         	//+fvm::div(fvc::interpolate(alpha2)*(phi+fvc::flux(UdmModel.Ucm()))*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
         	//+fvm::div(fvc::interpolate(poroM.eps())*alpha2Phi*MW[i],C2[i],"div(rhoalpha2*Uc,C2[i])")
@@ -40,7 +39,7 @@ for(label i=0; i<C2.size()-1; i++)
 		//calculates concentation of speceies i on the surfaces of the electrodes
 	if(i<=1)
 	{
-		C2Eqn -= -fvm::laplacian(-poroM.eps()*mixture.rho()*alpha2*speciesP.D2_eff()[i]*MW[i]/rho2,C2[i],laplacianKey);
+		C2Eqn -= -fvm::laplacian(-poroM.eps()*mixture.rho()*alpha2*speciesP.D2_eff()[i]*MW[i]/rho2,C2[i],"laplacian(D,C[i])");
 		mSTa.correct_mDot_wall(i,sTp.C2_s(),theta);
 		sTp.correct(i,theta);
 		Pair<tmp<volScalarField>> mDot = mSTa.mDot(i,1);
@@ -51,7 +50,7 @@ for(label i=0; i<C2.size()-1; i++)
 		C2Eqn -= mDotc + mDotv;//mSTa.Psi_m()[i];
 		//C2Eqn -= mSTa.ciSource(i);//mSTa.Psi_m()[i];
 	} else if (i==2 and mSTa.waterVapour()){
-	    C2Eqn -= -fvm::laplacian(-poroM.eps()*mixture.rho()*alpha2*speciesP.D2_eff()[i]*MW[i]/rho2,C2[i],laplacianKey);
+	    C2Eqn -= -fvm::laplacian(-poroM.eps()*mixture.rho()*alpha2*speciesP.D2_eff()[i]*MW[i]/rho2,C2[i],"laplacian(D,C[i])");
 		mSTa.correct_mDot_wall(i,sTp.C2_s(),theta);
 		sTp.correct(i,theta);
 		Pair<tmp<volScalarField>> mDot = mSTa.mDot(i,1);
@@ -65,7 +64,7 @@ for(label i=0; i<C2.size()-1; i++)
 		//C2Eqn += (mSTa.Psi_m()[0]+mSTa.Psi_m()[1])/(1-mSTa.p_water()/mixture.p_num())-(mSTa.Psi_m()[0]+mSTa.Psi_m()[1]);
 	} else if (i>=3){
         
-		C2Eqn -= -fvm::laplacian(-poroM.eps()*mixture.rho()*alpha2*speciesP.D2_ambi()*MW[i]/rho2,C2[i],laplacianKey);
+		C2Eqn -= -fvm::laplacian(-poroM.eps()*mixture.rho()*alpha2*speciesP.D2_ambi()*MW[i]/rho2,C2[i],"laplacian(D,C[i])");
 		C2Eqn -= fvc::div(fvc::flux(MW[i]/(z[i]*F)*Ie));
 		//fvc::div(fvc::flux(speciesP.t()[i]*MW[i]/(z[i]*F)*Ie));
 		

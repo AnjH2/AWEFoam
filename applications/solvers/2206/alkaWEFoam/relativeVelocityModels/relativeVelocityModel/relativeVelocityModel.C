@@ -92,42 +92,41 @@ Foam::relativeVelocityModel::relativeVelocityModel
             alphac_.time().timeName(),
             alphac_.mesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         alphac_.mesh(),
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
     ),
-    BSCap_
-    (
-        IOobject
-        (
-            modelName+"BSCap",
-            alphac_.time().timeName(),
-            alphac_.mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        alphac_.mesh(),
-        dimensionedVector(dimVelocity, Zero)
+    
+    y0_(
+    	dict.lookupOrDefault<scalar>("y0", Zero)//scalar(1.0)
     ),
-    
-    
-    F_
+    y1_(
+    	dict.lookupOrDefault<scalar>("y1", Zero)
+    ),
+    y2_(
+    	dict.lookupOrDefault<scalar>("y2", Zero)
+    ),
+    y3_(
+    	dict.lookupOrDefault<scalar>("y3", Zero)
+    ),
+    yNormal_
     (
         IOobject
         (
-            modelName+"F",
+            "yNormal",
             alphac_.time().timeName(),
             alphac_.mesh(),
-            IOobject::READ_IF_PRESENT,
+            IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
         alphac_.mesh(),
-        dimensionedScalar(dimForce/dimLength, Zero)
+        dimensionedScalar(dimLength, 1)
     ),
-    hF_(alphac_.mesh().lookupObject<volScalarField>("hf")),
-
+    hF_(
+    	dict.lookupOrDefault<scalar>("hF", 0) //how much the velocity is reduced, 0 is free rasing bubble, only active in Pe and Ne
+    ),
         Pe_(
 	        alphad_.mesh().lookupObject<volScalarField>
         	(
@@ -175,7 +174,37 @@ Foam::relativeVelocityModel::relativeVelocityModel
         )
     )
 {
-F_.setOriented(true);
+forAll ( alphac_.mesh().C(), celli) //loop through cell centres
+{
+  if(alphac_.mesh().C()[celli].y()<y1_) //not sure if this is correct syntax
+  {
+      if (mag(alphac_.mesh().C()[celli].y()-y0_)<=mag(alphac_.mesh().C()[celli].y()-y1_))
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y0_;
+      }
+      else
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y1_;
+      }
+  }
+  else if ((alphac_.mesh().C()[celli].y()<y3_) and (alphac_.mesh().C()[celli].y()>y2_))
+  {
+      if (mag(alphac_.mesh().C()[celli].y()-y3_)<=mag(alphac_.mesh().C()[celli].y()-y2_))
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y3_;
+      }
+      else
+      {
+      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y2_;
+      }
+  }
+  else
+  {
+  	yNormal_[celli]=1;
+  }
+}
+
+Info<<modelName_<<" constructor complete"<<endl;
 }
 
 

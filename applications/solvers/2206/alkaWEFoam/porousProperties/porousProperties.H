@@ -57,10 +57,9 @@ class porousProperties
 protected:
 
     // Protected data
-    IOdictionary porousProperties_;
     	List<word> electrodes;
     	List<word> channels;	
-    	PtrList <dimensionedScalar> asL_;//electrode surface area.
+    	PtrList <dimensionedScalar> as_;//electrode surface area.
     	PtrList <dimensionedScalar> D_pore_;//poreDiameter
     	PtrList <dimensionedScalar> KL_;
 	const volScalarField epsilon_;
@@ -77,14 +76,10 @@ protected:
 	const volScalarField PeC_;
 	const volScalarField NeC_;
 	
-	//porous properties
-	volScalarField as_;
-	
 	const dimensionedScalar sigma_s_ref_;
 	const volScalarField sigma_s_eff_;
 	
 	volScalarField  K_;
-	volScalarField  Kr_;
 
 
 public:
@@ -128,7 +123,7 @@ public:
             return Ne_;
         }
         
-        const volScalarField& as() const
+        const PtrList <dimensionedScalar>& as() const
         {
             return as_;
         }
@@ -151,8 +146,7 @@ public:
             return NeC_;
         }
         
-
-                const volScalarField& K() const
+        const volScalarField K() const
         {
             return K_;//Pe_*K_[1]+Ne_*K_[0]+Mem_*K_[2]+(PeC_+NeC_)*dimensionedScalar(dimensionSet(  0, 2, 0, 0, 0, 0, 0),1e6);
         }

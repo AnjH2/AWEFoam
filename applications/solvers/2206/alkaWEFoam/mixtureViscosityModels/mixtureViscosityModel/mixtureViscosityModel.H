@@ -89,7 +89,7 @@ protected:
         const volScalarField& NeC_;
         const volScalarField& Mem_;
         
-	    const volScalarField& kr_;
+	    volScalarField kr_;
 	    const bool waterVapour_;
 
     // Private Member Functions

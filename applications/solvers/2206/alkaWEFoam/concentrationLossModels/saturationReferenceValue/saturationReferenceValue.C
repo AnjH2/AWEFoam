@@ -109,7 +109,7 @@ forAll(species2,i)
         			"CR_"+species2[i],
         			mesh.time().timeName(),
                 		mesh,
-                		IOobject::READ_IF_PRESENT,
+                		IOobject::NO_READ,
                 		IOobject::AUTO_WRITE
             		),
             		mesh,

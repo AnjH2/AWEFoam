@@ -36,8 +36,7 @@ Foam::autoPtr<Foam::sherwoodModel> Foam::sherwoodModel::New
 (
     const word& name,
     const incompressibleTwoPhaseInteractingMixture& mixture,
-    const dictionary& dict1,
-    const volScalarField& lCh
+    const dictionary& dict1
 )
 {
     const word modelType(dict1.get<word>(name));
@@ -59,7 +58,7 @@ Foam::autoPtr<Foam::sherwoodModel> Foam::sherwoodModel::New
 
     return autoPtr<sherwoodModel>
     (
-        ctorPtr(name, mixture, dict1, lCh)
+        ctorPtr(name, mixture, dict1)
     );
 }
 

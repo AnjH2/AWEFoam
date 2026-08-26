@@ -55,13 +55,7 @@ Foam::relativeVelocityModels::stokes::stokes
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
-    rb_
-    (
-        mixture_.alpha1().mesh().lookupObject<volScalarField>
-        (
-            "rb"
-        )
-    ),
+    rd_(electrodes.size()),
 	//(
 	//	"R_DB",
 	//	dimensionSet ( 0, 1, 0, 0, 0, 0,0),
@@ -82,7 +76,15 @@ Foam::relativeVelocityModels::stokes::stokes
 
     eg_("eg",(-1*g_)/mag(g_))
 {
-
+forAll(electrodes,i)
+	{
+	rd_.set
+    	(
+        	i,
+        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
+        );
+        }
+        Info<<"stokes complete"<<endl;
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -97,18 +99,18 @@ volScalarField Foam::relativeVelocityModels::stokes::f()
 	return pow(1-min(alphad_,minAlphad_),n_);
 }
 
-volVectorField Foam::relativeVelocityModels::stokes::vStokes()
+dimensionedVector Foam::relativeVelocityModels::stokes::vStokes(int j)
 {
 	
-	return mag(g_)*sqr(2*rb_)/(18*mixture_.nuc())*eg_;
+	return mag(g_)*sqr(2*rd_[j])/(18*mixture_.nuc())*eg_;
 }
 
 
 
-volVectorField Foam::relativeVelocityModels::stokes::UStokes()
+volVectorField Foam::relativeVelocityModels::stokes::UStokes(int j)
 {
 	
-	return f()*mag(vStokes())*(1-hF_)*eg_;
+	return f()*mag(vStokes(j))*(1-hF_)*eg_;
 }
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -116,8 +118,7 @@ volVectorField Foam::relativeVelocityModels::stokes::UStokes()
 void Foam::relativeVelocityModels::stokes::correct()
 {    
     dModel_->correct();
-    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*UStokes();
-    BSCap_=dModel_->BSCap();
+    Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0))*(Ne_+NeC_)+(UStokes(1))*(Pe_+PeC_));
 }
 
 

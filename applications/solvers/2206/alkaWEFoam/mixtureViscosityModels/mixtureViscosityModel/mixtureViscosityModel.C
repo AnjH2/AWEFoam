@@ -81,7 +81,7 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
         		"mu_m",
         		U.mesh().time().timeName(),
         		U.mesh(),
-        		IOobject::READ_IF_PRESENT,
+        		IOobject::NO_READ,
         		IOobject::AUTO_WRITE
     		),
     		U.mesh(),
@@ -135,12 +135,16 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
   	),
   	
     kr_(
-
-	        U_.mesh().lookupObject<volScalarField>
-        	(
-            		"Kr"
-        	)
-
+            	IOobject
+            	(
+               		"kr",
+                	U.mesh().time().timeName(),
+                	U.mesh(),
+                	IOobject::NO_READ,
+                	IOobject::NO_WRITE
+            	),
+            	U.mesh(),
+            	dimensionedScalar(dimless,1)
         
         ),
         waterVapour_(viscosityPropertiesSub1_.get<bool>("waterVapour"))

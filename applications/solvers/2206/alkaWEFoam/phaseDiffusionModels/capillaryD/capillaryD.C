@@ -59,7 +59,7 @@ Foam::phaseDiffusionModels::capillaryD::capillaryD
     K_(
 	    alphac_.mesh().lookupObject<volScalarField>
             (
-            	"K"
+            	"permeabilityField"
             )
         ),
     kr_(mixture_.kr()),
@@ -84,28 +84,20 @@ Foam::phaseDiffusionModels::capillaryD::~capillaryD()
 volScalarField Foam::phaseDiffusionModels::capillaryD::Mc()
 {
 
-	return	K_*pow(alphac_,kr_)/(mixture_.muc());
+	return	mixture_.rho()*K_*pow(alphac_,kr_)/(rhoc_*max(alphac_,SMALL)*mixture_.muc());
 }
 volScalarField Foam::phaseDiffusionModels::capillaryD::Md()
 {
 
-	return	K_*pow(alphad_,kr_)/(mixture_.mud_m());
+	return	mixture_.rho()*K_*pow(alphad_,kr_)/(rhod_*max(alphad_,SMALL)*mixture_.mud_m());
 }
 volScalarField Foam::phaseDiffusionModels::capillaryD::Mm()
 {
 
-	return	(mixture_.rhod()*Md()+mixture_.rhoc()*Mc())/mixture_.rho();
+	return	K_/mixture_.mu();
 }
-volScalarField Foam::phaseDiffusionModels::capillaryD::Ar()
-{
 
-	return	Md()*alphac_/alphad_+Mc()*alphad_/alphac_;
-}
-volScalarField Foam::phaseDiffusionModels::capillaryD::Cr()
-{
 
-	return	Md()/alphad_-Mc()/alphac_;
-}
 
 
 
@@ -117,22 +109,17 @@ void Foam::phaseDiffusionModels::capillaryD::correct()
 {
     const volScalarField& pc(mixture_.pc());
     const volScalarField& dpcds(mixture_.dpcds());
-    //Info<<"min and max dpcds" << min(mixture_.dpcds())<< " : " << max(mixture_.dpcds())<<endl;
+    Info<<"min and max dpcds" << min(mixture_.dpcds())<< " : " << max(mixture_.dpcds())<<endl;
     volTensorField Drel_=
     (
-        (Ar()*(-1)*dpcds-Cr()*pc)*tensor::I
+        Mm()*dpcds*tensor(1,0,0,0,1,0,0,0,1)
+        +
+        Mm()*pc*tensor(1,0,0,0,1,0,0,0,1)
     );
-    volVectorField gradPcX(fvc::grad(pc) - (-1)*dpcds*fvc::grad(alphad_));
-    
-    BSCap_=mixture_.rhoc()/mixture_.rho()*(Md()*sqr(alphac_)+Mc()*sqr(alphad_))*gradPcX*(1-Mem_);
+ 
     Drel_.correctBoundaryConditions();
     Ddm_=(alphac_*rhoc_/mixture_.rho()) * Drel_*(1-Mem_);
     Info<<"capillaryD Ddm_ min:max  "<<endl<<"  "<<min(Ddm_)<<endl<<"  "<<max(Ddm_)<<endl;
-    Info<<"capillaryD BSCap_ min:max  "<<endl<<"  "<<min(BSCap_)<<endl<<"  "<<max(BSCap_)<<endl;
-    
-    Info<< "max |grad(pc)|       = " << max(mag(fvc::grad(pc))) << nl;
-Info<< "max |dpcdSd grad(sd)|= " << max(mag((-1)*dpcds*fvc::grad(alphad_))) << nl;
-Info<< "max |gradPcX|        = " << max(mag(gradPcX)) << nl;
 }
 
 

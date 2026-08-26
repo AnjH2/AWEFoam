@@ -64,7 +64,7 @@ class linearVogt
         const dimensionedScalar J_scale_;
         const dimensionedScalar T_ref_;
         
-        const volScalarField& as_;
+        const PtrList <dimensionedScalar>& as_;
         const volScalarField& Pe_;
         const volScalarField& Ne_; 
         //- volume fraction of gas -> read

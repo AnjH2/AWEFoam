@@ -25,9 +25,9 @@ IOdictionary fvSolution
 
 //scalar to define number of iterations each variables will be solved
 
-scalar speciesCorrections=fvSolution.subDict("AlkaWE").get<scalar>("speciesCorrections");
-scalar potentialCorrections=fvSolution.subDict("AlkaWE").get<scalar>("potentialCorrections");
-scalar outerChemicalCorrections=fvSolution.subDict("AlkaWE").get<scalar>("outerChemicalCorrections");
+const scalar speciesCorrections=fvSolution.subDict("AlkaWE").get<scalar>("speciesCorrections");
+const scalar potentialCorrections=fvSolution.subDict("AlkaWE").get<scalar>("potentialCorrections");
+const scalar outerChemicalCorrections=fvSolution.subDict("AlkaWE").get<scalar>("outerChemicalCorrections");
 //scalar nT=transportProperties.get<scalar>("n_Temp");
 Info<< "Reading field p_rgh\n" << endl;
 
@@ -38,7 +38,7 @@ volScalarField p_rgh
         "p_rgh",
         runTime.timeName(),
         mesh,
-        IOobject::READ_IF_PRESENT,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
     mesh
@@ -50,7 +50,7 @@ volScalarField p
         "p",
         runTime.timeName(),
         mesh,
-        IOobject::READ_IF_PRESENT,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
     p_rgh
@@ -76,7 +76,7 @@ volVectorField Ur
         "Ur",
         runTime.timeName(),
         mesh,
-        IOobject::READ_IF_PRESENT,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
     U
@@ -116,7 +116,18 @@ Info<< "Reading speciesProperties\n" << endl;
 speciesProperties speciesP(mesh,transportProperties);
 #include "createPhi.H"
 
-
+volScalarField divU
+(
+    IOobject
+    (
+        "divU",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    fvc::div(phi)
+);
 Info<< "Reading incompressibleTwoPhaseInteractingMixture\n" << endl;
 incompressibleTwoPhaseInteractingMixture mixture(U, phi,transportProperties);
 
@@ -136,7 +147,7 @@ volScalarField rho
         "rho",
         runTime.timeName(),
         mesh,
-        IOobject::READ_IF_PRESENT,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
     mixture.rho()*poroM.eps()
@@ -159,6 +170,32 @@ surfaceScalarField rhoPhi
 
   
     
+volScalarField V1_
+(
+	IOobject
+	(
+		"V1",
+		runTime.timeName(),
+		mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,One)
+);
+volScalarField V2_
+(
+	IOobject
+	(
+		"V2",
+		runTime.timeName(),
+		mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,One)
+);
 Info<<"Creating Saturation flux"<<endl;
     surfaceScalarField alphaPhi
     (
@@ -171,25 +208,6 @@ Info<<"Creating Saturation flux"<<endl;
         mesh,
         dimensionedScalar(phi.dimensions(), Zero)
     );
-volScalarField hf(
-            IOobject
-        (
-            "hf",
-            runTime.time().timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-    	dimensionedScalar
-        (
-            "hf",
-            dimless,
-            0
-        ) //how much the velocity is reduced, 0 is free rasing bubble,
-    );
-
-
 
 // Construct compressible turbulence model
 autoPtr
@@ -336,7 +354,7 @@ volVectorField INe
 		"INe",
 		runTime.timeName(),
 		mesh,
-		IOobject::READ_IF_PRESENT,
+		IOobject::NO_READ,
 		IOobject::AUTO_WRITE
 	),
 	fvc::grad(UNe)*poroM.sigma_s_eff()
@@ -350,7 +368,7 @@ volVectorField IPe
 		"IPe",
 		runTime.timeName(),
 		mesh,
-		IOobject::READ_IF_PRESENT,
+		IOobject::NO_READ,
 		IOobject::AUTO_WRITE
 	),
 	fvc::grad(UPe)*poroM.sigma_s_eff()
@@ -363,7 +381,7 @@ volVectorField Ie
 		"Ie",
 		runTime.timeName(),
 		mesh,
-		IOobject::READ_IF_PRESENT,
+		IOobject::NO_READ,
 		IOobject::AUTO_WRITE
 	),
 	fvc::grad(UPe)*poroM.sigma_s_eff()
@@ -470,7 +488,6 @@ volScalarField chi1
         mesh,
         dimensionedScalar(dimless,1)
 );
-
 surfaceScalarField theta1
 (
         IOobject
@@ -498,16 +515,17 @@ surfaceScalarField w1
 );
 //starts with rdrPiso
 {
-const surfaceScalarField dEpsf =
-    fvc::snGrad(poroM.eps())/mesh.deltaCoeffs();
-
-const volScalarField sumAbsJump = fvc::surfaceSum(Foam::mag(dEpsf));
+const surfaceScalarField absDEpsf = Foam::mag(fvc::snGrad(poroM.eps())*mesh.magSf());  // φ_nb - φ_P  with correct sign
+// owner–neighbour addressing
 
 
-
-const scalar jumpTol = 1e-4;   // choose based on what eps-jump you care about
-chi1 = pos(sumAbsJump - jumpTol);  // 1 if above tol else 0
-
+// final normalisation χₚ = Σ_f |Δφ| / max(Σ_f |Δφ|, ξ)
+chi1=fvc::surfaceSum(absDEpsf)*dimensionedScalar(dimless/dimLength,1);
+forAll(chi1, cellI)
+{
+    const scalar sum = chi1[cellI];
+    chi1[cellI] = sum/(max(sum,VSMALL));          // VSMALL ≈ 1e-15
+}
 
 surfaceScalarField absOmegaf(Foam::mag(fvc::snGrad(chi1*poroM.eps())*mesh.magSf()));  // Δ(Δφ)_f  := dPhi_nb − dPhi_P
 

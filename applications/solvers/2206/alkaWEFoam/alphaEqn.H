@@ -48,7 +48,7 @@
           + fvc::flux
             (
                 phir,
-               max(alpha1-dimensionedScalar(dimless,1e-4),Zero),
+                max(alpha1-dimensionedScalar(dimless,1e-4),Zero),
                 //alpha1,
                 alpharScheme
             )
@@ -73,10 +73,10 @@
         
                 // 2. Explicit Source (Su): FIXED
                 // You must add vDoteAlphal here!
-                (-mDote/rho1)(),
+                zeroField(),
         
                 UniformField<scalar>(mixture.alphaMax()),
-                UniformField<scalar>(1e-4)
+                zeroField()
             );
 
             // Under-relax the correction for all but the 1st corrector
@@ -103,7 +103,7 @@
                 zeroField(),
                 (-mDote/rho1)(),
                 UniformField<scalar>(mixture.alphaMax()),
-                UniformField<scalar>(1e-4)
+                zeroField()
             );
         }
     }

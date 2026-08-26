@@ -72,7 +72,7 @@ class verticalVogt
         
         
         // references
-        const volScalarField& as_;
+        const PtrList <dimensionedScalar>& as_;
         const volScalarField& Pe_;
         const volScalarField& Ne_;
         const volVectorField& U_;
