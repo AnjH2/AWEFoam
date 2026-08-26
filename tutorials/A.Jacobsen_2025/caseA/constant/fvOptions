@@ -27,9 +27,9 @@ cellDepth	30e-3;
 t2 #eval #{ $tPe+$tDi #};
 t3 #eval #{ $tPe+$tDi+$tNe #};
 
-KPe	763000000.0;//7.63e8;
+KPe	763000000.0;
 betaPe	0;
-KD	8.85e17;//1.25e15;//1e18
+KD	8.85e17;
 betaD	0;
 porosity1
 {
