@@ -117,12 +117,7 @@ Foam::relativeVelocityModels::stuckBubbles::stuckBubbles
         U_.mesh(),
         dimensionedScalar(dimless, Zero)
     ),
-    alphaResidual_
-	(
-		"alphaResidual",
-		dimless,
-		dict.lookupOrDefault<scalar>("alphaResidual", 0)
-	),
+
         as_(
 	Ddm_.mesh().lookupObject<porousProperties>
         (
@@ -155,13 +150,15 @@ Foam::relativeVelocityModels::stuckBubbles::~stuckBubbles()
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+// Local phase mass fractions used to combine stationary attached bubbles
+// with the moving detached-bubble population.
 Foam::volScalarField Foam::relativeVelocityModels::stuckBubbles::gamma_L()
 {
     return alphac_*rhoc_/rho();
 }
 Foam::volScalarField Foam::relativeVelocityModels::stuckBubbles::gamma_G()
 {
-    return alphad_*rhod_/rho();
+    return max(alphad_,SMALL)*rhod_/rho();
 }
 Foam::volScalarField Foam::relativeVelocityModels::stuckBubbles::gamma_GA()
 {
@@ -173,29 +170,25 @@ Foam::volScalarField Foam::relativeVelocityModels::stuckBubbles::gamma_GD()
 }
 void Foam::relativeVelocityModels::stuckBubbles::correct()
 {    
+    // Update both dispersion closures, the detached-bubble drift closure, and
+    // the coverage model before partitioning the total gas saturation.
     dModel_->correct();
     baseModel_->correct();
     covModel_->correct();
     
     
-    //volScalarField alphaStatic_(pow(covModel_->theta(),1/n_));
+    // Convert electrode coverage to attached-bubble saturation and cap it by
+    // the total local gas saturation.
     alphaStatic_=min((c_[0]*rd_[0]*as_[0]*Ne_+c_[1]*rd_[1]*as_[1]*Pe_)*pow(covModel_->theta(),n_),alphad_);
-    //volScalarField alphaMoveing_(max(alphad_-alphaStatic_,Zero));
     alphaMoveing_=alphad_-alphaStatic_;
-    //volScalarField scaleing=1/(gamma_G()*(1-gamma_GA()));
-    /*volScalarField scaleing=1/(alphad_*(rhoc_*alphac_+rhod_*alphaMoveing_));
-    Info<<average(scaleing)<<endl;
-    Udm_ = scaleing*(-1*alphac_*rhoc_*alphaStatic_*U_+rho()*alphaMoveing_*baseModel_->Udm());
-    Info<<average(mag(Udm_))<<endl;
-    Ddm_=scaleing*(alphac_*rhoc_*alphaStatic_*dModel_->D()+rho()*alphaMoveing_*baseModel_->Ddm());
-    */
+    alphaStatic_.correctBoundaryConditions();
+    // Reconstruct the overall gas relative velocity from stationary attached
+    // and moving detached sub-phases. See review notes regarding the denominator.
     volScalarField scaleing=1/(gamma_G()*(1-gamma_GD()));
     Udm_ = scaleing*(-1*gamma_L()*gamma_GA()*U_+gamma_GD()*baseModel_->Udm());
     
     Ddm_=scaleing*(gamma_L()*gamma_GA()*dModel_->D()+gamma_GD()*baseModel_->Ddm());
-    
-    
-    //Ddm_=alphaMoveing_*baseModel_->Ddm();
+
 }
 
 

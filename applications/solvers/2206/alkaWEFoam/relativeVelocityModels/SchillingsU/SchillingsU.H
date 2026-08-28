@@ -27,7 +27,9 @@ Class
     Foam::SchillingsU
 
 Description
-    SchillingsU relative velocity model
+    Schillings-type free-flow drift closure containing buoyancy, Saffman lift
+    and shear-induced migration. Hydrodynamic phase dispersion is intended to
+    be supplied separately by phaseDiffusionModel.
 
 SourceFiles
     SchillingsU.C
@@ -55,7 +57,6 @@ class SchillingsU
     public relativeVelocityModel
 {
     // Private data
-	const incompressibleTwoPhaseInteractingMixture& mixture_;
 	List<word> electrodes;
 	const dictionary& dict_;
 	//const dimensionedVector g_;
@@ -63,11 +64,6 @@ class SchillingsU
 	
 	PtrList <dimensionedScalar> rd_;
 	const dimensionedScalar n_;
-	const dimensionedScalar& rhoc_;
-	const volScalarField& rhod_;
-	const volScalarField& V1_;
-	const volScalarField& eps_;
-	const volVectorField& U_;
 	const dimensionedVector eg_;
 	
     // Private functions??

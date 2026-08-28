@@ -130,7 +130,8 @@ Foam::coverageModels::linearVogt::~linearVogt()
 
 void Foam::coverageModels::linearVogt::correct()
 {
-
+    // Conservative combined model: retain the larger of the saturation
+    // estimate and the current-density-based Vogt estimate. The final T/p
     theta_ =max(pow(min(alphad_,0.999),n_),(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
 
     theta_.correctBoundaryConditions();

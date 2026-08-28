@@ -53,7 +53,6 @@ Foam::coverageModels::linearVerticalVogt::linearVerticalVogt
 :
     coverageModel(dict,mesh,mixture,modelName),
     electrodes({"Ne","Pe"}),
-    dict_(dict),
     J_
     (
         mesh.lookupObject<volScalarField>
@@ -116,9 +115,6 @@ Foam::coverageModels::linearVerticalVogt::linearVerticalVogt
             "U"
         )
     ),
-    rhoc_(mixture_.rhoc()),
-    rhod_(mixture_.rhod()),
-    g_(meshObjects::gravity::New(mixture.U().time())),
     alphad_
     (
         mesh.lookupObject<volScalarField>
@@ -149,13 +145,14 @@ Foam::coverageModels::linearVerticalVogt::~linearVerticalVogt()
 
 volScalarField Foam::coverageModels::linearVerticalVogt::correction()
 {
-
+    // Reduce the Vogt branch as electrolyte velocity removes attached bubbles.
     return pow((1+(Pe_*CD_[1]+Ne_*CD_[0])*pow(mag(U_),2)),-2);
 }
 void Foam::coverageModels::linearVerticalVogt::correct()
 {
-
-    theta_ =max(alphad_,correction()*(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
+    // Retain the larger of local gas saturation and the flow-corrected
+    // current-density-based coverage estimate. The final T/p factor currently
+    theta_ =max(alphad_,correction()*(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2.0/3.0));//Numerical modeling and analysis of the effect of pressure on the performance of an alkaline water electrolysis system 
 
     theta_.correctBoundaryConditions();
 }

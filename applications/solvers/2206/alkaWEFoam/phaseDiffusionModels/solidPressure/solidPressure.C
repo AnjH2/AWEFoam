@@ -59,26 +59,21 @@ Foam::phaseDiffusionModels::solidPressure::solidPressure
     Dn_("diffCoeffGravityNormal", dimless, dict),
     //n_("n",dimless,dict),
     rd_(electrodes.size()),
-ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector::Y)),mag(g_.value().component(vector::Z)))/mag(g_.value())),
-    t_((mag(ep_.x()) < 0.9) ? vector(1,0,0) : vector(0,1,0)),
-    en1_(ep_ ^ t_),
-    en2_(ep_ ^ en1_),
-    D_ 
+    ep_(g_.value()/mag(g_.value())),
+
+    D_
     (
-            IOobject
-            (
-                "anIsoDTensor",
-                alphad_.mesh().time().timeName(),
-                alphad_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE         // run-time field, not written
-            ),
+        IOobject
+        (
+            "anIsoDTensor",
+            alphad_.mesh().time().timeName(),
             alphad_.mesh(),
-            dimensionedTensor("zero", dimless, tensor::zero) // start at 0
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        alphad_.mesh(),
+        dimensionedTensor("zero", dimless, tensor::zero)
     ),
-    DVn1_(Dn_*en1_),
-    DVn2_(Dn_*en2_),
-    DVp_(Dp_*ep_),
     ANe_(dict.lookupOrDefault<scalar>("slopeGrowth_Ne", 1)),
     CbNe_(dict.lookupOrDefault<scalar>("scale_Ne", 1)),
     APe_(dict.lookupOrDefault<scalar>("slopeGrowth_Pe", 1)),
@@ -86,9 +81,9 @@ ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector:
     alpha0_(dict.lookupOrDefault<scalar>("diffusionOffset", 0))
 {
 
-    	D_.replace(tensor::XX,mag(DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X)));
-    	D_.replace(tensor::YY,mag(DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y)));
-    	D_.replace(tensor::ZZ,mag(DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z)));
+    D_ =
+        Dn_*tensor(1,0,0,0,1,0,0,0,1)
+      + (Dp_ - Dn_)*(ep_*ep_);
     	forAll(electrodes,i)
 	{
     	rd_.set
@@ -111,6 +106,8 @@ Foam::phaseDiffusionModels::solidPressure::~solidPressure()
 
 volScalarField Foam::phaseDiffusionModels::solidPressure::f()
 {
+    // Electrode-specific solid-pressure-like augmentation; for alpha0 = 0
+    // it increases exponentially with local gas saturation.
 	return CbNe_*exp(-1.0*ANe_*(alpha0_-alphad_))*(Ne_+NeC_+0.5*Mem_)+CbPe_*exp(-1.0*APe_*(alpha0_-alphad_))*(Pe_+PeC_+0.5*Mem_);
 }
 
@@ -126,9 +123,8 @@ volVectorField Foam::phaseDiffusionModels::solidPressure::vStokes()
 
 volTensorField Foam::phaseDiffusionModels::solidPressure::UHdiff()
 {
-    	//D_.replace(tensor::XX,DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X));
-    	//D_.replace(tensor::YY,DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y));
-    	//D_.replace(tensor::ZZ,DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z));	
+    // Hydrodynamic bubble dispersion based on r_b |u_inf|, anisotropy D_,
+    // and the saturation-dependent augmentation f().
 
 	return 1/alphad_*(rd_[0]*Ne_+rd_[1]*Pe_)*f()*mag(vStokes())*D_;
 }
@@ -140,6 +136,8 @@ volTensorField Foam::phaseDiffusionModels::solidPressure::UHdiff()
 
 void Foam::phaseDiffusionModels::solidPressure::correct()
 {
+    // Suppress the closure in the diaphragm and convert relative motion to
+    // the mass-averaged mixture frame.
     Ddm_=dF_*(1-Mem_)*RToM()*UHdiff();
 }
 

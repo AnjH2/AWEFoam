@@ -57,26 +57,21 @@ Foam::phaseDiffusionModels::Dahlkild::Dahlkild
     Dn_("diffCoeffGravityNormal", dimless, dict),
     n_("n",dimless,dict),
     rb_("bubbleRadius",dimLength,dict),
-ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector::Y)),mag(g_.value().component(vector::Z)))/mag(g_.value())),
-    t_((mag(ep_.x()) < 0.9) ? vector(1,0,0) : vector(0,1,0)),
-    en1_(ep_ ^ t_),
-    en2_(ep_ ^ en1_),
-    D_ 
+    ep_(g_.value()/mag(g_.value())),
+
+    D_
     (
-            IOobject
-            (
-                "anIsoDTensor",
-                alphad_.mesh().time().timeName(),
-                alphad_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE         // run-time field, not written
-            ),
+        IOobject
+        (
+            "anIsoDTensor",
+            alphad_.mesh().time().timeName(),
             alphad_.mesh(),
-            dimensionedTensor("zero", dimless, tensor::zero) // start at 0
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        alphad_.mesh(),
+        dimensionedTensor("zero", dimless, tensor::zero)
     ),
-    DVn1_(Dn_*en1_),
-    DVn2_(Dn_*en2_),
-    DVp_(Dp_*ep_),
         U_(
 	    alphac_.mesh().lookupObject<volVectorField>
             (
@@ -91,9 +86,9 @@ ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector:
         )
 {
 
-    	D_.replace(tensor::XX,mag(DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X)));
-    	D_.replace(tensor::YY,mag(DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y)));
-    	D_.replace(tensor::ZZ,mag(DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z)));
+    D_ =
+        Dn_*tensor(1,0,0,0,1,0,0,0,1)
+      + (Dp_ - Dn_)*(ep_*ep_);
 }
 
 
@@ -132,8 +127,6 @@ volTensorField Foam::phaseDiffusionModels::Dahlkild::gamma()
 {
 
     volTensorField gU_=fvc::grad(U_);
-   // volTensorField E_=0.5*(gU_+gU_.T());
-	//return sqrt(2*( E_ && E_ ));
 	return gU_;
 }
 
@@ -142,19 +135,18 @@ volTensorField Foam::phaseDiffusionModels::Dahlkild::gamma()
 
 volTensorField Foam::phaseDiffusionModels::Dahlkild::UHdiff()
 {
-    	//D_.replace(tensor::XX,DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X));
-    	//D_.replace(tensor::YY,DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y));
-    	//D_.replace(tensor::ZZ,DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z));	
+    // Terminal-velocity-based anisotropic dispersion contribution.
 
-	return rb_*f()*mag(vStokes())*D_;
+	return rb_*1/alphad_*f()*mag(vStokes())*D_;
 }
 
 volTensorField Foam::phaseDiffusionModels::Dahlkild::USdiff()
 {
-	//volTensorField	DOne_(dimless,tensor(1,0,0,0,1,0,0,0,1));
+
+    // Isotropic velocity-gradient-driven dispersion contribution.
+	//volTensorField	DOne_(dimless,tensor(1,0,0,0,1,0,0,0,1));	
 	
-	
-	return tensor(1,0,0,0,1,0,0,0,1)*pow(rb_,2)*mag(gamma())*beta();
+	return tensor(1,0,0,0,1,0,0,0,1)*(pow(rb_,2)*mag(gamma())*beta()*1/alphad_);
 }
 
 
@@ -162,6 +154,8 @@ volTensorField Foam::phaseDiffusionModels::Dahlkild::USdiff()
 
 void Foam::phaseDiffusionModels::Dahlkild::correct()
 {
+    // Convert the combined relative-diffusion closure to the mixture-mass
+    // reference frame used by the solver.
     Ddm_=dF_*RToM()*(UHdiff()+USdiff());
  
 }

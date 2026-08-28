@@ -27,6 +27,9 @@ Class
     Foam::phaseDiffusionModel
 
 Description
+    Base class for saturation-gradient-driven phase dispersion closures.
+    Derived models provide Ddm_, kept separate from buoyancy, lift and other
+    non-diffusive relative-velocity terms handled by relativeVelocityModel.
 
 SourceFiles
     phaseDiffusionModel.C

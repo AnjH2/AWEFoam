@@ -27,7 +27,9 @@ Class
     Foam::Schillings
 
 Description
-    Schillings relative velocity model
+    Schillings-type phase-dispersion closure combining hydrodynamic bubble
+    dispersion and an isotropic shear-induced contribution. Buoyancy and
+    Saffman drift remain in the separate relative-velocity closure.
 
 SourceFiles
     Schillings.C
@@ -64,17 +66,9 @@ class Schillings
         const dimensionedScalar n_;
         PtrList <dimensionedScalar> rd_;
         vector ep_; //unit vector parallel to g
-        vector t_; //test vector
-        vector en1_; //unit vector normal to g
-        vector en2_; //unit vector normal to g
         volTensorField D_;
-	dimensionedVector DVn1_;
-	dimensionedVector DVn2_;
-	dimensionedVector DVp_;
 		const volVectorField& U_;
-		const volScalarField& Solid_;
         
-	volScalarField kappa();
     	volScalarField beta();
     	volScalarField f(); //hindering fuunnnnctiiion
     	volVectorField vStokes(); //Terminal velocity model

@@ -1,7 +1,12 @@
+// Porous-medium mixture momentum equation (paper Eq. 5). The matrix contains
+// transient and convective momentum, drift stress and viscous/turbulent
+// stresses; Darcy resistance is coupled through the pressure correction.
     // Solve the Momentum equation
 
     MRF.correctBoundaryVelocity(U);
 
+    // Assemble the mixture momentum operator. The explicit Ur*Ur term is
+    // the drift-induced stress from unresolved phase-relative motion.
     fvVectorMatrix UEqn
     (
         fvm::ddt(mixture.rho(), U) 
@@ -12,7 +17,7 @@
                     "div(tauDm)"
                 )
       + 1/epsilon1*turbulence->divDevRhoReff(U)
-      //- fvm::Sp(fvc::ddt(epsilon1,rho) + (1/pow(epsilon1,2))*fvc::div(rhoPhi), U)
+      
      ==
      fvOptions(mixture.rho(), U)
     );
@@ -21,20 +26,3 @@
 
     fvOptions.constrain(UEqn);
 
-   /* if (pimple.momentumPredictor())
-    {
-        solve
-        (
-            UEqn
-          ==
-            fvc::reconstruct
-            (
-                (
-                  - ghf*fvc::snGrad(rho)
-                  - fvc::snGrad(p_rgh)
-                )*mesh.magSf()
-            )
-        );
-
-        fvOptions.correct(U);
-    }*/

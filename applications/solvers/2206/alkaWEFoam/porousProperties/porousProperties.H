@@ -25,7 +25,9 @@ Class
     Foam::porousProperties
 
 Description
-    A two-phase species mixture model
+    Container for porous-electrode and diaphragm properties used by the solver,
+    including porosity, tortuosity, permeability, specific surface area and
+    effective solid conductivity.
 
 SourceFiles
     porousProperties.C
@@ -58,9 +60,8 @@ protected:
 
     // Protected data
     	List<word> electrodes;
-    	List<word> channels;	
-    	PtrList <dimensionedScalar> as_;//electrode surface area.
-    	PtrList <dimensionedScalar> D_pore_;//poreDiameter
+    	PtrList <dimensionedScalar> as_;
+    	PtrList <dimensionedScalar> D_pore_;
     	PtrList <dimensionedScalar> KL_;
 	const volScalarField epsilon_;
 	const volScalarField tau_;
@@ -148,7 +149,7 @@ public:
         
         const volScalarField K() const
         {
-            return K_;//Pe_*K_[1]+Ne_*K_[0]+Mem_*K_[2]+(PeC_+NeC_)*dimensionedScalar(dimensionSet(  0, 2, 0, 0, 0, 0, 0),1e6);
+            return K_;
         }
 
         

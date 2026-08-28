@@ -50,15 +50,11 @@ Foam::phaseDiffusionModels::constant::constant
 )
 :
     phaseDiffusionModel(dict, mixture,modelName),
-    mixture_(mixture),
     electrodes({"Ne","Pe"}),
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
     rd_(electrodes.size()),
-
-    rhoc_(mixture.rhoc()),
-    rhod_(mixture.rhod()),
    
     D_(electrodes.size()),
 
@@ -96,6 +92,8 @@ volVectorField Foam::phaseDiffusionModels::constant::vStokes(int j)
 
 void Foam::phaseDiffusionModels::constant::correct()
 {
+    // Scale r_b |u_inf| with the prescribed anisotropy tensor and convert
+    // the closure to the mixture-mass reference frame.
     Ddm_=(rhoc_/mixture_.rho())*((rd_[0]*mag(vStokes(0))*D_[0]*(Ne_*dF_+NeC_)+rd_[1]*mag(vStokes(1))*D_[1]*(Pe_*dF_+PeC_))/alphad_);
 
 }

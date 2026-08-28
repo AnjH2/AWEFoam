@@ -41,6 +41,8 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+// Construct the gas-liquid mixture and the runtime-selected viscosity and
+// capillary submodels used by the porous two-phase flow equations.
 Foam::incompressibleTwoPhaseInteractingMixture::
 incompressibleTwoPhaseInteractingMixture
 (
@@ -51,7 +53,6 @@ incompressibleTwoPhaseInteractingMixture
 :
     twoPhaseMixture(U.mesh(), dict),
     dict_(dict),
-    species2({"H2","O2","H2O","OH"}),
     species1({"H2","O2","H2O"}),
 	T_(
 	        U.mesh().lookupObject<volScalarField>
@@ -123,7 +124,6 @@ incompressibleTwoPhaseInteractingMixture
     alphaMax_(muModel_->viscosityPropertiesSub1().getOrDefault("alphaMax", 1.0)),
 
     U_(U),
-    phi_(phi),
 
     mu_
     (
@@ -151,16 +151,6 @@ incompressibleTwoPhaseInteractingMixture
         ),
         mu_/rho()
     ),
-    
-    p_rgh_
-       	(
-    		U.mesh().lookupObject<volScalarField>
-   	 	(
-    			"p_rgh"
-    			//(
-    			//)
-    		)
-  	),
   	   Pe_
        	(
     		U.mesh().lookupObject<volScalarField>

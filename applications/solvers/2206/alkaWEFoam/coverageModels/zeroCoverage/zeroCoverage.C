@@ -50,14 +50,7 @@ Foam::coverageModels::zeroCoverage::zeroCoverage
     const word& modelName 
 )
 :
-    coverageModel(dict,mesh,mixture,modelName),
-    alphad_
-    (
-        mesh.lookupObject<volScalarField>
-        (
-            "alpha.gas"
-        )
-    )
+    coverageModel(dict,mesh,mixture,modelName)
 {}
 
 

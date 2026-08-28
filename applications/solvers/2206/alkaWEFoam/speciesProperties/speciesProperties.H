@@ -25,7 +25,9 @@ Class
     Foam::speciesProperties
 
 Description
-    A two-phase species mixture model
+    Species-property container for the alkaline electrolyte model. Reads
+    concentrations and molecular properties, evaluates temperature-dependent
+    diffusivities, and applies porous/gas corrections to effective diffusion.
 
 SourceFiles
     speciesProperties.C
@@ -56,12 +58,9 @@ class speciesProperties
 {
 protected:
 
-	word phase1NamE_;
-        word phase2NamE_;
+	word phase2NamE_;
 	dictionary	species2Coeffs_;
-	dictionary	species1Coeffs_;
 	List<word> species2;
-	List<word> species1;
 	
 	PtrList <dimensionedScalar> z_;
 	PtrList <dimensionedScalar> Ea2_;
@@ -75,30 +74,12 @@ protected:
 	volScalarField  D2_ambi_;
 	volScalarField  C2_T_;
 	volScalarField  C2_0_;
-	//PtrList <volScalarField> D1_eff_;
-	
-	//
-	//start defining mixture coefficients
-	//charge -constant
-	//Mobility -constant
 	dimensionedScalar	u_OH_;
 	dimensionedScalar	u_K_;
-	//phase 1
-	
-	
-        
-        volScalarField	T_;
-	
-	//declearing external fields -> i belive i dont have to.
-	//const porousProperties& poroM_(poroMPtr_());
+	volScalarField	T_;
 	const volScalarField& epsilon_;
 	const volScalarField& tau_;
 	const volScalarField& Mem_;
-	//const dimensionedScalar& R_;
-	//volScalarField			dummy_; //need a dummy who is equal 0.5
-	//volScalarField			D1_eff_;
-	//making an object from class
-	volScalarField tp_Merenkov();
 	
 public:
 
@@ -119,11 +100,6 @@ public:
 
     // Member Functions
 
-        //- Return const-access to the eltroChemical class
-       /* const porousProperties& poroM() const
-        {
-            return poroM_;
-        }*/
 
         //making access to constant coefficients._______________________________
         //charge
@@ -202,11 +178,7 @@ public:
         }
         void correct_DOH(volScalarField kappa)
         {
-        	/*t_[3]=1-tp_Merenkov();
-        	D2_[3]=kappa*Foam::constant::physicoChemical::R*T_/(C2_[3]*pow(Foam::constant::physicoChemical::F*z_[3],2))*t_[3];
-        	t_[4]=1-t_[3];
-        	D2_[4]=kappa*Foam::constant::physicoChemical::R*T_/(C2_[3]*pow(Foam::constant::physicoChemical::F*z_[3],2))*t_[4];
-        	*/
+
         	D2_[3]=kappa*Foam::constant::physicoChemical::R*T_/(2*C2_[3]*pow(Foam::constant::physicoChemical::F*z_[3],2));
         }
 	void correct_D2_eff(volScalarField alphad_)
@@ -216,7 +188,7 @@ public:
         			D2_eff_[i]=Foam::pow(epsilon_,tau_)*Foam::pow(1-min(alphad_,0.99)*(1-Mem_),1.5)*D2_[i];
         		}
 
-            //D2_ambi_=Foam::pow(epsilon_,tau_)*Foam::pow(1-min(alphad_,0.99),1.5)*(z_[4]-z_[3])*D2_[3]*D2_[4]/(-1*z_[3]*D2_[3]+z_[4]*D2_[4]);
+
             D2_ambi_=D2_eff_[3];
         }
      void correct();   

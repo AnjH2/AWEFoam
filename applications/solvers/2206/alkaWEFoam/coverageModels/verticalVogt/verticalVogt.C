@@ -54,7 +54,6 @@ Foam::coverageModels::verticalVogt::verticalVogt
 :
     coverageModel(dict,mesh,mixture,modelName),
     electrodes({"Ne","Pe"}),
-    dict_(dict),
     J_
     (
         mesh.lookupObject<volScalarField>
@@ -115,10 +114,7 @@ Foam::coverageModels::verticalVogt::verticalVogt
         (
             "U"
         )
-    ),
-    rhoc_(mixture_.rhoc()),
-    rhod_(mixture_.rhod()),
-    g_(meshObjects::gravity::New(mixture.U().time())) 
+    )
     
 {
 forAll(electrodes,i)
@@ -144,14 +140,14 @@ Foam::coverageModels::verticalVogt::~verticalVogt()
 
 volScalarField Foam::coverageModels::verticalVogt::correction()
 {
-
+    // Eigelginger/Vogt-type reduction of attached-bubble coverage by flow.
     return pow(1+(Pe_*CD_[1]+Ne_*CD_[0])*pow(mag(U_),2),-2);
 }
 void Foam::coverageModels::verticalVogt::correct()
 {
-    //Info<<"Cb:"<<average(Cb())<<endl;
-    
-    theta_ =correction()*(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2/3);
+
+    // Apply the flow correction to the current-density-based coverage.
+    theta_ =correction()*(J_scale_*pow(mag(J_)/((Ne_*as_[0]+Pe_*as_[1]+as_[0]*VSMALL)*J_lim_),0.3))*pow(T_/T_ref_*dimensionedScalar(dimPressure,101325)/p_num_,2.0/3.0);
 
     theta_.correctBoundaryConditions();
 }

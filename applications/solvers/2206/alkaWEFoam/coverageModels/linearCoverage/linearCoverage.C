@@ -75,6 +75,7 @@ Foam::coverageModels::linearCoverage::~linearCoverage()
 
 void Foam::coverageModels::linearCoverage::correct()
 {
+// Generalized saturation-based coverage; n=1 gives theta = alphaGas.
     theta_ =pow(min(alphad_,0.999),n_);
     theta_.correctBoundaryConditions();
 }

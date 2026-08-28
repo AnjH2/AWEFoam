@@ -27,7 +27,9 @@ Class
     Foam::verticalVogt
 
 Description
-    verticalVogt coverage model
+    Velocity-corrected Vogt coverage model. The base current-density
+    correlation is reduced by an empirical factor accounting for removal
+    of attached bubbles by electrolyte flow.
 
 SourceFiles
     verticalVogt.C
@@ -60,7 +62,6 @@ class verticalVogt
 
         //- exchange current density -> read
         List<word> electrodes;
-        const dictionary& dict_;
         const volScalarField& J_;
         const volScalarField& T_;
         const dimensionedScalar J_lim_;
@@ -76,9 +77,6 @@ class verticalVogt
         const volScalarField& Pe_;
         const volScalarField& Ne_;
         const volVectorField& U_;
-        const dimensionedScalar& rhoc_;
-        const volScalarField& rhod_;
-        const meshObjects::gravity& g_;
         
         // functions
         volScalarField correction();

@@ -179,18 +179,17 @@ int main(int argc, char *argv[])
             {
                 #include "pEqn.H"
             }
-            Info<<"0"<<endl;
             if (pimple.turbCorr())
             {
                 turbulence->correct();
             }
-            Info<<"1"<<endl;
+
             speciesP.correct_DOH((calKappa(T,C2[3]/1000)));
-            Info<<"2"<<endl;
+
             speciesP.correct_D2_eff(1-alpha2);
-            Info<<"3"<<endl;
+
             react.correct(mSTa.p_water(),mSTa.p_water_pure(),mixture.p_num(),react.mKOH(T,C2[3]/1000));
-            Info<<"4"<<endl;
+
             for (int k=0; k<=outerChemicalCorrections; k++)
             {
             

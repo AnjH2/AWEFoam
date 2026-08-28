@@ -1,32 +1,37 @@
+// Coupled solid/electrolyte current-continuity equations (paper Eqs. 12-25).
+// Butler-Volmer kinetics are linearized about the previous potential so UNe,
+// UPe and Ue can be solved implicitly before reconstructing eta, J and Ie.
+
 // solve the current distribution in both electrolyte and electrode.
 //rewritting butler volmer eqaution so Ue, UNe or UPe can be solved fully implicit.
 		//index refers to the given species.
 		//[0]->H2; [2]->H2O; [1]->O2; [3]->OH
+// Butler-Volmer prefactors: exchange current, active surface fraction and
+// concentration-loss correction for the negative and positive electrodes.
 //******************************************* constants used in eqation
 	
 		volScalarField C1Ne
 		(
-		Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne) //Foam::pow(((react.Psi()[3]/as[0])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Ne*as[0]*react.i0()[0]*(1-theta)*(CRa_Ne) 
 		);
 
 		volScalarField C1Pe
 		(
-		Pe*as[1]*react.i0()[1]*(1-theta)*(CRa_Pe) //Foam::pow(((react.Psi()[3]/as[1])/(mixture.D2_eff()[3])+C2[3])/C2[3],2)
+		Pe*as[1]*react.i0()[1]*(1-theta)*(CRa_Pe) 
 		);
 
 		volScalarField C2Ne
 		(
-		Ne*as[0]*react.i0()[0]*(1-theta)*(CRc_Ne) //Foam::pow(((react.Psi()[2]/as[0])/(mixture.D2_eff()[2])+C2[2])/C2[2],2)
+		Ne*as[0]*react.i0()[0]*(1-theta)*(CRc_Ne) 
 		);
 
 		volScalarField C2Pe
 		(
-		Pe*as[1]*react.i0()[1]*(1-theta)*(CRc_Pe) //(((react.Psi()[2]/as[1])/(mixture.D2_eff()[2])+C2[2])/C2[2])
+		Pe*as[1]*react.i0()[1]*(1-theta)*(CRc_Pe) 
 		);
-		//opdated 1511-2022 fixed error
-		//opdated 0307-2023 removed H2 and O2 fraction, added concentration gradient to the surface of the electrodes.
-		//opdated 2609-2023 added class to model concentration losses and inserted H2 and O2 again.
 
+// Exponential Butler-Volmer coefficients alpha*F/(R*T) for the anodic and
+// cathodic branches at each electrode.
 //******************************************* constants used in eqation
 		
 		volScalarField C3Ne
@@ -83,7 +88,8 @@
 		C2Pe*exp(C4Pe*(UPe.oldTime()-Ue-react.E0()[1]))
 		);
 
-	
+// First-order linearization of Butler-Volmer kinetics about the previous
+// potential. These matrices provide implicit source terms for Ue/UNe/UPe.	
 //*************************************** for the electrolyte
 		
 		fvScalarMatrix	Je_Ne
@@ -110,48 +116,33 @@
 		+I2_Pe*(-1+C4Pe*UPe.oldTime())+fvm::Sp(-I2_Pe*C4Pe,UPe)
 		);
 
-        	//define potential equation for electrolyte.
-        	//region 2 3 4
-        	/*fvScalarMatrix UeEqn
-        	(
-        	fvm::laplacian(calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(alpha2,1.5)), Ue)//-z[3]*F*fvc::div(rhoPhi/fvc::interpolate(rho),C2[3])	
-        	==-1*(Je_Pe+Je_Ne)
-        	);*/
-		/*fvScalarMatrix UeEqn
-        	(
-        	fvm::laplacian((Foam::pow(z[3]*F,2)*speciesP.D2_eff()[3]*C2[3])/(R*T), Ue)+fvc::laplacian(-1*mag(z[3])*F*poroM.eps()*rho*alpha2*speciesP.D2_eff()[3]/rho2,C2[3])	
-        	==-1*(Je_Pe+Je_Ne)
-        	);*/
-        dimensionedScalar dummy(C2[3].dimensions(),1);
-	    volScalarField resistance((pow(epsilon1,poroM.tau())*pow(max(alpha2,SMALL),1.5)));
-	    //Ie = -resistance*speciesP.kappa()*fvc::grad(Ue)-R*T/F*resistance*speciesP.kappa()*(speciesP.t()[4]/z[4]+speciesP.t()[3]/z[3])*fvc::grad(log(C2[3]/dummy));	
+        	
+        // Effective electrolyte conductivity includes porous-medium and gas
+        // saturation corrections consistent with paper Eq. 25.
         volScalarField sigmae
 		(
 		calKappa(T,C2[3]/1000)*(pow(epsilon1,poroM.tau())*pow(max(alpha2,SMALL),1.5))
 		);
-		//Info<<"calculates average sigma_ref_L -> "<<average(calKappa(T,C2[3]/1000))<<endl;
+		
         	fvScalarMatrix UeEqn
         	(
         	fvm::laplacian(sigmae, Ue)
-        	//fvm::laplacian(resistance*speciesP.kappa(), Ue)-fvc::laplacian(R*T/F*resistance*speciesP.kappa()*(speciesP.t()[4]/z[4]+speciesP.t()[3]/z[3]),log(C2[3]/dummy))
-        	//+fvc::laplacian(-1*z[3]*F*poroM.eps()*rho*max(alpha2,SMALL)*speciesP.D2_eff()[3]/rho2,C2[3])	
+        	
         	==-1*(Je_Pe+Je_Ne)
         	);
 		
-		
+		    // Solid-phase current continuity in the negative and positive
+        	// porous electrodes (paper Eqs. 21-23).
         	//define potential equation for negative electrode.
-        	 //region 2
+        	
         	fvScalarMatrix UNeEqn
         	(fvm::laplacian(poroM.sigma_s_eff(), UNe)	==J_Ne	);
-        	//(fvm::laplacian(max(poroM.sigma_s_eff(),poroM.sigma_s_eff()*1e-10), UNe)	==J_Ne	);
+        	
         	//define potential equation for negative electrode.
-        	//region 4
+
         	fvScalarMatrix UPeEqn
         	(fvm::laplacian(poroM.sigma_s_eff(), UPe)	==J_Pe	);
-        	//relax equations, might be unnecessary as they are not time dependt.
-        	//UNeEqn.relax();
-        	//UeEqn.relax();
-        	//UPeEqn.relax();
+        	
         	//solve eqations.
         	fvOptions.constrain(UNeEqn);
         	fvOptions.constrain(UeEqn);
@@ -163,6 +154,8 @@
             	UPeEqn.solve();
 
             	
+            	// Re-evaluate overpotential and volumetric transfer current with
+            	// the newly solved potentials; J couples back to species production.
             	//evaluates J for the solving of C_[i] and plotting.
             	eta=(UNe-Ue-react.E0()[0])*Ne+(UPe-Ue-react.E0()[1])*Pe;
             	eta.correctBoundaryConditions();

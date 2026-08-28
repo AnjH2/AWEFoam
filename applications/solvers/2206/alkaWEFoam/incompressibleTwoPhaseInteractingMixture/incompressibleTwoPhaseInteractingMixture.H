@@ -28,9 +28,9 @@ Class
     Foam::incompressibleTwoPhaseInteractingMixture
 
 Description
-    A two-phase incompressible transportModel for interacting phases
-    requiring the direct evaluation of the mixture viscosity,
-    e.g. activated sludge or slurry.
+    Gas-liquid mixture transport model for alkaline water electrolysis.
+    Provides saturation-weighted density, porous two-phase viscosity and
+    capillary-property access used by the mixture momentum formulation.
 
 SourceFiles
     incompressibleTwoPhaseInteractingMixture.C
@@ -64,7 +64,6 @@ class incompressibleTwoPhaseInteractingMixture
 {
 protected:
 	dictionary dict_;
-	List<word> species2;
 	List<word> species1;
 	const volScalarField&	T_;
 	const PtrList <dimensionedScalar>& MW_;
@@ -86,12 +85,9 @@ protected:
         scalar alphaMax_;
 
         const volVectorField& U_;
-        const surfaceScalarField& phi_;
 
         volScalarField mu_;
         volScalarField nu_;
-        
-        const volScalarField& p_rgh_;
         
         const volScalarField& Pe_;
         const volScalarField& Ne_;

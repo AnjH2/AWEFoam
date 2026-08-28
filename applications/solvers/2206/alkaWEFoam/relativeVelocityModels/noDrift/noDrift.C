@@ -50,9 +50,7 @@ Foam::relativeVelocityModels::noDrift::noDrift
 )
 :
     relativeVelocityModel(dict, mixture,modelName),
-    mixture_(mixture),
-    electrodes({"Ne","Pe"}),
-    dict_(dict)
+    electrodes({"Ne","Pe"})
 {
 
 }

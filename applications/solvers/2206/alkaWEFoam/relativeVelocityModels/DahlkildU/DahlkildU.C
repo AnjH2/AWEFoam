@@ -50,42 +50,21 @@ Foam::relativeVelocityModels::DahlkildU::DahlkildU
 )
 :
     relativeVelocityModel(dict, mixture,modelName),
-    mixture_(mixture),
     electrodes({"Ne","Pe"}),
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
-    rd_
-	(
-		"R_DB",
-		dimensionSet ( 0, 1, 0, 0, 0, 0,0),
-		dict
-	),
-    n_("n",dimless,dict),
-    rhoc_(mixture.rhoc()),
-    rhod_(mixture.rhod()),
-    
-        V1_(
-	alphac_.mesh().lookupObject<volScalarField>
-        (
-            	"V1"
-        )
-        ),
-    eps_(
-	    alphac_.mesh().lookupObject<volScalarField>
-            (
-            	"eps"
-            )
-        ),
-    U_(
-	    alphac_.mesh().lookupObject<volVectorField>
-            (
-            	"U"
-            )
-        ),
+    rd_(electrodes.size()),
     eg_("eg",(-1*g_)/mag(g_))
 {
-
+forAll(electrodes,i)
+	{
+	rd_.set
+    	(
+        	i,
+        	new dimensionedScalar("rd_"+electrodes[i], dimLength,dict_)
+        );
+        }
 }
 
 
@@ -98,18 +77,18 @@ Foam::relativeVelocityModels::DahlkildU::~DahlkildU()
 // * * * * * * * * * * * * * * Private Functions  * * * * * * * * * * * * * * //
 
 
-
+// Gas-fraction-dependent hindrance/scaling used by the Dahlkild closure.
 volScalarField Foam::relativeVelocityModels::DahlkildU::f()
 {
 	
-	return alphac_/(1/(alphac_+SMALL));
+	return sqr(alphac_);
 }
 
 
-dimensionedVector Foam::relativeVelocityModels::DahlkildU::vStokes()
+volVectorField Foam::relativeVelocityModels::DahlkildU::vStokes()
 {
 	
-	return g_.value()*(sqr(2*rd_)/(3*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+	return g_.value()*((sqr(2*(rd_[0]*(NeC_+Ne_)+rd_[1]*(PeC_+Pe_)))/(3*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1));
 }
 
 

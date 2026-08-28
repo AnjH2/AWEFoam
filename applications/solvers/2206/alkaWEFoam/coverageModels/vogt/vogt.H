@@ -27,7 +27,9 @@ Class
     Foam::vogt
 
 Description
-    vogt coverage model
+    Current-density-based bubble coverage model derived from the Vogt
+    empirical correlation. The implementation also permits an empirical
+    scaling and temperature/pressure correction.
 
 SourceFiles
     vogt.C

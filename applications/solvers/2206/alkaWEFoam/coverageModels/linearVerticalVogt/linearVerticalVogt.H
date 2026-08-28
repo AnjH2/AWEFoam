@@ -27,7 +27,8 @@ Class
     Foam::linearVerticalVogt
 
 Description
-    linearVerticalVogt coverage model
+    Combined saturation/Vogt coverage model with the empirical velocity
+    correction applied to the Vogt branch.
 
 SourceFiles
     linearVerticalVogt.C
@@ -60,7 +61,6 @@ class linearVerticalVogt
 
         //- exchange current density -> read
         List<word> electrodes;
-        const dictionary& dict_;
         const volScalarField& J_;
         const volScalarField& T_;
         const dimensionedScalar J_lim_;
@@ -73,9 +73,6 @@ class linearVerticalVogt
         const volScalarField& Pe_;
         const volScalarField& Ne_; 
         const volVectorField& U_;
-        const dimensionedScalar& rhoc_;
-        const volScalarField& rhod_;
-        const meshObjects::gravity& g_;
         //- volume fraction of gas -> read
         const volScalarField& alphad_;
         

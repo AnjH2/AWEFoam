@@ -2,7 +2,6 @@ relativeVelocityModel/relativeVelocityModel.C
 SchillingsU/SchillingsU.C
 stuckBubbles/stuckBubbles.C
 stokes/stokes.C
-capillary/capillary.C
 DahlkildU/DahlkildU.C
 noDrift/noDrift.C
 

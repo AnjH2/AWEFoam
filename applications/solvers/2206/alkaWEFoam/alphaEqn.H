@@ -1,3 +1,6 @@
+// Bounded gas-saturation transport. MULES advances the dispersed-phase
+// fraction with mixture convection, relative/drift flux and interphase mass
+// transfer while enforcing the prescribed saturation limits (paper Eq. 4).
 {
     word alphaScheme("div(phi,alpha)");
     word alpharScheme("div(phirb,alpha)");
@@ -28,8 +31,6 @@
         tmp<surfaceScalarField> talphaPhiUD(alpha1Eqn.flux());
         alphaPhi = talphaPhiUD();
 
-        // Cache the upwind-flux
-        talphaPhiCorr0 = talphaPhiUD;
     }
 
 	volScalarField alpha10("alpha10", alpha1);
@@ -49,7 +50,6 @@
             (
                 phir,
                 max(alpha1-dimensionedScalar(dimless,1e-4),Zero),
-                //alpha1,
                 alpharScheme
             )
         );
@@ -58,7 +58,6 @@
         {
             
             tmp<surfaceScalarField> talphaPhiCorr(talphaPhiUn() - alphaPhi);
-            volScalarField alpha100("alpha100", alpha10);
             alpha10 = alpha1;
 
             MULES::correct
@@ -67,12 +66,7 @@
                 alpha1,
                 talphaPhiUn(),
                 talphaPhiCorr.ref(),
-        
-                // 1. Implicit Source (Sc): Correct
                 zeroField(),
-        
-                // 2. Explicit Source (Su): FIXED
-                // You must add vDoteAlphal here!
                 zeroField(),
         
                 UniformField<scalar>(mixture.alphaMax()),

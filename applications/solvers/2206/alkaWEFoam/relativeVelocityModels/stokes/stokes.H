@@ -27,9 +27,9 @@ Class
     Foam::stokes
 
 Description
-    stokes relative velocity model,
-    it defines properties for each electrode.
-    lift only
+    Buoyancy-driven Stokes drift closure with electrode-specific bubble radii
+    and a gas-fraction hindrance factor. Phase dispersion is handled separately
+    by phaseDiffusionModel.
 
 SourceFiles
     stokes.C
@@ -56,18 +56,13 @@ class stokes
 :
     public relativeVelocityModel
 {
-	const incompressibleTwoPhaseInteractingMixture& mixture_;
+	
 	List<word> electrodes;
-	const dictionary& dict_;
-	//const dimensionedVector g_;
+	
 	const meshObjects::gravity& g_;
 	
 	PtrList <dimensionedScalar> rd_;
 	dimensionedScalar n_;
-	const dimensionedScalar minAlphad_;
-	const dimensionedScalar& rhoc_;
-	const volScalarField& rhod_;
-	const volScalarField& eps_;
 	const dimensionedVector eg_;
 	
 	

@@ -27,7 +27,9 @@ Class
     Foam::mixtureViscosityModels::Beckermann
 
 Description
-     Viscosity correction model for generic newtonian flow.
+    Porous two-phase mixture-viscosity model used by alkaWEFoam. Combines
+    phase viscosities with saturation-dependent relative permeability and,
+    when enabled, evaluates gas-mixture viscosity from component properties.
 
 SourceFiles
     Beckermann.C
@@ -65,9 +67,6 @@ protected:
 
         //- Dictionary
         dictionary BeckermannCoeffsSub1_;
-        dictionary BeckermannCoeffsSub2_;
-        //- Maximum viscosity
-        //dimensionedScalar muMax_;
 
 	PtrList <dimensionedScalar> mud_ref_;
 	PtrList <dimensionedScalar> T_muref_;
@@ -80,7 +79,6 @@ protected:
 	        
         //- Beckermann phase fraction
         const volScalarField& alpha_;
-        //const volScalarField& rhod_;
 
 
 public:

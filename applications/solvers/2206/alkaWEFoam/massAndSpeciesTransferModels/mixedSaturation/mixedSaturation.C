@@ -45,6 +45,7 @@ namespace massAndSpeciesTransferModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+
 Foam::massAndSpeciesTransferModels::mixedSaturation::mixedSaturation
 (
     const dictionary& dict,
@@ -101,7 +102,8 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::~mixedSaturation()
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
+// Attached-bubble transfer (paper Eqs. 27-28): use local supersaturation
+// and cap H2/O2 transfer by the electrochemical production rate.
 void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_mDot_wall(const int i, const PtrList<volScalarField>& C2_s, const volScalarField& theta)
 {
 
@@ -111,21 +113,19 @@ void Foam::massAndSpeciesTransferModels::mixedSaturation::correct_mDot_wall(cons
 		C_sat_[i].correctBoundaryConditions();
 
 		mDotAlpha_Wall_[i]=(Pe_+Ne_)*max(c_AB_*shModelAB_->ki(i)*as_[i]*theta*MW_[i]*(C2_s[i]-C_sat_[i]),dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),0));
-		//mDot_Wall_[i]=min(mDotAlpha_Wall_[i]*(1-alpha_),Psi_BV_[i]*MW_[i]); removed 05-11-2024 -> it is already damped by Psi_BV
 		mDot_Wall_[i]=min(mDotAlpha_Wall_[i]*(1-pow(alpha_,5)),Psi_BV_[i]*MW_[i]);
 		
 		mDot_Wall_[i].correctBoundaryConditions();
 	} else if (i==2 and waterVapour_) {
 		mDot_Wall_[i]=(mDot_Wall_[0]+mDot_Wall_[1])*(MW_[2]*(Ne_/MW_[0]+Pe_/MW_[1]))*((mixture_.p_num()/(mixture_.p_num()-p_water_))-1);
-		//((mDot_Wall_[0]/MW_[0]+mDot_Wall_[1]/MW_[1])*(mixture_.p_num()/(mixture_.p_num()-p_water_))-(mDot_Wall_[0]/MW_[0]+mDot_Wall_[1]/MW_[1]))*MW_[2];
 		mDot_Wall_[i].correctBoundaryConditions();		
 	} else {
 		mDot_Wall_[i]=mDot_Wall_[0]*0;
-		Info<<"no Vapour Please"<<endl;
 	}
 }
 
-
+// Detached-bubble transfer (paper Eqs. 29-31). Transfer is driven by
+// supersaturation and reduced at high gas saturation by the area correction.
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
 Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i)
 {
@@ -168,32 +168,19 @@ Foam::massAndSpeciesTransferModels::mixedSaturation::mDotAlphal(const int i)
     
 }
 
-
+// Combine attached-wall and detached-bubble contributions into the
+// interphase source consumed by the phase and species balances.
 Foam::Pair<Foam::tmp<Foam::volScalarField>>
 Foam::massAndSpeciesTransferModels::mixedSaturation::mDot(const int i, const bool Write) 
 {
 
     if (i<=1) {
-    	volScalarField limitedAlpha1
-    	(
-        	min(max(mixture_.alpha1(), scalar(0)), scalar(1))
-    	);
-    	
-    	volScalarField limitedAlpha2
-    	(
-        	min(max(mixture_.alpha2(), scalar(0)), scalar(1))
-    	);
-
-
     	const dimensionedScalar C0(dimensionSet(0,-3,0,0,1,0,0), Zero);
     	
-    
-    	//const volScalarField rho1i(MW_[i]*(mixture_.p_num())/(Foam::constant::physicoChemical::R*T_));
-
     	volScalarField mDotE
     	(
         	"mDotE_"+species2[i], mDot_Wall_[i]+((Pe_+PeC_+Ne_+NeC_)*shModelDB_->ki(i)/((shModelDB_->d()[0]*Ne_+shModelDB_->d()[1]*Pe_+(shModelDB_->d()[1]+shModelDB_->d()[0])/2*(1-Pe_-Ne_))/2)*
-       		epsilon_*alpha_*(1-pow(alpha_,5))*MW_[i]*max(C2_[i] - C_sat_[i], C0))//mDot_Wall_[i]+(Pe_+Ne_)*K_DB_/R_DB_*epsilon_*MW_[i]*limitedAlpha1*max(C2_[i] - C_sat_[i], C0)
+       		epsilon_*alpha_*(1-pow(alpha_,5))*MW_[i]*max(C2_[i] - C_sat_[i], C0))
     	);
     	volScalarField mDotC
     	(
@@ -249,18 +236,6 @@ void Foam::massAndSpeciesTransferModels::mixedSaturation::correct(const int i)
 
 }
 
-/*
-bool Foam::massAndSpeciesTransferModels::constant::read()
-{
-    if (massAndSpeciesTransferModel::read())
-    {
-        subDict(type() + "Coeffs").readEntry("coeffC", coeffC_);
-        subDict(type() + "Coeffs").readEntry("coeffE", coeffE_);
 
-        return true;
-    }
-
-    return false;
-}*/
 
 // ************************************************************************* //

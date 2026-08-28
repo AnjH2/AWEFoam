@@ -61,7 +61,6 @@ Foam::mixtureViscosityModels::Beckermann::Beckermann
 :
     mixtureViscosityModel(name, viscosityPropertiesSub1,viscosityPropertiesSub2, U, phi),
     BeckermannCoeffsSub1_(viscosityPropertiesSub1.optionalSubDict(modelName + "Coeffs")),
-    BeckermannCoeffsSub2_(viscosityPropertiesSub2.optionalSubDict(modelName + "Coeffs")),
     mud_ref_(species1.size()),
     T_muref_(species1.size()),
     n_mu_(species1.size()),
@@ -209,6 +208,8 @@ forAll(kr_,celli)
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+// Saturation/relative-permeability mixture viscosity corresponding to the
+// porous two-phase closure used in paper Eq. 7.
 Foam::tmp<Foam::volScalarField>
 Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& rhod) const
 {
@@ -216,6 +217,8 @@ Foam::mixtureViscosityModels::Beckermann::mu(const volScalarField& rhod) const
     return pow((1-alpha_)*pow(1-min(alpha_,0.999),kr_)/(muc_/rhoc_)+alpha_*pow(min(alpha_,0.999),kr_)/(mud_m_/rhod),-1)*(min(alpha_,0.999)*rhod+(1-min(alpha_,0.999))*rhoc_);
 }
 
+// Update gas-mixture viscosity from H2/O2/H2O component viscosities and
+// their local partial fractions when water vapour is enabled.
 void Foam::mixtureViscosityModels::Beckermann::mud_m_correct(const volScalarField& p_water,const dimensionedScalar& p_num){
 
 mud_m_=mud_m_*0;
@@ -246,9 +249,7 @@ forAll(species1,i)
 		} else { 
 			mud_m_=mud_m_+mud_[i]/(1+1/((p_water)/p_num)*a_);
 		}
-	//mud_m_=mud_m_+(x_(i)*mud_[i])/a_;
 	}
-//mud_m_=max(mud_m_,min(mud_[0],min(mud_[1],mud_[2])));
 }
 else
 {
@@ -266,9 +267,6 @@ bool Foam::mixtureViscosityModels::Beckermann::read
 
     BeckermannCoeffsSub1_ = viscosityPropertiesSub1.optionalSubDict(typeName + "Coeffs");
 
-    //BeckermannCoeffsSub1_.readEntry("mu", mud_);
-  //  BeckermannCoeffs_.readEntry("n", BeckermannViscosityExponent_);
-   // BeckermannCoeffs_.readEntry("muMax", muMax_);
 
     return true;
 }

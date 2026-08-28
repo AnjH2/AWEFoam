@@ -27,7 +27,8 @@ Class
     Foam::zeroCoverage
 
 Description
-    zeroCoverage coverage model
+    Null coverage model used to disable electrode blockage by attached
+    bubbles while retaining the common coverage-model interface.
 
 SourceFiles
     zeroCoverage.C
@@ -57,8 +58,6 @@ class zeroCoverage
 {
     // Private data
 
-        //- volume fraction of gas -> read
-        const volScalarField& alphad_;
         
 public:
 

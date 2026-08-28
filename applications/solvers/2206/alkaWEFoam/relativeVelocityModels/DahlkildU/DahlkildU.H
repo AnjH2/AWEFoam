@@ -27,7 +27,9 @@ Class
     Foam::DahlkildU
 
 Description
-    DahlkildU relative velocity model
+    Legacy Dahlkild-type buoyancy drift closure. The model supplies the
+    non-diffusive relative velocity; saturation dispersion is delegated to
+    phaseDiffusionModel.
 
 SourceFiles
     DahlkildU.C
@@ -55,24 +57,16 @@ class DahlkildU
     public relativeVelocityModel
 {
     // Private data
-	const incompressibleTwoPhaseInteractingMixture& mixture_;
 	List<word> electrodes;
 	const dictionary& dict_;
-	//const dimensionedVector g_;
 	const meshObjects::gravity& g_;
 	
-	const dimensionedScalar rd_;
-	const dimensionedScalar n_;
-	const dimensionedScalar& rhoc_;
-	const volScalarField& rhod_;
-	const volScalarField& V1_;
-	const volScalarField& eps_;
-	const volVectorField& U_;
+	PtrList <dimensionedScalar> rd_;
 	const dimensionedVector eg_;
 	
     // Private functions??
     volScalarField f();
-    dimensionedVector vStokes();
+    volVectorField vStokes();
     
     volVectorField UStokes();
     

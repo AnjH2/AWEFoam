@@ -33,6 +33,8 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+// Read species concentrations and molecular properties and initialize
+// Arrhenius temperature-dependent diffusivities (paper Eq. 10).
 Foam::speciesProperties::speciesProperties
 (
     const fvMesh& mesh,
@@ -50,12 +52,9 @@ Foam::speciesProperties::speciesProperties
             	IOobject::NO_WRITE
         	)
     	),
-	phase1NamE_(dict.get<wordList>("phases")[0]),
     	phase2NamE_(dict.get<wordList>("phases")[1]),
     	species2Coeffs_(this->optionalSubDict(phase2NamE_)),
-    	species1Coeffs_(this->optionalSubDict(phase1NamE_)),
     	species2({"H2","O2","H2O","OH","K"}),
-    	species1({"H2","O2","H2O"}),
 	z_(species2.size()),
 	Ea2_(species2.size()),
 	D2_ref_(species2.size()),
@@ -155,7 +154,7 @@ forAll(species2,i)
 		Info<< "*** Reading speciesProperties for phase2."
         	<< species2[i] << "***" << nl << endl;
        		Info<< "    Adding charges to speceis\n" << endl;
-       		//z2_i="z_"+"H2";
+       		
     		z_.set
     		(
         	i,
@@ -277,24 +276,16 @@ forAll(species2,i)
     	
     	}
 	}
-/*	Info<< "*** Reading molar weight for K***"<<" size:"<<MW_.size()<< nl << endl;
-MW_.set
-	(
-        MW_.size()-1,
-        new dimensionedScalar("MW_K", dimensionSet ( 1, 0, 0, 0, -1, 0, 0),dict)
-        );
-*/
+
 D2_ambi_=(z_[4]-z_[3])*D2_[3]*D2_[4]/(-1*z_[3]*D2_[3]+z_[4]*D2_[4]);
 
 }
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-volScalarField Foam::speciesProperties::tp_Merenkov()
-{
-    return 0.26-0.047*(sqrt(C2_[3]/dimensionedScalar(dimMoles/dimVolume,1000))+1);
-}
 
 
+// Enforce K+/OH- electroneutrality and update aggregate concentration
+// diagnostics. Only OH- is transported explicitly in the species equation.
 void Foam::speciesProperties::correct()
 {
     C2_[4]=C2_[3];

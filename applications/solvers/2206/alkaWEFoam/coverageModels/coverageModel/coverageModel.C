@@ -51,8 +51,7 @@ Foam::coverageModel::coverageModel
     const word& modelName 
 )
 :
-	coverageModelDict_(dict),
-	transportPropertiesDict_(dict),
+    // Store the selected model state and create a writable coverage field.
 	mixture_(mixture),
     	theta_
     	(
@@ -67,7 +66,7 @@ Foam::coverageModel::coverageModel
         mesh,
         dimensionedScalar("theta__",dimless,Zero)
    	),
-   	p_num_("p_num",dimPressure,1)
+   	p_num_(mixture.p_num())
 {}
 
 

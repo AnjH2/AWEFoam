@@ -27,10 +27,14 @@ Class
     Foam::solidPressure
 
 Description
-    solidPressure relative velocity model
+    Porous-region bubble-dispersion closure with an anisotropic baseline
+    coefficient and an exponential gas-saturation augmentation. The latter
+    mimics the solid-pressure-like increase in dispersion at high gas
+    saturation used in the associated electrolyzer model.
 
 SourceFiles
     solidPressure.C
+
 
 \*---------------------------------------------------------------------------*/
 
@@ -64,13 +68,7 @@ class solidPressure
         //const dimensionedScalar n_;
         PtrList <dimensionedScalar> rd_;
         vector ep_; //unit vector parallel to g
-        vector t_; //test vector
-        vector en1_; //unit vector normal to g
-        vector en2_; //unit vector normal to g
         volTensorField D_;
-	dimensionedVector DVn1_;
-	dimensionedVector DVn2_;
-	dimensionedVector DVp_;
 	
 	    const scalar  ANe_;
 	    const scalar  CbNe_;

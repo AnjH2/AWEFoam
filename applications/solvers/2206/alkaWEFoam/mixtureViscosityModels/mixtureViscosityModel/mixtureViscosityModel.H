@@ -34,7 +34,9 @@ Class
     Foam::mixtureViscosityModel
 
 Description
-    An abstract base class for incompressible mixtureViscosityModels.
+    Runtime-selectable base class for the gas-liquid mixture viscosity used by
+    the porous two-phase momentum model. Derived models provide gas-mixture
+    viscosity, relative-permeability exponents and the effective mixture value.
 
 SourceFiles
     mixtureViscosityModel.C
@@ -77,7 +79,6 @@ protected:
 	    const dimensionedScalar rhoc_;
 
         const volVectorField& U_;
-        const surfaceScalarField& phi_;
         const PtrList <dimensionedScalar>& MW_;
         const volScalarField& T_;
         //volScalarField mu_m;

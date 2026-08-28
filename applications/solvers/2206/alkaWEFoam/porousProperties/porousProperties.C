@@ -30,6 +30,8 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+// Read porous-region marker fields and construct permeability, surface-area
+// and effective solid-conductivity properties used throughout the solver.
 Foam::porousProperties::porousProperties
 (
     const fvMesh& mesh

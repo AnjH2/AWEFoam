@@ -50,30 +50,11 @@ Foam::relativeVelocityModels::stokes::stokes
 )
 :
     relativeVelocityModel(dict, mixture,modelName),
-    mixture_(mixture),
     electrodes({"Ne","Pe"}),
-    dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
     rd_(electrodes.size()),
-	//(
-	//	"R_DB",
-	//	dimensionSet ( 0, 1, 0, 0, 0, 0,0),
-	//	dict
-	//),
     n_("n",dimless,dict_),
-    minAlphad_("minAlphad",dimless,dict_),
-    rhoc_(mixture.rhoc()),
-    rhod_(mixture.rhod()),
-    
-    
-    eps_(
-	    alphac_.mesh().lookupObject<volScalarField>
-            (
-            	"eps"
-            )
-        ),
-
     eg_("eg",(-1*g_)/mag(g_))
 {
 forAll(electrodes,i)
@@ -93,12 +74,15 @@ Foam::relativeVelocityModels::stokes::~stokes()
 {}
 
 // * * * * * * * * * * * * * * Private Functions  * * * * * * * * * * * * * * //
+
+// Gas-fraction hindrance applied to the terminal rise velocity.
 volScalarField Foam::relativeVelocityModels::stokes::f()
 {
 	
-	return pow(1-min(alphad_,minAlphad_),n_);
+	return pow(1-alphad_,n_);
 }
 
+// Terminal Stokes velocity based on the electrode-specific bubble radius.
 dimensionedVector Foam::relativeVelocityModels::stokes::vStokes(int j)
 {
 	
@@ -117,6 +101,8 @@ volVectorField Foam::relativeVelocityModels::stokes::UStokes(int j)
 
 void Foam::relativeVelocityModels::stokes::correct()
 {    
+    // Update the separate dispersion closure first, then construct only the
+    // buoyancy-driven part of the gas phase-relative velocity.
     dModel_->correct();
     Udm_ = (1-Mem_+VSMALL)*(rhoc_/rho())*((UStokes(0))*(Ne_+NeC_)+(UStokes(1))*(Pe_+PeC_));
 }

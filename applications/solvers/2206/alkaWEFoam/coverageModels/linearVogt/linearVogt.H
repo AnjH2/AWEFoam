@@ -27,7 +27,8 @@ Class
     Foam::linearVogt
 
 Description
-    linearVogt coverage model
+    Combined coverage closure taking the larger of a saturation-based
+    coverage estimate and the current-density-based Vogt correlation.
 
 SourceFiles
     linearVogt.C

@@ -27,7 +27,9 @@ Class
     Foam::mixedSaturation
 
 Description
-    mixedSaturation loss model, used in the butlerVolmer model
+    Gas-liquid mass-transfer model with separate attached- and detached-bubble
+    contributions. H2/O2 transfer is driven by supersaturation and Sherwood-
+    based coefficients; optional water-vapour transfer assumes saturated gas.
 
 SourceFiles
     mixedSaturation.C

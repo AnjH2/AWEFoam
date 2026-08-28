@@ -1,3 +1,5 @@
+// Create the primary hydrodynamic, electrochemical and transport fields and
+// construct the runtime-selectable submodels used by alkaWEFoam.
 IOdictionary transportProperties
 (
 	IOobject
@@ -168,34 +170,7 @@ surfaceScalarField rhoPhi
     fvc::interpolate(mixture.rho())*phi
 );
 
-  
-    
-volScalarField V1_
-(
-	IOobject
-	(
-		"V1",
-		runTime.timeName(),
-		mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar(dimless,One)
-);
-volScalarField V2_
-(
-	IOobject
-	(
-		"V2",
-		runTime.timeName(),
-		mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar(dimless,One)
-);
+ 
 Info<<"Creating Saturation flux"<<endl;
     surfaceScalarField alphaPhi
     (
@@ -267,8 +242,6 @@ mesh.setFluxRequired(alpha1.name());
 
 
 // MULES Correction
-tmp<surfaceScalarField> talphaPhiCorr0;
-
 IOobject alphaPhi10Header
 (
     IOobject::groupName("alphaPhi0", alpha1.group()),

@@ -251,10 +251,9 @@ t_OH_=u_OH_/(u_K_+u_OH_);
 
 void Foam::reactionProperties::correct(const volScalarField& p_water_,const volScalarField& p_water_pure_,const dimensionedScalar p_num_, const volScalarField& m_KOH)
 	{
-		Info<<"3.1"<<endl;
+		
 		forAll(electrodes,i)
 		{
-			Info<<"3.2"<<endl;
 			if (sum(p_water_)>dimensionedScalar(dimPressure,1))
 			{
 			E0_[i]=E0_ref_[i]+Ds_[i]/(2*Foam::constant::physicoChemical::F)*(T_-T0_E0_[i])
@@ -278,7 +277,6 @@ void Foam::reactionProperties::correct(const volScalarField& p_water_,const volS
 		    }
 				
 		}
-		Info<<"3.3"<<endl;
 		forAll(species2,i)
 		{
 			if (species2[i]=="H2"||species2[i]=="O2")

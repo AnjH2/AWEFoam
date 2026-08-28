@@ -27,6 +27,10 @@ Class
     Foam::coverageModel
 
 Description
+    Runtime-selectable base class for local gas-bubble coverage models.
+    The coverage field theta represents the fraction of electrode surface
+    blocked by attached gas bubbles and is used by electrochemical and
+    attached-bubble sub-models.
 
 SourceFiles
     coverageModel.C
@@ -64,8 +68,6 @@ class coverageModel
 protected:
 
     // Protected data
-	const dictionary coverageModelDict_;
-	const dictionary transportPropertiesDict_;
 	const incompressibleTwoPhaseInteractingMixture& mixture_;
 	volScalarField	theta_;
 	dimensionedScalar p_num_;

@@ -27,7 +27,9 @@ Class
     Foam::linearCoverage
 
 Description
-    linearCoverage coverage model
+    Saturation-based coverage closure. The local coverage is evaluated as
+    theta = alphaGas^n; n = 1 recovers the linear coverage model used in
+    the accompanying sensitivity study.
 
 SourceFiles
     linearCoverage.C

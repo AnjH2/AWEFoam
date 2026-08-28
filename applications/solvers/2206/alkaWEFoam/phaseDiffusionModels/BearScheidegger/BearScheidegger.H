@@ -27,7 +27,9 @@ Class
     Foam::BearScheidegger
 
 Description
-    BearScheidegger relative velocity model
+    Combined bubble-dispersion and Bear-Scheidegger mechanical-dispersion
+    closure for porous flow. It adds a bubble hydrodynamic contribution to
+    a velocity-dependent longitudinal/transverse pore-dispersion tensor.
 
 SourceFiles
     BearScheidegger.C
@@ -62,16 +64,9 @@ class BearScheidegger
         const volVectorField&   U_;
         dimensionedScalar Dp_;
         dimensionedScalar Dn_;
-        //const dimensionedScalar n_;
         PtrList <dimensionedScalar> rd_;
         vector ep_; //unit vector parallel to g
-        vector t_; //test vector
-        vector en1_; //unit vector normal to g
-        vector en2_; //unit vector normal to g
         volTensorField D_;
-	    dimensionedVector DVn1_;
-	    dimensionedVector DVn2_;
-	    dimensionedVector DVp_;
 	    
 	    const scalar aL_;
 	    const scalar bP_;

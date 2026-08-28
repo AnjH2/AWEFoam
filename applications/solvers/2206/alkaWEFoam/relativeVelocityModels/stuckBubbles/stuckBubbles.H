@@ -27,9 +27,9 @@ Class
     Foam::stuckBubbles
 
 Description
-    stuckBubbles relative velocity model,
-    it defines properties for each electrode.
-    diffusion and lift only
+    Composite attached/detached bubble model. Attached bubbles are stationary,
+    while detached bubbles use a selectable base relative-velocity model. The
+    total drift and dispersion are reconstructed from the two gas sub-phases.
 
 SourceFiles
     stuckBubbles.C
@@ -71,10 +71,9 @@ class stuckBubbles
 	volTensorField Ddm_;
 	volScalarField alphaStatic_;
 	volScalarField alphaMoveing_;
-	const dimensionedScalar alphaResidual_; //a minimum volume fraction that is passed in the stuck bubble model.
 	const PtrList <dimensionedScalar>& as_;
 	
-    // Private functions??
+    // Private functions
         volScalarField gamma_L();
     volScalarField gamma_G();
     volScalarField gamma_GA();

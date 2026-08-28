@@ -65,7 +65,7 @@ Foam::phaseDiffusionModels::noDiffusion::~noDiffusion()
 
 void Foam::phaseDiffusionModels::noDiffusion::correct()
 {
-
+    Ddm_=dimensionedTensor(dimVelocity*dimLength, tensor::zero);;
 }
 
 

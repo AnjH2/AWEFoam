@@ -27,6 +27,9 @@ Class
     Foam::massAndSpeciesTransferModel
 
 Description
+    Runtime-selectable base class for gas-liquid mass transfer in the alkaline
+    electrolyzer model. Stores electrochemical species-production sources,
+    saturation data, wall transfer rates and optional water-vapour properties.
 
 SourceFiles
     massAndSpeciesTransferModel.C
@@ -72,14 +75,11 @@ protected:
 	const dictionary massAndSpeciesTransferModelDict_;
 	List<word> species2;
 	List<word> species1;
-	List<word> speciesE;
 	
 	PtrList <volScalarField> Psi_BV_;
 	//variables related to butlerVolmer species transfer 
-	const PtrList <dimensionedScalar>& z_;
 	const PtrList <dimensionedScalar>& psi_;
 	const PtrList <dimensionedScalar>& MW_;
-	const PtrList <volScalarField>& D2_;
 	const volScalarField& Pe_;
         const volScalarField& Ne_; 
         const volScalarField& PeC_;
@@ -89,14 +89,9 @@ protected:
         const volScalarField& alpha_;
         const volScalarField& epsilon_;
         const PtrList <dimensionedScalar>& as_;
-        const dimensionedScalar& t_OH_;
-        const volVectorField& U_;
-        //const dimensionedScalar& p_num_;
         //Mass transfer model.
         PtrList <volScalarField> mDot_Wall_;
         PtrList <volScalarField> mDotAlpha_Wall_;
-        PtrList <volScalarField> mDotAlpha_FIELD_;
-        PtrList <volScalarField> mDotDiff_;
         //water vapourModel
         const bool waterVapour_;
         
@@ -210,18 +205,7 @@ public:
 	Pair<tmp<volScalarField>> mDotAlphal();
 	
 	const volScalarField mDotAlpha_Wall();
-        
-        //- Return the volumetric condensation and vaporisation rates as a
-        //  coefficient to multiply (1 - alphal) for the condensation rate
-        //  and a coefficient to multiply  alphal for the vaporisation rate
-        //  of each species
-        virtual Pair<tmp<volScalarField>> vDotAlphal();
 
-        //- Return the volumetric condensation and vaporisation rates as
-        //  coefficients of each species
-        virtual Pair<tmp<volScalarField>> vDot();
-        
-        virtual Pair<tmp<volScalarField>> vDot_rhoC1();
 
         //- Correct the phaseChange model
         virtual void correct(const int i) = 0;

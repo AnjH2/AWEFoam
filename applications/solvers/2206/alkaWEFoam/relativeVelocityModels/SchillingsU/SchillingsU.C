@@ -50,34 +50,12 @@ Foam::relativeVelocityModels::SchillingsU::SchillingsU
 )
 :
     relativeVelocityModel(dict, mixture,modelName),
-    mixture_(mixture),
     electrodes({"Ne","Pe"}),
     dict_(dict),
     g_(meshObjects::gravity::New(mixture.U().time())),
     
     rd_(electrodes.size()),
     n_("n",dimless,dict),
-    rhoc_(mixture.rhoc()),
-    rhod_(mixture.rhod()),
-    
-        V1_(
-	alphac_.mesh().lookupObject<volScalarField>
-        (
-            	"V1"
-        )
-        ),
-    eps_(
-	    alphac_.mesh().lookupObject<volScalarField>
-            (
-            	"eps"
-            )
-        ),
-    U_(
-	    alphac_.mesh().lookupObject<volVectorField>
-            (
-            	"U"
-            )
-        ),
     eg_("eg",(-1*g_)/mag(g_))
 {
 forAll(electrodes,i)
@@ -116,10 +94,10 @@ volScalarField Foam::relativeVelocityModels::SchillingsU::f()
 	
 	return pow(1.0-alphad_,n_);
 }
+// Unit direction for the Saffman lift contribution, based on U x curl(U).
 volVectorField Foam::relativeVelocityModels::SchillingsU::n()
 {
     volVectorField omega = fvc::curl(U_);
-    //return (omega^eg_)/(mag(omega^eg_)+dimensionedScalar(dimless/dimTime,SMALL));
     volVectorField lamb = U_^omega;
     return (lamb)/(mag(lamb)+dimensionedScalar(dimLength/dimTime/dimTime,SMALL));
 }
@@ -154,7 +132,8 @@ volVectorField Foam::relativeVelocityModels::SchillingsU::USaff()
 	return -f()*sign(gamma())*mag(vStokes())*6.46/(6.0*Foam::constant::mathematical::pi)*sqrt((sqr(rd_[0]*Ne_+rd_[1]*Pe_)*mag(gamma()))/mixture_.nuc())*n()*(1-Mem_+VSMALL);
 }
 
-
+// Shear-induced migration driven by gradients in the local shear stress.
+// This is distinct from the explicit saturation-gradient dispersion tensor.
 volVectorField Foam::relativeVelocityModels::SchillingsU::USmig()
 {
 	return -1/alphad_*pow((rd_[0]*Ne_+rd_[1]*Pe_),2)*mag(gamma())*kappa()*fvc::grad(tau())/tau();
@@ -163,6 +142,9 @@ volVectorField Foam::relativeVelocityModels::SchillingsU::USmig()
 
 void Foam::relativeVelocityModels::SchillingsU::correct()
 {
+
+    // Hydrodynamic phase dispersion is updated independently through dModel_.
+    // Udm_ therefore contains only the remaining drift/migration contributions.
     dModel_->correct();
     Udm_ = (UStokes()+USaff()+USmig())*((alphac_)*rhoc_/rho());    
     Udm_.correctBoundaryConditions();

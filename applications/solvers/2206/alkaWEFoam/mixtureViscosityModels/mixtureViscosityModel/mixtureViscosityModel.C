@@ -41,6 +41,8 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+// Store common phase/species properties required by runtime-selectable
+// gas-liquid mixture-viscosity closures.
 Foam::mixtureViscosityModel::mixtureViscosityModel
 (
     const word& name,
@@ -61,7 +63,6 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
     ),
     rhoc_("rho", dimDensity, viscosityPropertiesSub2_),
     U_(U),
-    phi_(phi),
     MW_(
 		U_.mesh().lookupObject<speciesProperties>
         	(
@@ -74,19 +75,6 @@ Foam::mixtureViscosityModel::mixtureViscosityModel
             		"T"
         	)
 	),
-	/*mu_m
-	(
-    		IOobject
-    		(
-        		"mu_m",
-        		U.mesh().time().timeName(),
-        		U.mesh(),
-        		IOobject::NO_READ,
-        		IOobject::AUTO_WRITE
-    		),
-    		U.mesh(),
-    		dimensionedScalar("mu_m__",dimDynamicViscosity,1)
-	),*/
 	phi1_(species1.size()*species1.size()),
 	Pe_
        	(

@@ -27,7 +27,8 @@ Class
     Foam::noDiffusion
 
 Description
-    noDiffusion relative velocity model
+    Null phase-diffusion closure. It disables the separate saturation-
+    gradient diffusion solve through runDiffusion().
 
 SourceFiles
     noDiffusion.C
@@ -56,8 +57,6 @@ class noDiffusion
 {
     // Private data
 
-        //- Diffusion coefficient
-        dimensionedScalar D_;
 
 
 public:

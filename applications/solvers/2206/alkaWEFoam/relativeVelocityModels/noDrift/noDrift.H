@@ -27,9 +27,8 @@ Class
     Foam::noDrift
 
 Description
-    noDrift relative velocity model,
-    it defines properties for each electrode.
-    lift only
+    Zero non-diffusive drift closure. Udm is set to zero, while the separately
+    selected phase-diffusion model may remain active.
 
 SourceFiles
     noDrift.C
@@ -56,9 +55,8 @@ class noDrift
 :
     public relativeVelocityModel
 {
-	const incompressibleTwoPhaseInteractingMixture& mixture_;
+
 	List<word> electrodes;
-	const dictionary& dict_;
 
 
 

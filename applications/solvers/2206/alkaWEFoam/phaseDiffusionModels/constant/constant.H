@@ -27,7 +27,9 @@ Class
     Foam::constant
 
 Description
-    constant relative velocity model
+    Constant-coefficient hydrodynamic phase-dispersion closure. The
+    dimensional scale is formed from bubble radius and terminal velocity,
+    while D_Ne and D_Pe provide dimensionless anisotropy multipliers.
 
 SourceFiles
     constant.C
@@ -55,14 +57,11 @@ class constant
     public phaseDiffusionModel
 {
     // Private data
-        const incompressibleTwoPhaseInteractingMixture& mixture_;
 	    List<word> electrodes;
 	    const dictionary& dict_;
 	    const meshObjects::gravity& g_;
 	    
 	    PtrList <dimensionedScalar> rd_;
-	    const dimensionedScalar& rhoc_;
-	    const volScalarField& rhod_;
 	    PtrList <dimensionedTensor> D_;
 	    const dimensionedVector eg_;
     

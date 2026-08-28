@@ -41,6 +41,8 @@ namespace Foam
 
 // * * * * * * * * * * * * * Private Member Functions   * * * * * * * * * * * //
 
+// Match Udm boundary treatment to the mixture-velocity boundary type so
+// derived drift closures can update only the internal model expression.
 Foam::wordList Foam::relativeVelocityModel::UdmPatchFieldTypes() const
 {
     const volVectorField& U = mixture_.U();
@@ -98,32 +100,6 @@ Foam::relativeVelocityModel::relativeVelocityModel
         dimensionedVector(dimVelocity, Zero),
         UdmPatchFieldTypes()
     ),
-    
-    y0_(
-    	dict.lookupOrDefault<scalar>("y0", Zero)//scalar(1.0)
-    ),
-    y1_(
-    	dict.lookupOrDefault<scalar>("y1", Zero)
-    ),
-    y2_(
-    	dict.lookupOrDefault<scalar>("y2", Zero)
-    ),
-    y3_(
-    	dict.lookupOrDefault<scalar>("y3", Zero)
-    ),
-    yNormal_
-    (
-        IOobject
-        (
-            "yNormal",
-            alphac_.time().timeName(),
-            alphac_.mesh(),
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        alphac_.mesh(),
-        dimensionedScalar(dimLength, 1)
-    ),
     hF_(
     	dict.lookupOrDefault<scalar>("hF", 0) //how much the velocity is reduced, 0 is free rasing bubble, only active in Pe and Ne
     ),
@@ -163,7 +139,15 @@ Foam::relativeVelocityModel::relativeVelocityModel
             		"eps"
         	)
 	),
+	U_(
+	        alphad_.mesh().lookupObject<volVectorField>
+        	(
+            		"U"
+        	)
+	),
 	modelName_(modelName),
+    // Phase dispersion is selected independently from the advective drift
+    // closure, allowing buoyancy/lift and D.grad(alpha) to be treated separately.
     dModel_
     (
         phaseDiffusionModel::New
@@ -174,37 +158,6 @@ Foam::relativeVelocityModel::relativeVelocityModel
         )
     )
 {
-forAll ( alphac_.mesh().C(), celli) //loop through cell centres
-{
-  if(alphac_.mesh().C()[celli].y()<y1_) //not sure if this is correct syntax
-  {
-      if (mag(alphac_.mesh().C()[celli].y()-y0_)<=mag(alphac_.mesh().C()[celli].y()-y1_))
-      {
-      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y0_;
-      }
-      else
-      {
-      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y1_;
-      }
-  }
-  else if ((alphac_.mesh().C()[celli].y()<y3_) and (alphac_.mesh().C()[celli].y()>y2_))
-  {
-      if (mag(alphac_.mesh().C()[celli].y()-y3_)<=mag(alphac_.mesh().C()[celli].y()-y2_))
-      {
-      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y3_;
-      }
-      else
-      {
-      	yNormal_[celli]=alphac_.mesh().C()[celli].y()-y2_;
-      }
-  }
-  else
-  {
-  	yNormal_[celli]=1;
-  }
-}
-
-Info<<modelName_<<" constructor complete"<<endl;
 }
 
 
@@ -261,25 +214,19 @@ Foam::tmp<Foam::volScalarField> Foam::relativeVelocityModel::rho() const
 }
 
 
-// Calculate the relative velocity of the continuous phase w.r.t the mean
+// Convert the gas relative velocity to the corresponding liquid velocity
+// using the zero mass-weighted sum of phase-relative velocities.
 Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Ucm() const
 {
     volScalarField betac(alphac_*rhoc_);
     volScalarField betad(alphad_*rhod_);
     return -betad*Udm_/betac;
-    /*return tmp<volVectorField>
-    (
-        new volVectorField
-        (
-            "Ucm",
-            -betad*Udm_/betac
-        )
-    );*/
-    
+   
 }
 
 
-// Calculate the relative velocity of the continuous phase w.r.t the mean
+// Recover the drift velocity relative to the volume-averaged mixture from
+// the mass-averaged phase-relative velocity stored in Udm_.
 Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Udj() const
 {
     return tmp<volVectorField>
@@ -293,6 +240,8 @@ Foam::tmp<Foam::volVectorField> Foam::relativeVelocityModel::Udj() const
     
 }
 
+// Drift-induced momentum stress formed from the phase-relative velocities.
+// Note: the present solver assembles its active drift stress directly from Ur.
 Foam::tmp<Foam::volTensorField> Foam::relativeVelocityModel::tauDm() const
 {
 

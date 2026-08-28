@@ -64,26 +64,21 @@ Foam::phaseDiffusionModels::BearScheidegger::BearScheidegger
     Dn_("diffCoeffGravityNormal", dimless, dict),
     //n_("n",dimless,dict),
     rd_(electrodes.size()),
-ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector::Y)),mag(g_.value().component(vector::Z)))/mag(g_.value())),
-    t_((mag(ep_.x()) < 0.9) ? vector(1,0,0) : vector(0,1,0)),
-    en1_(ep_ ^ t_),
-    en2_(ep_ ^ en1_),
-    D_ 
+    ep_(g_.value()/mag(g_.value())),
+
+    D_
     (
-            IOobject
-            (
-                "anIsoDTensor",
-                alphad_.mesh().time().timeName(),
-                alphad_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE         // run-time field, not written
-            ),
+        IOobject
+        (
+            "anIsoDTensor",
+            alphad_.mesh().time().timeName(),
             alphad_.mesh(),
-            dimensionedTensor("zero", dimless, tensor::zero) // start at 0
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        alphad_.mesh(),
+        dimensionedTensor("zero", dimless, tensor::zero)
     ),
-    DVn1_(Dn_*en1_),
-    DVn2_(Dn_*en2_),
-    DVp_(Dp_*ep_),
     aL_(dict.lookupOrDefault<scalar>("aL", 1)),
     bP_(dict.lookupOrDefault<scalar>("bP", 5)),
     cL_(dict.lookupOrDefault<scalar>("cL", 1)),
@@ -95,10 +90,10 @@ ep_(vector(mag(g_.value().component(vector::X)),mag(g_.value().component(vector:
     
 {
 
-    	D_.replace(tensor::XX,mag(DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X)));
-    	D_.replace(tensor::YY,mag(DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y)));
-    	D_.replace(tensor::ZZ,mag(DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z)));
-    	forAll(electrodes,i)
+    D_ =
+        Dn_*tensor(1,0,0,0,1,0,0,0,1)
+      + (Dp_ - Dn_)*(ep_*ep_);
+    forAll(electrodes,i)
 	{
     	rd_.set
     	(
@@ -127,7 +122,7 @@ volScalarField Foam::phaseDiffusionModels::BearScheidegger::f()
 volVectorField Foam::phaseDiffusionModels::BearScheidegger::vStokes()
 {
 	
-	return -g_.value()*(sqr(2*(rd_[0]*Ne_+rd_[1]*Pe_))/(18*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
+	return -g_.value()*(sqr(2*(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_)))/(18*mixture_.nuc()))*dimensionedScalar(dimAcceleration,1);
 }
 
 
@@ -136,14 +131,14 @@ volVectorField Foam::phaseDiffusionModels::BearScheidegger::vStokes()
 
 volTensorField Foam::phaseDiffusionModels::BearScheidegger::UHdiff()
 {
-    	//D_.replace(tensor::XX,DVn1_.component(vector::X)+DVn2_.component(vector::X)+DVp_.component(vector::X));
-    	//D_.replace(tensor::YY,DVn1_.component(vector::Y)+DVn2_.component(vector::Y)+DVp_.component(vector::Y));
-    	//D_.replace(tensor::ZZ,DVn1_.component(vector::Z)+DVn2_.component(vector::Z)+DVp_.component(vector::Z));	
 
-	return 1/alphad_*(rd_[0]*Ne_+rd_[1]*Pe_)*f()*mag(vStokes())*D_;
+
+	return 1/alphad_*(rd_[0]*(Ne_+NeC_)+rd_[1]*(Pe_+PeC_))*f()*mag(vStokes())*D_;
 }
 volTensorField Foam::phaseDiffusionModels::BearScheidegger::UBSdiff()
 {
+    // Bear-Scheidegger mechanical dispersion: isotropic transverse part
+    // plus a longitudinal dyadic contribution aligned with pore velocity.
     volVectorField  Uhat_=max(U_/eps_,dimensionedVector(dimVelocity,vector(SMALL,SMALL,SMALL)));
     volScalarField  BS_=BSPore0_*pow(alphac_,nSat_);
 
@@ -160,8 +155,9 @@ volTensorField Foam::phaseDiffusionModels::BearScheidegger::UBSdiff()
 
 void Foam::phaseDiffusionModels::BearScheidegger::correct()
 {
-
-    Ddm_=dF_*(1-Mem_)*(RToM()*UHdiff()+alphac_/alphad_*VToM()*UBSdiff()/alphad_);
+    // Combine bubble and pore-scale mechanical dispersion and suppress the
+    // result in the diaphragm.
+    Ddm_=dF_*(1-Mem_)*(RToM()*UHdiff()+alphac_*VToM()*UBSdiff())/alphad_;
 
 }
 

@@ -27,7 +27,9 @@ Class
     Foam::Dahlkild
 
 Description
-    Dahlkild relative velocity model
+    Dahlkild-type phase-dispersion closure combining a terminal-velocity
+    contribution and a velocity-gradient-dependent isotropic contribution.
+    Non-diffusive drift is supplied by the separate relative-velocity model.
 
 SourceFiles
     Dahlkild.C
@@ -63,13 +65,7 @@ class Dahlkild
         const dimensionedScalar n_;
         const dimensionedScalar rb_;
         vector ep_; //unit vector parallel to g
-        vector t_; //test vector
-        vector en1_; //unit vector normal to g
-        vector en2_; //unit vector normal to g
         volTensorField D_;
-	dimensionedVector DVn1_;
-	dimensionedVector DVn2_;
-	dimensionedVector DVp_;
 		const volVectorField& U_;
 		const volScalarField& Solid_;
         

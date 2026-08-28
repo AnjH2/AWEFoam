@@ -27,6 +27,10 @@ Class
     Foam::relativeVelocityModel
 
 Description
+    Base class for gas-phase relative-velocity closures. The current solver
+    separates the non-diffusive drift contribution from saturation-gradient
+    dispersion: Udm_ stores the phase-to-mixture relative velocity, while
+    dModel_ owns the phase-diffusion/dispersion tensor returned by Ddm().
 
 SourceFiles
     relativeVelocityModel.C
@@ -72,8 +76,6 @@ protected:
         //- Mixture properties
         const incompressibleTwoPhaseInteractingMixture& mixture_;
         const dictionary& dict_;
-        //- Name of the continuous phase
-        const word continuousPhaseName_;
 
         //- Continuous phase fraction
         const volScalarField& alphac_;
@@ -89,13 +91,6 @@ protected:
 
         //- Dispersed diffusion velocity
         mutable volVectorField Udm_;
-        
-        
-        const scalar y0_;
-        const scalar y1_;
-	const scalar y2_;
-	const scalar y3_;
-	volScalarField yNormal_;
 	
 	const scalar hF_;
 	
@@ -109,6 +104,8 @@ protected:
 	const volScalarField& Mem_;
 	
 	const volScalarField& eps_;
+	
+	const volVectorField& U_;
 	
 	const word modelName_;
 	
