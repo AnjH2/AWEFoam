@@ -1,0 +1,91 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      UNe;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 2 -3 0 0 -1 0];
+
+internalField   uniform -1.35;
+
+
+
+boundaryField
+{
+    PNe
+    {
+        type                pidUNePlane;
+        value               uniform -1.35;
+
+        currentField            Ie;
+        faceZoneName            midPlaneZone;
+        useProjected            true;
+        normal                  (0 1 0);
+
+
+        jGoal                   3000;           // A/m2
+
+
+        controlMode             average;     // average or total
+        Kp                      1e-6;
+        Ki                      0;
+        dUmax                   0.1;
+        Umin                    -10;
+        Umax                    -1.35;
+        initialU                -1.35;
+        updateEveryNTimeSteps   2;
+        initFromPatchAverage    false;
+        verbose                 true;
+
+        useExternalDict         true;
+        externalDictName        pidUNeDict;
+    }
+    PPe
+    {
+	type		zeroGradient;
+    }
+
+    frontAndBack
+    {
+	type		empty;
+    }
+    Inlet1
+    {
+    	type		zeroGradient;
+    }
+    Inlet2
+    {
+    	type		zeroGradient;
+    }
+    Outlet1
+    {
+        type            zeroGradient;
+    }
+    Outlet2
+    {
+        type            zeroGradient;
+    }
+        OWall
+    {
+	type 		zeroGradient;
+        
+    }
+    Walls
+    {
+	type 		zeroGradient;
+    }
+    
+}
+
+
+// ************************************************************************* //
